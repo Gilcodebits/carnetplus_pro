@@ -1,0 +1,77 @@
+<?php
+require_once __DIR__ . '/../config/cors.php';
+require_once __DIR__ . '/../config/auth.php';
+
+$user   = requireRole(['medecin','admin','patient']);
+$method = $_SERVER['REQUEST_METHOD'];
+$db     = getDB();
+$input  = json_decode(file_get_contents('php://input'), true) ?? [];
+$id     = intval($_GET['id'] ?? 0);
+
+if ($method === 'GET') {
+    $patientId = intval($_GET['patient_id'] ?? 0);
+    $stmt = $db->prepare("
+        SELECT pr.*, CONCAT(u.prenom,' ',u.nom) as medecin_nom,
+               CONCAT(p.prenom,' ',p.nom) as patient_nom,
+               p.numero_dossier
+        FROM prescriptions pr
+        JOIN utilisateurs u ON pr.medecin_id = u.id
+        JOIN patients p ON pr.patient_id = p.id
+        WHERE pr.patient_id = ?
+        ORDER BY pr.created_at DESC
+    ");
+    $stmt->execute([$patientId ?: $id]);
+    $prescriptions = $stmt->fetchAll();
+
+    foreach ($prescriptions as &$pr) {
+        $stmt2 = $db->prepare("SELECT * FROM prescription_medicaments WHERE prescription_id=?");
+        $stmt2->execute([$pr['id']]);
+        $pr['medicaments'] = $stmt2->fetchAll();
+    }
+    echo json_encode($prescriptions);
+}
+
+elseif ($method === 'POST') {
+    requireRole(['medecin','admin']);
+
+    if (empty($input['consultation_id']) || empty($input['patient_id']) || empty($input['medicaments'])) {
+        http_response_code(400);
+        die(json_encode(['error' => 'Données incomplètes — consultation, patient et médicaments requis']));
+    }
+
+    $db->beginTransaction();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO prescriptions (consultation_id,patient_id,medecin_id)
+            VALUES (?,?,?)
+        ");
+        $stmt->execute([$input['consultation_id'], $input['patient_id'], $user['id']]);
+        $prId = $db->lastInsertId();
+
+        foreach ($input['medicaments'] as $med) {
+            if (empty($med['nom_medicament'])) continue;
+            $db->prepare("
+                INSERT INTO prescription_medicaments (prescription_id,nom_medicament,posologie,duree,instructions)
+                VALUES (?,?,?,?,?)
+            ")->execute([$prId, $med['nom_medicament'], $med['posologie']??'', $med['duree']??'', $med['instructions']??'']);
+        }
+
+        // Notifier agent de santé (labo / patient)
+        $stmt = $db->prepare("SELECT utilisateur_id FROM patients WHERE id=?");
+        $stmt->execute([$input['patient_id']]);
+        $patUser = $stmt->fetchColumn();
+        if ($patUser) {
+            $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+               ->execute([$patUser, 'Nouvelle prescription', 'Le médecin vous a prescrit un traitement', 'success']);
+        }
+
+        $db->commit();
+        echo json_encode(['id' => $prId, 'message' => 'Prescription enregistrée']);
+    } catch (Exception $e) {
+        $db->rollBack();
+        http_response_code(500);
+        echo json_encode(['error' => 'Erreur système — prescription annulée']);
+    }
+}
+
+else { http_response_code(405); echo json_encode(['error' => 'Méthode non autorisée']); }
