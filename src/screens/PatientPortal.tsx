@@ -43,12 +43,12 @@ export function PatientPortal() {
 
   const prochainRdv = stats.prochain_rdv ? [stats.prochain_rdv] : [];
   const documentsRecents = [
-    ...(stats.prescriptions || []).map((p: any) => ({ type: "Ordonnance", date: p.created_at, medecin: p.medecin_nom, icon: "💊" })),
-    ...(stats.examens || []).map((e: any) => ({ type: e.type_examen, date: e.date_demande, medecin: e.medecin_nom, icon: "🔬" }))
+    ...(stats.prescriptions || []).map((p: any) => ({ id: p.id, type: "Ordonnance", date: p.created_at, medecin: p.medecin_nom, icon: "💊" })),
+    ...(stats.examens || []).map((e: any) => ({ id: e.id, type: e.type_examen, date: e.date_demande, medecin: e.medecin_nom, icon: "🔬" }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-slate-200">
       <Sidebar role="patient" activePath="/patient"/>
       <div className="flex-1 overflow-auto">
         {/* Hero greeting */}
@@ -79,58 +79,79 @@ export function PatientPortal() {
           </div>
 
           <div className="grid grid-cols-2 gap-6 mb-6">
-            <Card animated delay={200}>
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-500"/> Prochains rendez-vous
+            <Card animated delay={200} className="border-slate-200 shadow-2xl shadow-slate-200/50">
+              <h2 className="text-2xl font-black mb-8 flex items-center gap-3 text-slate-900 uppercase tracking-tight">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                   <Calendar className="w-6 h-6 text-blue-600"/>
+                </div>
+                Prochains RDV
               </h2>
-              <div className="space-y-3">
-                {prochainRdv.map((rdv: any) => (
-                  <div key={rdv.id} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:shadow-md transition-all">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="font-bold text-gray-900">{rdv.medecin_nom}</p>
-                        <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                          <Clock className="w-3.5 h-3.5"/> <span>{new Date(rdv.date_rdv).toLocaleDateString()} à {rdv.heure_rdv?.substring(0,5)}</span>
+              <div className="space-y-4">
+                {prochainRdv.map((rdv: any, i: number) => (
+                  <div key={rdv.id} className={`p-6 rounded-[2rem] border-2 transition-all group hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-200/50 ${i % 2 === 0 ? "border-slate-200 bg-white" : "border-blue-50 bg-blue-50/30"}`}>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center shadow-sm">
+                           <Clock className="w-6 h-6 text-indigo-600"/>
                         </div>
-                        <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                          <MapPin className="w-3.5 h-3.5"/> <span>Hôpital Central de Cotonou</span>
+                        <div>
+                          <p className="font-black text-slate-900 text-lg uppercase tracking-tight">{rdv.medecin_nom}</p>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 font-bold uppercase tracking-widest">
+                             <span className="text-blue-600">{new Date(rdv.date_rdv).toLocaleDateString()}</span>
+                             <span className="text-slate-200">•</span>
+                             <span className="text-indigo-600">{rdv.heure_rdv?.substring(0,5)}</span>
+                          </div>
                         </div>
                       </div>
-                      <span className={`px-2 py-1 text-xs font-bold rounded-full capitalize ${rdv.statut === 'confirme' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                      <span className={`px-4 py-1.5 text-[10px] font-black rounded-xl border shadow-sm uppercase tracking-widest ${rdv.statut === 'confirme' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
                         {rdv.statut}
                       </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                      <MapPin className="w-4 h-4 text-rose-500"/>
+                      <span>Hôpital Central de Cotonou</span>
                     </div>
                   </div>
                 ))}
                 {prochainRdv.length === 0 && (
-                  <p className="text-center py-4 text-gray-400 text-sm italic border-2 border-dashed border-gray-100 rounded-xl">Aucun rendez-vous à venir</p>
+                  <div className="text-center py-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem]">
+                     <Calendar className="w-12 h-12 text-slate-200 mx-auto mb-4"/>
+                     <p className="text-slate-400 text-sm font-black uppercase tracking-widest italic">Aucun rendez-vous planifié</p>
+                  </div>
                 )}
                 <button
                   onClick={()=>navigate("/patient/recherche-rdv")}
-                  className="w-full py-2.5 border-2 border-dashed border-blue-200 rounded-xl text-blue-600 text-sm font-medium hover:border-blue-400 hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-5 border-2 border-dashed border-blue-200 rounded-[2rem] text-blue-600 text-[10px] font-black uppercase tracking-widest hover:border-blue-400 hover:bg-blue-50 transition-all flex items-center justify-center gap-3 mt-4"
                 >
-                  <span className="text-lg">+</span> Prendre un nouveau rendez-vous
+                  <Plus className="w-5 h-5"/> Prendre un nouveau rendez-vous
                 </button>
               </div>
             </Card>
 
-            <Card animated delay={300}>
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-orange-500"/> Documents récents
+            <Card animated delay={300} className="border-slate-200 shadow-2xl shadow-slate-200/50">
+              <h2 className="text-2xl font-black mb-8 flex items-center gap-3 text-slate-900 uppercase tracking-tight">
+                <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center border border-orange-100">
+                   <FileText className="w-6 h-6 text-orange-600"/>
+                </div>
+                Documents récents
               </h2>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {documentsRecents.map((doc, i) => (
-                  <div key={i} className="p-3.5 bg-gray-50 rounded-xl hover:bg-blue-50 cursor-pointer transition-all group flex items-center justify-between card-hover">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{doc.icon}</span>
+                  <div key={i} 
+                    onClick={() => doc.type === "Ordonnance" && navigate(`/prescription-view/${doc.id}`)}
+                    className={`p-5 rounded-[2rem] border-2 transition-all group flex items-center justify-between hover:scale-[1.02] hover:shadow-xl hover:shadow-slate-200/50 cursor-pointer ${i % 2 === 0 ? "border-slate-100 bg-slate-50/50" : "border-slate-200 bg-white"}`}>
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-3xl shadow-sm group-hover:scale-110 transition-transform">
+                        {doc.icon}
+                      </div>
                       <div>
-                        <p className="font-medium text-sm">{doc.type}</p>
-                        <p className="text-xs text-gray-500">{doc.medecin}</p>
+                        <p className="font-black text-slate-900 text-base uppercase tracking-tight group-hover:text-blue-600 transition-colors">{doc.type}</p>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">{doc.medecin}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-gray-400">{new Date(doc.date).toLocaleDateString()}</span>
-                      <div className="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-all">Voir →</div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{new Date(doc.date).toLocaleDateString()}</p>
+                      <div className="text-[9px] font-black text-blue-600 opacity-0 group-hover:opacity-100 transition-all uppercase tracking-widest flex items-center gap-1 justify-end">Consulter <span className="text-sm">→</span></div>
                     </div>
                   </div>
                 ))}

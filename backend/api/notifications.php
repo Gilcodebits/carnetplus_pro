@@ -1,28 +1,51 @@
 <?php
-require_once __DIR__ . '/../config/cors.php';
-require_once __DIR__ . '/../config/auth.php';
+require_once '../config/database.php';
+require_once '../config/cors.php';
 
-$user   = requireAuth();
+header('Content-Type: application/json');
+
 $method = $_SERVER['REQUEST_METHOD'];
-$db     = getDB();
-$id     = intval($_GET['id'] ?? 0);
+$userId = $_GET['user_id'] ?? null;
 
-if ($method === 'GET') {
-    $stmt = $db->prepare("
-        SELECT * FROM notifications
-        WHERE utilisateur_id = ?
-        ORDER BY created_at DESC LIMIT 30
-    ");
-    $stmt->execute([$user['id']]);
-    $notifs = $stmt->fetchAll();
-    $unread = array_sum(array_map(fn($n) => !$n['lu'] ? 1 : 0, $notifs));
-    echo json_encode(['notifications' => $notifs, 'unread' => $unread]);
+if (!$userId) {
+    echo json_encode(['error' => 'User ID required']);
+    exit;
 }
 
-elseif ($method === 'PUT') {
-    // Marquer tout comme lu
-    $db->prepare("UPDATE notifications SET lu=1 WHERE utilisateur_id=?")->execute([$user['id']]);
-    echo json_encode(['message' => 'Notifications marquées comme lues']);
-}
+try {
+    if ($method === 'GET') {
+        // Fetch notifications
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE utilisateur_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$userId]);
+        $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($notifications);
+    } 
+    elseif ($method === 'POST') {
+        // Mark as read or mark all as read
+        $data = json_decode(file_get_contents('php://input'), true);
+        $action = $data['action'] ?? null;
+        $notifId = $data['id'] ?? null;
 
-else { http_response_code(405); echo json_encode(['error' => 'Méthode non autorisée']); }
+        if ($action === 'mark_read' && $notifId) {
+            $stmt = $pdo->prepare("UPDATE notifications SET lu = 1 WHERE id = ? AND utilisateur_id = ?");
+            $stmt->execute([$notifId, $userId]);
+            echo json_encode(['success' => true]);
+        } elseif ($action === 'mark_all_read') {
+            $stmt = $pdo->prepare("UPDATE notifications SET lu = 1 WHERE utilisateur_id = ?");
+            $stmt->execute([$userId]);
+            echo json_encode(['success' => true]);
+        } elseif ($action === 'delete' && $notifId) {
+            $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ? AND utilisateur_id = ?");
+            $stmt->execute([$notifId, $userId]);
+            echo json_encode(['success' => true]);
+        } elseif ($action === 'delete_all') {
+            $stmt = $pdo->prepare("DELETE FROM notifications WHERE utilisateur_id = ?");
+            $stmt->execute([$userId]);
+            echo json_encode(['success' => true]);
+        }
+    }
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
+}
+?>

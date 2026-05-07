@@ -44,12 +44,17 @@ if ($method === 'GET') {
 }
 
 elseif ($method === 'POST') {
-    requireRole(['secretaire','admin','patient']);
+    requireRole(['secretaire','admin','patient','medecin']);
+
+    // Si le rôle est médecin, on utilise son ID s'il n'est pas spécifié
+    if ($user['role'] === 'medecin' && empty($input['medecin_id'])) {
+        $input['medecin_id'] = $user['id'];
+    }
 
     if (empty($input['patient_id']) || empty($input['medecin_id']) ||
         empty($input['date_rdv'])   || empty($input['heure_rdv'])) {
         http_response_code(400);
-        die(json_encode(['error' => 'Champs obligatoires manquants']));
+        die(json_encode(['error' => 'Champs obligatoires manquants (patient, médecin, date ou heure)']));
     }
 
     // Vérifier disponibilité médecin

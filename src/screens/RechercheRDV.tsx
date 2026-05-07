@@ -31,80 +31,113 @@ export function RechercheRDV() {
   };
 
   if (loading) return (
-    <div className="flex h-screen bg-gray-50 items-center justify-center">
-      <div className="text-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"/>
-        <p className="text-gray-500 font-medium">Recherche des médecins…</p>
+    <div className="flex h-screen bg-slate-200 items-center justify-center">
+      <div className="text-center p-12 bg-white rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50">
+        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"/>
+        <p className="text-slate-900 font-black uppercase tracking-widest text-[10px]">Recherche des médecins certifiés…</p>
       </div>
     </div>
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-slate-200">
       <Sidebar role="patient" activePath="/patient" />
-      <div className="flex-1 overflow-auto p-8 animate-fadeIn">
-        <button onClick={() => navigate("/patient")} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 group transition-all">
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-all" /> Retour à l'accueil
+      <div className="flex-1 overflow-auto p-10 animate-fadeIn">
+        <button onClick={() => navigate("/patient")} className="flex items-center gap-3 text-slate-500 hover:text-slate-900 mb-8 transition-all font-black text-[10px] uppercase tracking-widest bg-white px-5 py-2.5 rounded-xl border-2 border-slate-100 shadow-sm group">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour au tableau de bord
         </button>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Prendre un rendez-vous</h1>
+        <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight mb-10">Trouver un Praticien</h1>
 
-        <Card className="mb-6">
-          <h2 className="text-xl font-bold mb-6">Rechercher un médecin</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Spécialité" value={specialite} onChange={setSpecialite} placeholder="Ex: Médecin généraliste, Cardiologue..." icon={<Search className="w-5 h-5" />} />
-            <Input label="Localisation" value={localisation} onChange={setLocalisation} placeholder="Ville ou code postal" icon={<MapPin className="w-5 h-5" />} />
+        <Card className="mb-8 border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10">
+          <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8 flex items-center gap-3">
+            <div className="w-2 h-6 bg-blue-600 rounded-full" /> Paramètres de recherche
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Spécialité Médicale</label>
+              <div className="relative">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input 
+                  type="text" 
+                  value={specialite} 
+                  onChange={e => setSpecialite(e.target.value)} 
+                  placeholder="Ex: Cardiologue, Pédiatre..." 
+                  className="w-full pl-14 pr-6 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none font-bold text-slate-900 text-sm shadow-inner"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Localisation / Ville</label>
+              <div className="relative">
+                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input 
+                  type="text" 
+                  value={localisation} 
+                  onChange={e => setLocalisation(e.target.value)} 
+                  placeholder="Ex: Cotonou, Porto-Novo..." 
+                  className="w-full pl-14 pr-6 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none font-bold text-slate-900 text-sm shadow-inner"
+                />
+              </div>
+            </div>
           </div>
-          <Button variant="primary" className="mt-4">Rechercher</Button>
+          <button className="mt-8 px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-200 hover:shadow-blue-300 hover:scale-[1.01] transition-all border-2 border-blue-500">
+            Lancer la recherche multicritères
+          </button>
         </Card>
 
-        <Card>
-          <h2 className="text-xl font-bold mb-6">Médecins disponibles</h2>
-          <div className="space-y-4">
+        <Card className="border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10 bg-white">
+          <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8">Médecins disponibles ({medecins.length})</h2>
+          <div className="space-y-6">
             {medecins.map((medecin) => (
               <div
                 key={medecin.id}
-                className="p-6 bg-white border border-gray-100 rounded-2xl hover:border-blue-300 hover:shadow-xl transition-all cursor-pointer group animate-fadeInUp"
+                onClick={() => navigate("/patient/calendrier-rdv")}
+                className="p-8 bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] hover:bg-white hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-200/30 transition-all cursor-pointer group animate-fadeInUp shadow-sm"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200">
+                <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                  <div className="flex-1 w-full">
+                    <div className="flex items-center gap-6 mb-6">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-200 border-2 border-white/20 group-hover:scale-110 transition-transform">
                         {medecin.prenom[0]}{medecin.nom[0]}
                       </div>
                       <div>
-                        <h3 className="text-xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">Dr. {medecin.prenom} {medecin.nom}</h3>
-                        <p className="text-blue-600 font-bold text-sm uppercase tracking-wider">{medecin.role === 'medecin' ? 'Médecine Générale' : medecin.role}</p>
+                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Dr. {medecin.prenom} {medecin.nom}</h3>
+                        <p className="text-blue-600 font-black text-[10px] uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
+                           <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+                           {medecin.role === 'medecin' ? 'Médecine Générale' : medecin.role}
+                        </p>
                       </div>
                     </div>
-                    <div className="space-y-2 ml-18">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span>{medecin.etablissement_nom || "Hôpital Central"}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-0 md:ml-24">
+                      <div className="flex items-center gap-3 px-4 py-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                        <MapPin className="w-5 h-5 text-slate-400" />
+                        <span className="text-xs font-black text-slate-600 uppercase tracking-tight">{medecin.etablissement_nom || "Hôpital Central de Cotonou"}</span>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-yellow-50 rounded-lg">
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-bold text-yellow-700 text-sm">4.9</span>
+                          <span className="font-black text-yellow-700 text-xs">4.9</span>
                         </div>
-                        <span className="text-xs text-gray-400 font-medium">120+ avis</span>
-                        <div className="flex items-center gap-1.5 text-green-600">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"/>
-                          <span className="text-xs font-bold uppercase tracking-tighter">Disponible aujourd'hui</span>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl shadow-sm">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>
+                          <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Libre aujourd'hui</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <Button onClick={() => navigate("/patient/calendrier-rdv")} variant="primary" className="shadow-lg shadow-blue-100">
+                  <button className="w-full md:w-auto px-10 py-5 bg-white border-2 border-blue-600 text-blue-600 rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-xl shadow-blue-100 group-hover:scale-105 active:scale-95">
                     Prendre RDV
-                  </Button>
+                  </button>
                 </div>
               </div>
             ))}
             {medecins.length === 0 && (
-              <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-                <Search className="w-12 h-12 text-gray-300 mx-auto mb-4"/>
-                <p className="text-gray-500 font-medium">Aucun médecin ne correspond à votre recherche</p>
+              <div className="text-center py-24 bg-slate-50 rounded-[3rem] border-4 border-dashed border-slate-200 shadow-inner">
+                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-slate-100">
+                   <Search className="w-10 h-10 text-slate-200"/>
+                </div>
+                <p className="text-slate-400 font-black uppercase tracking-widest text-xs">Aucun praticien ne correspond à ces critères</p>
               </div>
             )}
           </div>

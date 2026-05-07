@@ -54,32 +54,35 @@ export function GestionnaireDashboard() {
   };
 
   if (loading) return (
-    <div className="flex h-screen bg-gray-50 items-center justify-center">
-      <div className="text-center">
-        <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"/>
-        <p className="text-gray-500 font-medium">Chargement des transferts…</p>
+    <div className="flex h-screen bg-slate-200 items-center justify-center">
+      <div className="text-center p-14 bg-white rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50">
+        <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"/>
+        <p className="text-slate-900 font-black uppercase tracking-widest text-[10px]">Chargement des transferts…</p>
       </div>
     </div>
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-slate-200">
       <Sidebar role="gestionnaire" activePath="/gestionnaire"/>
       <div className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between sticky top-0 z-10 animate-slideDown shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-700 rounded-xl flex items-center justify-center shadow-lg shadow-orange-200">
-              <ArrowLeftRight className="w-6 h-6 text-white"/>
+        <div className="bg-white border-b-2 border-slate-200 px-10 py-8 flex items-center justify-between sticky top-0 z-20 animate-slideDown shadow-2xl shadow-slate-200/50">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-700 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-orange-200 border-2 border-white">
+              <ArrowLeftRight className="w-8 h-8 text-white"/>
             </div>
             <div>
-              <h1 className="text-2xl font-black text-gray-900">Gestionnaire de Transferts</h1>
-              <p className="text-gray-400 text-sm">Lionel Kpossou — Hôpital Central de Cotonou</p>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Gestionnaire de Transferts</h1>
+              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 mt-1">
+                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"/>
+                Lionel Kpossou <span className="text-slate-200 mx-1">•</span> Hôpital Central de Cotonou
+              </p>
             </div>
           </div>
           <button onClick={()=>setShowModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold text-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-200 transition-all">
-            <Plus className="w-4 h-4"/> Nouveau Transfert
+            className="flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-200 transition-all shadow-xl shadow-orange-500/20 active:scale-95 border-2 border-orange-400">
+            <Plus className="w-6 h-6"/> Nouveau Transfert
           </button>
         </div>
 
@@ -123,75 +126,80 @@ export function GestionnaireDashboard() {
           </Card>
 
           {/* Tabs + Liste */}
-          <Card animated delay={300}>
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex gap-2">
+          <Card animated delay={300} className="border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10 bg-white rounded-[3rem]">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex gap-4">
                 {[{key:"tous",label:"Tous"},{key:"envois",label:"Envois"},{key:"receptions",label:"Réceptions"}].map(({key,label})=>(
                   <button key={key} onClick={()=>setActiveTab(key as any)}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${activeTab===key ? "bg-orange-500 text-white shadow-md" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                    className={`px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all border-2 shadow-sm ${activeTab===key ? "bg-orange-500 border-orange-400 text-white shadow-xl shadow-orange-200 scale-105" : "bg-white border-slate-200 text-slate-500 hover:border-orange-300 hover:text-orange-600"}`}>
                     {label}
                   </button>
                 ))}
               </div>
-              <span className="text-sm text-gray-400">{filtered.length} dossier{filtered.length>1?"s":""}</span>
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl">{filtered.length} dossier{filtered.length>1?"s":""}</span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {filtered.map((t,i) => {
                 const sc = statutConfig[t.statut];
                 const Icon = sc.icon;
                 return (
-                  <div key={t.id} className={`p-5 rounded-2xl border-2 hover:shadow-md transition-all cursor-pointer animate-fadeInUp delay-${(i+2)*100} ${t.priorite==="urgente" ? "border-red-200 bg-red-50" : "border-gray-100 bg-white hover:border-orange-200"}`}>
+                  <div key={t.id} className={`p-8 rounded-[2rem] border-2 transition-all cursor-pointer animate-fadeInUp group hover:scale-[1.01] hover:shadow-2xl hover:shadow-orange-200/50 ${t.priorite==="urgente" ? "border-rose-400 bg-rose-50/50" : (i % 2 === 0 ? "border-slate-200 bg-white" : "border-blue-100 bg-blue-50/30")}`}>
                     <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${t.type==="envoi" ? "bg-blue-100" : "bg-green-100"}`}>
-                          {t.type==="envoi" ? <Send className="w-5 h-5 text-blue-600"/> : <Inbox className="w-5 h-5 text-green-600"/>}
+                      <div className="flex items-start gap-6">
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 border shadow-sm ${t.type==="envoi" ? "bg-blue-100 border-blue-200" : "bg-emerald-100 border-emerald-200"}`}>
+                          {t.type==="envoi" ? <Send className="w-7 h-7 text-blue-600"/> : <Inbox className="w-7 h-7 text-emerald-600"/>}
                         </div>
                         <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-gray-900">{t.patient_nom}</h3>
-                            <span className="text-xs text-gray-400 font-mono bg-gray-100 px-2 py-0.5 rounded">{t.numero_dossier}</span>
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-black text-slate-900 text-xl uppercase tracking-tight group-hover:text-orange-600 transition-colors">{t.patient_nom}</h3>
+                            <span className="text-[10px] font-black text-slate-500 font-mono bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg uppercase tracking-widest">{t.numero_dossier}</span>
                             {t.priorite==="urgente" && (
-                              <span className="flex items-center gap-1 text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
-                                <AlertTriangle className="w-3 h-3"/> URGENT
+                              <span className="flex items-center gap-1.5 text-[10px] font-black text-rose-700 bg-rose-100 border border-rose-200 px-3 py-1 rounded-full animate-pulse uppercase tracking-widest">
+                                <AlertTriangle className="w-3.5 h-3.5"/> URGENT
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
-                            <Building2 className="w-3.5 h-3.5"/>
-                            <span className="font-medium">{t.etab_source}</span>
-                            <span>→</span>
-                            <span className="font-medium">{t.etab_dest}</span>
+                          <div className="flex items-center gap-3 text-xs text-slate-500 mb-3 font-bold uppercase tracking-wide">
+                            <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-sm">
+                               <Building2 className="w-3.5 h-3.5 text-blue-500"/>
+                               <span>{t.etab_source}</span>
+                            </div>
+                            <ArrowLeftRight className="w-4 h-4 text-slate-300"/>
+                            <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-sm">
+                               <Building2 className="w-3.5 h-3.5 text-emerald-500"/>
+                               <span>{t.etab_dest}</span>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-600">{t.motif}</p>
-                          <p className="text-xs text-gray-400 mt-1">{new Date(t.date_demande).toLocaleString()}</p>
+                          <p className="text-sm text-slate-600 font-medium leading-relaxed italic mb-2">"{t.motif}"</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{new Date(t.date_demande).toLocaleString()}</p>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${sc.color}`}>
-                          <Icon className="w-3.5 h-3.5"/> {sc.label}
+                      <div className="flex flex-col items-end gap-3">
+                        <span className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-sm ${sc.color}`}>
+                          <Icon className="w-4 h-4"/> {sc.label}
                         </span>
-                        <div className="flex gap-2 mt-1">
+                        <div className="flex gap-2 mt-2">
                           {t.statut==="en_attente" && (
                             <>
-                              <button onClick={()=>handleAction(t.id,"accepte")}
-                                className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-all">
+                              <button onClick={(e)=>{e.stopPropagation(); handleAction(t.id,"accepte")}}
+                                className="px-6 py-3 bg-emerald-600 text-white border-2 border-emerald-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:shadow-xl hover:shadow-emerald-200 transition-all shadow-md active:scale-95">
                                 Accepter
                               </button>
-                              <button onClick={()=>handleAction(t.id,"refuse")}
-                                className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-bold hover:bg-red-200 transition-all">
+                              <button onClick={(e)=>{e.stopPropagation(); handleAction(t.id,"refuse")}}
+                                className="px-6 py-3 bg-rose-50 text-rose-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 border-2 border-rose-200 transition-all shadow-sm active:scale-95">
                                 Refuser
                               </button>
                             </>
                           )}
                           {t.statut==="accepte" && (
-                            <button onClick={()=>handleAction(t.id,"transfere")}
-                              className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-all flex items-center gap-1">
-                              <Send className="w-3 h-3"/> Transférer
+                            <button onClick={(e)=>{e.stopPropagation(); handleAction(t.id,"transfere")}}
+                              className="px-6 py-3 bg-blue-600 text-white border-2 border-blue-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:shadow-xl hover:shadow-blue-200 transition-all flex items-center gap-2 shadow-md active:scale-95">
+                              <Send className="w-4 h-4"/> Transférer
                             </button>
                           )}
-                          <button className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-200 transition-all flex items-center gap-1">
-                            Détails <ChevronRight className="w-3 h-3"/>
+                          <button className="px-6 py-3 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 border-2 border-slate-200 transition-all shadow-sm flex items-center gap-2 active:scale-95">
+                            Détails <ChevronRight className="w-4 h-4"/>
                           </button>
                         </div>
                       </div>
@@ -250,65 +258,69 @@ function NouveauTransfertModal({onClose, onSave}: {onClose:()=>void, onSave:()=>
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg animate-scaleIn">
-        <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-black text-gray-900">Nouvelle demande de transfert</h2>
-          <p className="text-gray-400 text-sm mt-1">Remplissez les informations du dossier à transférer</p>
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl animate-scaleIn border-2 border-slate-200 overflow-hidden">
+        <div className="p-10 border-b-2 border-slate-100">
+          <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Demande de transfert</h2>
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">Remplissez les informations du dossier</p>
         </div>
-        <div className="p-6 space-y-4">
+        <div className="p-10 space-y-8">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Sélectionner le patient <span className="text-red-500">*</span></label>
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-3">Sélectionner le patient <span className="text-rose-500 text-base">*</span></label>
             <select value={form.patient_id} onChange={e=>setForm({...form,patient_id:e.target.value})}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm bg-gray-50">
+              className="w-full px-6 py-5 border-2 border-slate-200 rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:bg-white text-sm font-bold bg-slate-50 transition-all appearance-none cursor-pointer shadow-inner">
               <option value="">Choisir un patient…</option>
               {patients.map(p=><option key={p.id} value={p.id}>{p.prenom} {p.nom} ({p.numero_dossier})</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Type de transfert</label>
-            <div className="grid grid-cols-2 gap-3">
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-3">Type de transfert</label>
+            <div className="grid grid-cols-2 gap-4">
               {["envoi","reception"].map(t=>(
                 <button key={t} onClick={()=>setForm({...form,type:t})}
-                  className={`p-3 rounded-xl border-2 flex items-center gap-2 transition-all ${form.type===t ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:border-orange-300"}`}>
-                  {t==="envoi" ? <Send className="w-4 h-4 text-orange-600"/> : <Inbox className="w-4 h-4 text-green-600"/>}
-                  <span className="text-sm font-semibold capitalize">{t==="envoi"?"Envoi":"Réception"}</span>
+                  className={`p-6 rounded-[2rem] border-2 flex items-center gap-4 transition-all ${form.type===t ? "border-orange-500 bg-orange-50/60 shadow-lg shadow-orange-100" : "border-slate-200 bg-slate-50 hover:border-orange-300"}`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 ${form.type===t ? 'bg-white border-orange-200 shadow-sm' : 'bg-white border-slate-100'}`}>
+                    {t==="envoi" ? <Send className="w-6 h-6 text-orange-600"/> : <Inbox className="w-6 h-6 text-emerald-600"/>}
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-widest">{t==="envoi"?"Envoi":"Réception"}</span>
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Établissement destinataire <span className="text-red-500">*</span></label>
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-3">Établissement destinataire <span className="text-rose-500 text-base">*</span></label>
             <select value={form.etab_dest_id} onChange={e=>setForm({...form,etab_dest_id:e.target.value})}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm bg-gray-50">
+              className="w-full px-6 py-5 border-2 border-slate-200 rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:bg-white text-sm font-bold bg-slate-50 transition-all appearance-none cursor-pointer shadow-inner">
               <option value="">Sélectionner l'établissement…</option>
               {etabs.map(e=><option key={e.id} value={e.id}>{e.nom} — {e.ville}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Motif du transfert <span className="text-red-500">*</span></label>
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-3">Motif du transfert <span className="text-rose-500 text-base">*</span></label>
             <textarea value={form.motif} onChange={e=>setForm({...form,motif:e.target.value})}
-              rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm resize-none" placeholder="Raison médicale du transfert…"/>
+              rows={3} className="w-full px-6 py-5 border-2 border-slate-200 rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 focus:bg-white text-sm font-bold bg-slate-50 transition-all resize-none placeholder-slate-300 shadow-inner" placeholder="Raison médicale du transfert…"/>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Priorité</label>
-            <div className="grid grid-cols-2 gap-3">
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-3">Priorité</label>
+            <div className="grid grid-cols-2 gap-4">
               {["normale","urgente"].map(p=>(
                 <button key={p} onClick={()=>setForm({...form,priorite:p})}
-                  className={`p-3 rounded-xl border-2 flex items-center gap-2 transition-all ${form.priorite===p ? (p==="urgente"?"border-red-500 bg-red-50":"border-orange-500 bg-orange-50") : "border-gray-200 hover:border-gray-300"}`}>
-                  {p==="urgente" && <AlertTriangle className="w-4 h-4 text-red-500"/>}
-                  <span className={`text-sm font-semibold capitalize ${p==="urgente"&&form.priorite===p?"text-red-600":""}`}>{p==="urgente"?"Urgente":"Normale"}</span>
+                  className={`p-6 rounded-[2rem] border-2 flex items-center gap-4 transition-all ${form.priorite===p ? (p==="urgente"?"border-rose-500 bg-rose-50/60 shadow-lg shadow-rose-100":"border-orange-500 bg-orange-50/60 shadow-lg shadow-orange-100") : "border-slate-200 bg-slate-50 hover:border-slate-300"}`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 ${form.priorite===p ? (p==="urgente"?'bg-white border-rose-200':'bg-white border-orange-200') : 'bg-white border-slate-100'}`}>
+                    {p==="urgente" ? <AlertTriangle className="w-6 h-6 text-rose-500"/> : <CheckCircle className="w-6 h-6 text-orange-500"/>}
+                  </div>
+                  <span className={`text-xs font-black uppercase tracking-widest ${p==="urgente"&&form.priorite===p?"text-rose-700":"text-slate-700"}`}>{p==="urgente"?"Urgente":"Normale"}</span>
                 </button>
               ))}
             </div>
           </div>
         </div>
-        <div className="p-6 border-t border-gray-100 flex gap-3">
+        <div className="p-10 border-t-2 border-slate-100 flex gap-6">
           <button onClick={handleCreate} disabled={loading || !form.patient_id || !form.etab_dest_id}
-            className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold text-sm hover:from-orange-600 hover:to-orange-700 transition-all disabled:opacity-50">
-            {loading ? "Création…" : "Créer la demande"}
+            className="flex-1 py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:shadow-2xl hover:shadow-orange-200 transition-all disabled:opacity-50 shadow-xl shadow-orange-500/20 border-2 border-orange-400 active:scale-[0.99]">
+            {loading ? "Création en cours…" : "Créer la demande de transfert"}
           </button>
-          <button onClick={onClose} className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-200 transition-all">
+          <button onClick={onClose} className="px-10 py-5 bg-white text-slate-400 border-2 border-slate-200 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm active:scale-95">
             Annuler
           </button>
         </div>

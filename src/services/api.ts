@@ -74,9 +74,12 @@ export const transfertsAPI = {
   update: (id: number, data: any) => request<any>(`/transferts.php?id=${id}`, { method:'PUT', body: JSON.stringify(data) }),
 };
 
-export const notificationsAPI = {
-  list:    () => request<any>('/notifications.php'),
-  markAll: () => request<any>('/notifications.php', { method:'PUT' }),
+export const notificationAPI = {
+  getAll:    (user_id: number) => request<any[]>(`/notifications.php?user_id=${user_id}`),
+  markRead:  (id: number, user_id: number) => request<any>(`/notifications.php?user_id=${user_id}`, { method:'POST', body: JSON.stringify({action:'mark_read', id}) }),
+  markAllRead: (user_id: number) => request<any>(`/notifications.php?user_id=${user_id}`, { method:'POST', body: JSON.stringify({action:'mark_all_read'}) }),
+  delete:    (id: number, user_id: number) => request<any>(`/notifications.php?user_id=${user_id}`, { method:'POST', body: JSON.stringify({action:'delete', id}) }),
+  deleteAll: (user_id: number) => request<any>(`/notifications.php?user_id=${user_id}`, { method:'POST', body: JSON.stringify({action:'delete_all'}) }),
 };
 
 export const messagesAPI = {
@@ -94,4 +97,7 @@ export const etablissementsAPI = {
 
 export const utilisateursAPI = {
   list: (role='') => request<any[]>(`/utilisateurs.php${role ? `?role=${role}` : ''}`),
+  create: (data: any) => request<any>('/utilisateurs.php', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: any) => request<any>('/utilisateurs.php', { method: 'PUT', body: JSON.stringify({ id, ...data }) }),
+  delete: (id: number) => request<any>('/utilisateurs.php', { method: 'DELETE', body: JSON.stringify({ id }) }),
 };

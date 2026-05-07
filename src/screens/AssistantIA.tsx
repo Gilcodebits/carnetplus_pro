@@ -53,84 +53,85 @@ export function AssistantIA() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-slate-200">
       <Sidebar role="patient" activePath="/patient/assistant-ia" />
-      <div className="flex-1 overflow-auto p-8">
-        <button onClick={() => navigate("/patient")} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors">
-          <ArrowLeft className="w-5 h-5" /> Retour à l'accueil
+      <div className="flex-1 overflow-auto p-10">
+        <button onClick={() => navigate("/patient")} className="flex items-center gap-3 text-slate-500 hover:text-slate-900 mb-8 transition-all font-black text-[10px] uppercase tracking-widest bg-white px-5 py-2.5 rounded-xl border-2 border-slate-100 shadow-sm group">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour à l'accueil
         </button>
 
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center">
+          <div className="flex items-center gap-6 mb-10">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[2rem] flex items-center justify-center shadow-xl shadow-purple-200 border-2 border-white/20">
               <Bot className="w-10 h-10 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Assistant Vocal IA</h1>
-              <p className="text-gray-600">Décrivez vos symptômes ou posez vos questions</p>
+              <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Assistant Vocal IA</h1>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Diagnostic intelligent et prise de rendez-vous assistée</p>
             </div>
           </div>
 
-          <Card className="mb-6" style={{ height: "500px", display: "flex", flexDirection: "column" }}>
-            <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+          <Card className="mb-8 border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10 bg-white" style={{ height: "600px", display: "flex", flexDirection: "column" }}>
+            <div className="flex-1 overflow-y-auto space-y-8 mb-6 pr-4 scroll-smooth">
               {conversation.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-fadeInUp`}>
                   {msg.role === "assistant" && (
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0 mt-1">
-                      <Bot className="w-4 h-4 text-purple-600" />
+                    <div className="w-12 h-12 bg-purple-50 border-2 border-purple-100 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0 mt-1 shadow-sm">
+                      <Bot className="w-6 h-6 text-purple-600" />
                     </div>
                   )}
-                  <div className={`max-w-[70%] p-4 rounded-2xl ${msg.role === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900"}`}>
-                    {msg.text}
+                  <div className={`max-w-[75%] p-6 rounded-[2rem] border-2 shadow-xl ${msg.role === "user" ? "bg-blue-600 border-blue-500 text-white rounded-tr-none shadow-blue-200/40" : "bg-slate-50 border-slate-100 text-slate-900 rounded-tl-none shadow-slate-200/30"}`}>
+                    <p className="text-sm font-bold leading-relaxed">{msg.text}</p>
                   </div>
                 </div>
               ))}
               <div ref={bottomRef} />
             </div>
 
-            <div className="border-t pt-4">
-              <div className="flex gap-3">
+            <div className="pt-8 border-t-2 border-slate-100">
+              <div className="flex gap-4 p-3 bg-slate-50 border-2 border-slate-200 rounded-[2.5rem] items-center pr-4 focus-within:border-purple-500 transition-all shadow-inner">
                 <button
                   onClick={toggleListening}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${isListening ? "bg-red-600 text-white animate-pulse" : "bg-purple-100 text-purple-600 hover:bg-purple-200"}`}
+                  className={`w-14 h-14 rounded-[1.5rem] flex items-center justify-center transition-all flex-shrink-0 shadow-lg ${isListening ? "bg-rose-600 text-white animate-pulse border-2 border-rose-400" : "bg-white text-purple-600 border-2 border-slate-100 hover:border-purple-200"}`}
                 >
-                  {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+                  {isListening ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
                 </button>
                 <input
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder="Tapez votre message ou utilisez le micro..."
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Échangez avec l'IA ou utilisez le micro..."
+                  className="flex-1 bg-transparent px-6 py-4 text-sm font-bold text-slate-900 focus:outline-none placeholder-slate-300"
                 />
                 <button
                   onClick={handleSend}
-                  className="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center hover:bg-purple-700 transition-colors flex-shrink-0"
+                  className="w-14 h-14 bg-purple-600 text-white rounded-[1.5rem] flex items-center justify-center hover:bg-purple-700 shadow-xl shadow-purple-200 transition-all active:scale-95 border-2 border-purple-500"
                 >
-                  <Send className="w-5 h-5" />
+                  <Send className="w-6 h-6" />
                 </button>
               </div>
             </div>
           </Card>
 
-          <Card>
-            <h3 className="font-bold mb-4">Suggestions rapides</h3>
-            <div className="grid grid-cols-2 gap-3">
+          <Card className="border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10">
+            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8">Suggestions d'assistance</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {suggestions.map((suggestion, i) => (
                 <button
                   key={i}
                   onClick={() => setMessage(suggestion)}
-                  className="p-3 bg-gray-50 rounded-lg text-left hover:bg-purple-50 hover:border-purple-200 border border-transparent transition-all text-sm"
+                  className="p-5 bg-slate-50 rounded-[1.5rem] text-left hover:bg-white hover:border-purple-300 border-2 border-slate-100 transition-all text-xs font-bold text-slate-600 uppercase tracking-widest shadow-sm group"
                 >
+                  <span className="text-purple-600 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">✦</span>
                   {suggestion}
                 </button>
               ))}
             </div>
-            <div className="mt-6 pt-6 border-t">
-              <Button onClick={() => navigate("/patient/recherche-rdv")} variant="primary" fullWidth>
-                Prendre rendez-vous avec un médecin
-              </Button>
+            <div className="mt-10 pt-8 border-t-2 border-slate-100">
+              <button onClick={() => navigate("/patient/recherche-rdv")} className="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-purple-200 hover:shadow-purple-300 hover:scale-[1.01] transition-all border-2 border-purple-500">
+                PRENDRE RENDEZ-VOUS AVEC UN MÉDECIN
+              </button>
             </div>
           </Card>
         </div>

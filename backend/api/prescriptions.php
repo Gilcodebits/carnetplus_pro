@@ -34,10 +34,12 @@ if ($method === 'GET') {
 elseif ($method === 'POST') {
     requireRole(['medecin','admin']);
 
-    if (empty($input['consultation_id']) || empty($input['patient_id']) || empty($input['medicaments'])) {
+    if (empty($input['patient_id']) || empty($input['medicaments'])) {
         http_response_code(400);
-        die(json_encode(['error' => 'Données incomplètes — consultation, patient et médicaments requis']));
+        die(json_encode(['error' => 'Données incomplètes — patient et médicaments requis']));
     }
+
+    $consultationId = !empty($input['consultation_id']) ? intval($input['consultation_id']) : null;
 
     $db->beginTransaction();
     try {
@@ -45,7 +47,7 @@ elseif ($method === 'POST') {
             INSERT INTO prescriptions (consultation_id,patient_id,medecin_id)
             VALUES (?,?,?)
         ");
-        $stmt->execute([$input['consultation_id'], $input['patient_id'], $user['id']]);
+        $stmt->execute([$consultationId, $input['patient_id'], $user['id']]);
         $prId = $db->lastInsertId();
 
         foreach ($input['medicaments'] as $med) {
