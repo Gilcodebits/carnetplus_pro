@@ -60,6 +60,17 @@ elseif ($user['role'] === 'labo') {
     $stats['en_cours']    = (int)$db->query("SELECT COUNT(*) FROM examens WHERE statut='en_cours'")->fetchColumn();
     $stats['termines']    = (int)$db->query("SELECT COUNT(*) FROM examens WHERE statut='termine' AND DATE(date_resultat)=CURDATE()")->fetchColumn();
     $stats['urgents']     = (int)$db->query("SELECT COUNT(*) FROM examens WHERE urgence=1 AND statut IN('demande','en_cours')")->fetchColumn();
+    $stats['patients_total'] = (int)$db->query("SELECT COUNT(DISTINCT patient_id) FROM examens")->fetchColumn();
+    
+    // Activité des 7 derniers jours
+    $stmt = $db->query("
+        SELECT DATE_FORMAT(date_demande, '%d/%m') as jour, COUNT(*) as total 
+        FROM examens 
+        WHERE date_demande >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE(date_demande)
+        ORDER BY date_demande ASC
+    ");
+    $stats['activite_semaine'] = $stmt->fetchAll() ?: [];
 }
 elseif ($user['role'] === 'gestionnaire') {
     $uid = $user['id'];
@@ -110,6 +121,14 @@ elseif ($user['role'] === 'patient') {
 
         $stats['documents_count'] = count($stats['prescriptions']) + count($stats['examens']);
         $stats['score_sante'] = 85; // Mock score for now
+    } else {
+        // Si pas de profil patient encore, on renvoie quand même le nom de l'utilisateur
+        $stats['patient'] = [
+            'prenom' => $user['prenom'],
+            'nom'    => $user['nom']
+        ];
+        $stats['score_sante'] = 0;
+        $stats['documents_count'] = 0;
     }
 }
 

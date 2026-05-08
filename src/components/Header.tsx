@@ -36,7 +36,35 @@ export function Header() {
 
   return (
     <header className="h-20 bg-blue-600 border-b border-blue-500/30 px-8 flex items-center justify-between sticky top-0 z-50 shadow-lg shadow-blue-600/10">
-      <div className="flex-1" />
+      {user?.role === 'patient' ? (
+        /* Greeting for patient — no search bar */
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <p className="text-blue-200 text-[11px] font-black uppercase tracking-[0.25em]">
+              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </p>
+            <p className="text-white text-2xl font-black tracking-tight leading-none">
+              Bonjour, <span className="text-blue-200">{user?.prenom}</span> 👋
+            </p>
+          </div>
+        </div>
+      ) : (
+        /* Search bar for clinical staff */
+        <div className="flex-1 max-w-2xl">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-blue-200 group-focus-within:text-white transition-colors" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher un patient, un dossier, une analyse..."
+              className="block w-full pl-14 pr-6 py-4 bg-white/10 border-2 border-white/20 rounded-[1.5rem] text-white placeholder-blue-100 focus:outline-none focus:bg-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/5 transition-all text-sm font-bold backdrop-blur-md"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-8">
         {/* Notifications */}

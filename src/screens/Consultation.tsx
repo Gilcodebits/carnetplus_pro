@@ -107,14 +107,7 @@ export function Consultation() {
   );
 
   return (
-    <div className="p-10 animate-fadeIn h-full flex flex-col bg-slate-200">
-      {/* Back Button */}
-      <div className="flex items-center gap-4 text-slate-400 hover:text-blue-600 transition-all mb-10 cursor-pointer group w-fit" onClick={()=>navigate(`/medecin/dossier/${id}`)}>
-        <div className="p-3 bg-white rounded-2xl border-2 border-slate-100 shadow-sm group-hover:bg-blue-50 group-hover:border-blue-100 transition-all">
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-all"/>
-        </div>
-        <span className="text-[10px] font-black uppercase tracking-widest">Retour au Dossier Patient</span>
-      </div>
+    <div className="pt-6 px-10 pb-10 animate-fadeIn h-full flex flex-col bg-slate-200">
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10 flex-shrink-0">
         <div className="flex items-center gap-6">

@@ -62,13 +62,6 @@ export function MedecinPatients() {
           <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Gestion des Patients</h1>
           <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 opacity-80">Consultez et gérez les dossiers médicaux de votre cabinet.</p>
         </div>
-        <button 
-            onClick={() => navigate("/medecin/nouveau-patient")}
-            className="flex items-center gap-4 bg-blue-600 text-white px-10 py-5 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:shadow-2xl hover:shadow-blue-300 transition-all shadow-xl shadow-blue-500/20 border-2 border-blue-500 active:scale-95"
-        >
-            <Plus className="w-6 h-6" />
-            <span>Nouveau dossier patient</span>
-        </button>
       </div>
 
       <Card noPadding className="rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden bg-white flex-1 flex flex-col">

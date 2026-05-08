@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "../components/Sidebar";
+
 import { Card } from "../components/Card";
-import { Button } from "../components/Button";
-import { ArrowLeft, Mic, MicOff, Send, Bot } from "lucide-react";
+import { 
+  ArrowLeft, Mic, MicOff, Send, Bot, 
+  Sparkles, History, MessageSquare, 
+  Zap, Info, ChevronRight, User
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function AssistantIA() {
   const navigate = useNavigate();
@@ -53,89 +57,140 @@ export function AssistantIA() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-200">
-      <Sidebar role="patient" activePath="/patient/assistant-ia" />
-      <div className="flex-1 overflow-auto p-10">
-        <button onClick={() => navigate("/patient")} className="flex items-center gap-3 text-slate-500 hover:text-slate-900 mb-8 transition-all font-black text-[10px] uppercase tracking-widest bg-white px-5 py-2.5 rounded-xl border-2 border-slate-100 shadow-sm group">
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour à l'accueil
-        </button>
-
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-6 mb-10">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[2rem] flex items-center justify-center shadow-xl shadow-purple-200 border-2 border-white/20">
-              <Bot className="w-10 h-10 text-white" />
+    <div className="overflow-auto flex flex-col relative pt-6 px-10 pb-10">
+        
+        {/* Compact Header for Patient Side */}
+        <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-indigo-200 border-2 border-white/20">
+              <Bot className="w-8 h-8 text-white animate-pulse"/>
             </div>
             <div>
-              <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Assistant Vocal IA</h1>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Diagnostic intelligent et prise de rendez-vous assistée</p>
+              <div className="flex items-center gap-3">
+                 <span className="w-6 h-1.5 bg-indigo-500 rounded-full" />
+                 <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Assistant Santé IA</h1>
+              </div>
+              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 opacity-80">Intelligence Artificielle de Diagnostic & Orientation</p>
             </div>
           </div>
+          <div className="flex items-center gap-4">
+             <div className="px-5 py-2.5 bg-indigo-50 border-2 border-indigo-100 rounded-2xl flex items-center gap-3 shadow-sm">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+                <span className="text-[9px] font-black text-indigo-700 uppercase tracking-widest">Connecté au Cloud IA</span>
+             </div>
+          </div>
+        </div>
 
-          <Card className="mb-8 border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10 bg-white" style={{ height: "600px", display: "flex", flexDirection: "column" }}>
-            <div className="flex-1 overflow-y-auto space-y-8 mb-6 pr-4 scroll-smooth">
-              {conversation.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-fadeInUp`}>
-                  {msg.role === "assistant" && (
-                    <div className="w-12 h-12 bg-purple-50 border-2 border-purple-100 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0 mt-1 shadow-sm">
-                      <Bot className="w-6 h-6 text-purple-600" />
-                    </div>
-                  )}
-                  <div className={`max-w-[75%] p-6 rounded-[2rem] border-2 shadow-xl ${msg.role === "user" ? "bg-blue-600 border-blue-500 text-white rounded-tr-none shadow-blue-200/40" : "bg-slate-50 border-slate-100 text-slate-900 rounded-tl-none shadow-slate-200/30"}`}>
-                    <p className="text-sm font-bold leading-relaxed">{msg.text}</p>
-                  </div>
-                </div>
-              ))}
-              <div ref={bottomRef} />
-            </div>
-
-            <div className="pt-8 border-t-2 border-slate-100">
-              <div className="flex gap-4 p-3 bg-slate-50 border-2 border-slate-200 rounded-[2.5rem] items-center pr-4 focus-within:border-purple-500 transition-all shadow-inner">
-                <button
-                  onClick={toggleListening}
-                  className={`w-14 h-14 rounded-[1.5rem] flex items-center justify-center transition-all flex-shrink-0 shadow-lg ${isListening ? "bg-rose-600 text-white animate-pulse border-2 border-rose-400" : "bg-white text-purple-600 border-2 border-slate-100 hover:border-purple-200"}`}
-                >
-                  {isListening ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
-                </button>
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder="Échangez avec l'IA ou utilisez le micro..."
-                  className="flex-1 bg-transparent px-6 py-4 text-sm font-bold text-slate-900 focus:outline-none placeholder-slate-300"
-                />
-                <button
-                  onClick={handleSend}
-                  className="w-14 h-14 bg-purple-600 text-white rounded-[1.5rem] flex items-center justify-center hover:bg-purple-700 shadow-xl shadow-purple-200 transition-all active:scale-95 border-2 border-purple-500"
-                >
-                  <Send className="w-6 h-6" />
-                </button>
+        <div className="max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 min-h-0">
+          
+          {/* Chat Section */}
+          <div className="lg:col-span-8 flex flex-col min-h-0">
+            <Card noPadding className="flex-1 border-2 border-slate-200 shadow-2xl shadow-slate-200/50 rounded-[3rem] bg-white flex flex-col overflow-hidden relative group">
+              {/* Background Glow */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full -mr-32 -mt-32 transition-all group-hover:scale-110 opacity-40 pointer-events-none" />
+              
+              <div className="flex-1 overflow-y-auto p-10 space-y-10 scrollbar-hide relative z-10">
+                <AnimatePresence initial={false}>
+                  {conversation.map((msg, i) => (
+                    <motion.div 
+                      key={i}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      {msg.role === "assistant" && (
+                        <div className="w-12 h-12 bg-indigo-50 border-2 border-indigo-100 rounded-2xl flex items-center justify-center mr-6 flex-shrink-0 mt-1 shadow-sm">
+                          <Bot className="w-6 h-6 text-indigo-600" />
+                        </div>
+                      )}
+                      <div className={`max-w-[80%] p-8 rounded-[2.5rem] border-2 shadow-xl ${
+                        msg.role === "user" 
+                          ? "bg-gradient-to-br from-blue-600 to-indigo-700 border-blue-500 text-white rounded-tr-none shadow-blue-200/40" 
+                          : "bg-slate-50/80 backdrop-blur-sm border-slate-100 text-slate-900 rounded-tl-none shadow-slate-200/30 font-medium leading-relaxed italic"
+                      }`}>
+                        <p className="text-sm font-bold tracking-tight leading-relaxed">{msg.text}</p>
+                      </div>
+                      {msg.role === "user" && (
+                        <div className="w-12 h-12 bg-white border-2 border-blue-100 rounded-2xl flex items-center justify-center ml-6 flex-shrink-0 mt-1 shadow-sm">
+                          <User className="w-6 h-6 text-blue-600" />
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                <div ref={bottomRef} />
               </div>
-            </div>
-          </Card>
 
-          <Card className="border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10">
-            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8">Suggestions d'assistance</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {suggestions.map((suggestion, i) => (
-                <button
-                  key={i}
-                  onClick={() => setMessage(suggestion)}
-                  className="p-5 bg-slate-50 rounded-[1.5rem] text-left hover:bg-white hover:border-purple-300 border-2 border-slate-100 transition-all text-xs font-bold text-slate-600 uppercase tracking-widest shadow-sm group"
-                >
-                  <span className="text-purple-600 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">✦</span>
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-            <div className="mt-10 pt-8 border-t-2 border-slate-100">
-              <button onClick={() => navigate("/patient/recherche-rdv")} className="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-purple-200 hover:shadow-purple-300 hover:scale-[1.01] transition-all border-2 border-purple-500">
-                PRENDRE RENDEZ-VOUS AVEC UN MÉDECIN
-              </button>
-            </div>
-          </Card>
+              {/* Input Area */}
+              <div className="p-8 bg-slate-50 border-t-2 border-slate-100 relative z-10">
+                <div className="flex gap-4 p-4 bg-white border-2 border-slate-200 rounded-[2.5rem] items-center pr-4 focus-within:border-indigo-500 transition-all shadow-inner focus-within:shadow-xl focus-within:shadow-indigo-100">
+                  <button
+                    onClick={toggleListening}
+                    className={`w-14 h-14 rounded-[1.5rem] flex items-center justify-center transition-all flex-shrink-0 shadow-lg ${
+                      isListening 
+                        ? "bg-rose-600 text-white animate-pulse border-2 border-rose-400" 
+                        : "bg-slate-50 text-indigo-600 border-2 border-slate-100 hover:border-indigo-200 hover:bg-white"
+                    }`}
+                  >
+                    {isListening ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
+                  </button>
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                    placeholder="Décrivez vos symptômes ou posez une question..."
+                    className="flex-1 bg-transparent px-6 py-4 text-base font-black text-slate-900 focus:outline-none placeholder-slate-300"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={!message.trim()}
+                    className="w-14 h-14 bg-indigo-600 text-white rounded-[1.5rem] flex items-center justify-center hover:bg-indigo-700 shadow-xl shadow-indigo-200 transition-all active:scale-95 border-2 border-indigo-500 disabled:opacity-30"
+                  >
+                    <Send className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Sidebar Section */}
+          <div className="lg:col-span-4 space-y-8">
+            <Card className="rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10 bg-white">
+              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8 flex items-center gap-4">
+                 <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100 shadow-sm"><Sparkles className="w-5 h-5 text-indigo-600"/></div>
+                 Suggestions
+              </h3>
+              <div className="space-y-4">
+                {suggestions.map((suggestion, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setMessage(suggestion)}
+                    className="w-full p-6 bg-slate-50 rounded-[1.8rem] text-left hover:bg-white hover:border-indigo-300 border-2 border-slate-50 transition-all text-[11px] font-black text-slate-600 uppercase tracking-widest shadow-sm group relative overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between">
+                       <span className="truncate pr-4">{suggestion}</span>
+                       <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-10 bg-slate-900 text-white relative overflow-hidden group">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+               <div className="relative z-10">
+                 <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-8 border border-white/20"><Zap className="w-6 h-6 text-blue-400"/></div>
+                 <h4 className="text-xl font-black uppercase tracking-tight mb-3">Besoin d'un RDV ?</h4>
+                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest leading-relaxed mb-10">L'IA peut vous orienter vers le bon spécialiste en quelques secondes.</p>
+                 <button onClick={() => navigate("/patient/calendrier-rdv")} className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-900/50 hover:bg-blue-700 transition-all active:scale-95 border-2 border-blue-500">
+                   TROUVER UN MÉDECIN
+                 </button>
+               </div>
+            </Card>
+          </div>
+
         </div>
       </div>
-    </div>
   );
 }

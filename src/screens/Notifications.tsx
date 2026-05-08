@@ -20,7 +20,7 @@ export function Notifications() {
   });
 
   if (loading && notifications.length === 0) return (
-    <div className="p-8 text-center py-20 bg-slate-200 min-h-screen flex items-center justify-center">
+    <div className="p-8 text-center py-20 flex items-center justify-center">
       <div className="bg-white p-12 rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50">
         <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
         <p className="text-slate-900 font-black uppercase tracking-widest text-[10px]">Chargement du centre d'alertes...</p>
@@ -29,7 +29,7 @@ export function Notifications() {
   );
 
   return (
-    <div className="p-10 animate-fadeIn bg-slate-200 min-h-screen">
+    <div className="pt-6 px-10 pb-10 animate-fadeIn">
       <div className="flex justify-between items-center mb-10">
         <div>
           <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Centre de Notifications</h1>

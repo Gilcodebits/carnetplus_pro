@@ -94,66 +94,59 @@ export function MedecinDashboard() {
              </p>
            </div>
         </div>
-        <button 
-          onClick={() => navigate("/medecin/nouveau-patient")}
-          className="flex items-center gap-4 bg-blue-600 text-white px-10 py-5 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-200 transition-all active:scale-95 shadow-xl shadow-blue-500/20 border-2 border-blue-500"
-        >
-          <Plus className="w-6 h-6" />
-          <span>Nouveau Patient</span>
-        </button>
       </div>
 
       {/* Stats Cards - Soft UI Theme */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-blue-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-14 h-14 bg-blue-50 rounded-[1.5rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-blue-100 shadow-sm">
-              <Users className="w-7 h-7 text-blue-600" />
+        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-blue-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-blue-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-blue-100 shadow-sm">
+              <Users className="w-6 h-6 text-blue-600" />
             </div>
-            <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl uppercase tracking-widest border-2 border-blue-100 shadow-sm">Suivis</span>
+            <span className="text-[9px] font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-blue-100 shadow-sm">Suivis</span>
           </div>
           <div>
-            <h3 className="text-5xl font-black text-slate-900 mb-2 tracking-tighter">{stats.mes_patients || 0}</h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mes Patients Actifs</p>
+            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.mes_patients || 0}</h3>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Mes Patients Actifs</p>
           </div>
         </div>
 
-        <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-emerald-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-14 h-14 bg-emerald-50 rounded-[1.5rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-emerald-100 shadow-sm">
-              <Calendar className="w-7 h-7 text-emerald-600" />
+        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-emerald-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-emerald-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-emerald-100 shadow-sm">
+              <Calendar className="w-6 h-6 text-emerald-600" />
             </div>
-            <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl uppercase tracking-widest border-2 border-emerald-100 shadow-sm">Aujourd'hui</span>
+            <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-emerald-100 shadow-sm">Aujourd'hui</span>
           </div>
           <div>
-            <h3 className="text-5xl font-black text-slate-900 mb-2 tracking-tighter">{stats.rdv_today || 0}</h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consultations prévues</p>
+            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.rdv_today || 0}</h3>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Consultations prévues</p>
           </div>
         </div>
 
-        <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-purple-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-14 h-14 bg-purple-50 rounded-[1.5rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-purple-100 shadow-sm">
-              <Activity className="w-7 h-7 text-purple-600" />
+        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-purple-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-purple-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-purple-100 shadow-sm">
+              <Activity className="w-6 h-6 text-purple-600" />
             </div>
-            <span className="text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-1.5 rounded-xl uppercase tracking-widest border-2 border-purple-100 shadow-sm">Hebdo</span>
+            <span className="text-[9px] font-black text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-purple-100 shadow-sm">Hebdo</span>
           </div>
           <div>
-            <h3 className="text-5xl font-black text-slate-900 mb-2 tracking-tighter">{stats.consultations_semaine || 0}</h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Suivi Hebdomadaire</p>
+            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.consultations_semaine || 0}</h3>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Suivi Hebdomadaire</p>
           </div>
         </div>
 
-        <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-orange-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-14 h-14 bg-orange-50 rounded-[1.5rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-orange-100 shadow-sm">
-              <Pill className="w-7 h-7 text-orange-500" />
+        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-orange-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-orange-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-orange-100 shadow-sm">
+              <Pill className="w-6 h-6 text-orange-500" />
             </div>
-            <span className="text-[10px] font-black text-orange-700 bg-orange-50 px-3 py-1.5 rounded-xl uppercase tracking-widest border-2 border-orange-100 shadow-sm">Actives</span>
+            <span className="text-[9px] font-black text-orange-700 bg-orange-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-orange-100 shadow-sm">Actives</span>
           </div>
           <div>
-            <h3 className="text-5xl font-black text-slate-900 mb-2 tracking-tighter">{stats.prescriptions_actives || 0}</h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Traitement en cours</p>
+            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.prescriptions_actives || 0}</h3>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Traitement en cours</p>
           </div>
         </div>
       </div>

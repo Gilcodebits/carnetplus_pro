@@ -134,15 +134,10 @@ export function Prescription() {
   );
 
   return (
-    <div className="p-10 animate-fadeIn bg-slate-200 min-h-screen">
+    <div className="pt-6 px-10 pb-10 animate-fadeIn bg-slate-200 min-h-screen">
       {/* Header */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-4 text-slate-400 hover:text-emerald-600 transition-all cursor-pointer group" onClick={() => navigate(`/medecin/dossier/${id}`)}>
-            <div className="p-3 bg-white rounded-2xl border-2 border-slate-100 shadow-sm group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-all">
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-all" />
-            </div>
-          </div>
           <div>
             <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Prescription Médicale</h1>
             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 bg-white px-3 py-1 rounded-lg border border-slate-100 inline-block">

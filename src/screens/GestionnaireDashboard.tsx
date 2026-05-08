@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
 import { Card, StatCard } from "../components/Card";
 import { Button } from "../components/Button";
@@ -18,8 +18,16 @@ export function GestionnaireDashboard() {
   const [transferts, setTransferts] = useState<any[]>([]);
   const [stats, setStats]           = useState<any>({});
   const [loading, setLoading]       = useState(true);
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab") as "tous" | "envois" | "receptions";
   const [activeTab, setActiveTab]   = useState<"tous"|"envois"|"receptions">("tous");
   const [showModal, setShowModal]   = useState(false);
+
+  useEffect(() => {
+    if (tabFromUrl && ["tous", "envois", "receptions"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   useEffect(() => {
     loadData();

@@ -2,28 +2,51 @@
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/auth.php';
 
-$user   = requireRole(['admin','medecin','secretaire','gestionnaire']);
+// Autoriser le patient à voir son propre dossier
+$user   = requireRole(['admin','medecin','secretaire','gestionnaire','patient']);
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 $input  = json_decode(file_get_contents('php://input'), true) ?? [];
 $id     = intval($_GET['id'] ?? 0);
 
 if ($method === 'GET' && !$id) {
-    // Liste patients avec recherche
-    $search = '%' . ($_GET['q'] ?? '') . '%';
-    $stmt = $db->prepare("
-        SELECT p.*, CONCAT(p.prenom,' ',p.nom) as nom_complet,
-               e.nom as etablissement_nom
-        FROM patients p
-        LEFT JOIN etablissements e ON p.etablissement_id = e.id
-        WHERE p.nom LIKE ? OR p.prenom LIKE ? OR p.numero_dossier LIKE ?
-        ORDER BY p.created_at DESC
-    ");
-    $stmt->execute([$search,$search,$search]);
-    echo json_encode($stmt->fetchAll());
+    if ($user['role'] === 'patient') {
+        // Rediriger vers son propre dossier complet
+        $stmt = $db->prepare("SELECT id FROM patients WHERE utilisateur_id = ?");
+        $stmt->execute([$user['id']]);
+        $p = $stmt->fetch();
+        if (!$p) { http_response_code(404); die(json_encode(['error'=>'Profil patient non trouvé'])); }
+        $id = $p['id'];
+    } else {
+        // Liste patients avec recherche (Medecins/Staff)
+        $search = '%' . ($_GET['q'] ?? '') . '%';
+        $stmt = $db->prepare("
+            SELECT p.*, CONCAT(p.prenom,' ',p.nom) as nom_complet,
+                   e.nom as etablissement_nom
+            FROM patients p
+            LEFT JOIN etablissements e ON p.etablissement_id = e.id
+            WHERE p.nom LIKE ? OR p.prenom LIKE ? OR p.numero_dossier LIKE ?
+            ORDER BY p.created_at DESC
+        ");
+        $stmt->execute([$search,$search,$search]);
+        echo json_encode($stmt->fetchAll());
+        exit;
+    }
 }
 
-elseif ($method === 'GET' && $id) {
+// Si on a un ID ou si c'est un patient (qui a été réassigné un ID ci-dessus)
+if ($method === 'GET' && $id) {
+    // Si c'est un patient, vérifier qu'il accède à SON dossier
+    if ($user['role'] === 'patient') {
+        $stmt = $db->prepare("SELECT id FROM patients WHERE utilisateur_id = ?");
+        $stmt->execute([$user['id']]);
+        $mine = $stmt->fetch();
+        if (!$mine || $mine['id'] != $id) {
+            http_response_code(403);
+            die(json_encode(['error'=>'Accès non autorisé à ce dossier']));
+        }
+    }
+
     // Dossier complet
     $stmt = $db->prepare("
         SELECT p.*, e.nom as etablissement_nom
@@ -94,7 +117,7 @@ elseif ($method === 'POST') {
         $input['adresse'] ?? '',
         $input['groupe_sanguin'] ?? null,
         $input['allergies'] ?? '', $input['antecedents'] ?? '',
-        $user['etablissement_id'],
+        $user['etablissement_id'] ?? 1,
     ]);
     $newId = $db->lastInsertId();
 

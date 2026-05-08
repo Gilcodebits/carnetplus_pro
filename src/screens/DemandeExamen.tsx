@@ -64,14 +64,7 @@ export function DemandeExamen() {
   );
 
   return (
-    <div className="p-8 animate-fadeIn bg-slate-200 min-h-screen">
-      {/* Back Button */}
-      <div className="flex items-center gap-4 text-slate-400 hover:text-purple-600 transition-all mb-10 cursor-pointer group w-fit" onClick={()=>navigate(`/medecin/dossier/${id}`)}>
-        <div className="p-3 bg-white rounded-2xl border-2 border-slate-100 shadow-sm group-hover:bg-purple-50 group-hover:border-purple-100 transition-all">
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-all"/>
-        </div>
-        <span className="text-[10px] font-black uppercase tracking-widest">Retour au Dossier Patient</span>
-      </div>
+    <div className="pt-6 px-10 pb-10 animate-fadeIn bg-slate-200 min-h-screen">
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
         <div className="flex items-center gap-6">
@@ -93,7 +86,7 @@ export function DemandeExamen() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-[1400px]">
         <div className="lg:col-span-3 space-y-8">
           {/* Urgency Alert Card */}
           <div 
@@ -130,14 +123,15 @@ export function DemandeExamen() {
                     <p className="text-[11px] font-black text-purple-700 uppercase tracking-[0.2em]">{cat}</p>
                     <div className="flex-1 h-px bg-slate-100" />
                   </div>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                     {items.map(item=>(
                       <button 
                         key={item} 
                         onClick={()=>setForm(f=>({...f,type_examen:item}))}
-                        className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${form.type_examen===item ? `bg-purple-600 border-purple-500 text-white shadow-xl shadow-purple-200 scale-105` : `bg-slate-50 border-slate-100 text-slate-500 hover:border-purple-200 hover:bg-white hover:text-purple-600`}`}
+                        className={`px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 text-left flex items-center justify-between group/btn ${form.type_examen===item ? `bg-purple-600 border-purple-500 text-white shadow-xl shadow-purple-200 scale-[1.02]` : `bg-white border-slate-100 text-slate-600 hover:border-purple-300 hover:bg-purple-50/50 hover:text-purple-700`}`}
                       >
-                        {item}
+                        <span className="truncate">{item}</span>
+                        {form.type_examen===item && <CheckCircle className="w-4 h-4 text-white/50 flex-shrink-0" />}
                       </button>
                     ))}
                   </div>

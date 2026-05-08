@@ -1,4 +1,4 @@
-import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight } from "lucide-react";
+import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2 } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -32,17 +32,19 @@ const menuItems: Record<Role, {icon:any;label:string;path:string}[]> = {
   ],
   patient: [
     {icon:Home,label:"Accueil",path:"/patient"},
-    {icon:Calendar,label:"Mes RDV",path:"/patient"},
+    {icon:Calendar,label:"Mes RDV",path:"/patient/calendrier-rdv"},
     {icon:Bot,label:"Assistant IA",path:"/patient/assistant-ia"},
     {icon:Activity,label:"Bilan Santé",path:"/patient/bilan-sante"},
     {icon:FileText,label:"Dossier Médical",path:"/patient/dossier"},
+    {icon:MessageSquare,label:"Messagerie",path:"/patient/messagerie"},
+    {icon:Bell,label:"Notifications",path:"/patient/notifications"},
   ],
   gestionnaire: [
     {icon:Home,label:"Dashboard",path:"/gestionnaire"},
-    {icon:Send,label:"Envois",path:"/gestionnaire"},
-    {icon:Inbox,label:"Réceptions",path:"/gestionnaire"},
-    {icon:ArrowLeftRight,label:"Historique",path:"/gestionnaire"},
-    {icon:Users,label:"Établissements",path:"/gestionnaire"},
+    {icon:Send,label:"Envois",path:"/gestionnaire?tab=envois"},
+    {icon:Inbox,label:"Réceptions",path:"/gestionnaire?tab=receptions"},
+    {icon:ArrowLeftRight,label:"Historique",path:"/gestionnaire?tab=tous"},
+    {icon:Building2,label:"Établissements",path:"/gestionnaire/etablissements"},
   ],
 };
 
@@ -51,7 +53,7 @@ const roleGradients: Record<Role,string> = {
   medecin:      "from-blue-500 to-blue-700",
   secretaire:   "from-blue-600 to-blue-800",
   labo:         "from-blue-600 to-blue-800",
-  patient:      "from-emerald-500 to-emerald-700",
+  patient:      "from-blue-600 to-blue-800",
   gestionnaire: "from-orange-500 to-orange-700",
 };
 

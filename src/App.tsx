@@ -6,6 +6,7 @@ import { AdminLayout } from "./components/AdminLayout";
 import { MedecinLayout } from "./components/MedecinLayout";
 import { SecretaireLayout } from "./components/SecretaireLayout";
 import { LaboLayout } from "./components/LaboLayout";
+import { PatientLayout } from "./components/PatientLayout";
 import { AdminDashboard } from "./screens/AdminDashboard";
 import { AdminUsers } from "./screens/AdminUsers";
 import { AdminReports } from "./screens/AdminReports";
@@ -86,7 +87,6 @@ function AppRoutes() {
           <Route index element={<MedecinDashboard />} />
           <Route path="patients" element={<MedecinPatients />} />
           <Route path="agenda" element={<MedecinAgenda />} />
-          <Route path="nouveau-patient" element={<NouveauPatient />} />
           <Route path="dossier/:id" element={<PatientDossier />} />
           <Route path="consultation/:id" element={<Consultation />} />
           <Route path="prescription/:id" element={<Prescription />} />
@@ -110,12 +110,17 @@ function AppRoutes() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="messagerie" element={<Messagerie />} />
         </Route>
-      <Route path="/patient" element={<PatientPortal />} />
-      <Route path="/patient/recherche-rdv" element={<RechercheRDV />} />
-      <Route path="/patient/calendrier-rdv" element={<CalendrierRDV />} />
-      <Route path="/patient/confirmation-rdv" element={<ConfirmationRDV />} />
-      <Route path="/patient/assistant-ia" element={<AssistantIA />} />
-      <Route path="/patient/bilan-sante" element={<BilanSante />} />
+        <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
+          <Route index element={<PatientPortal />} />
+          <Route path="recherche-rdv" element={<RechercheRDV />} />
+          <Route path="calendrier-rdv" element={<CalendrierRDV />} />
+          <Route path="confirmation-rdv" element={<ConfirmationRDV />} />
+          <Route path="dossier" element={<PatientDossier />} />
+          <Route path="assistant-ia" element={<AssistantIA />} />
+          <Route path="bilan-sante" element={<BilanSante />} />
+          <Route path="messagerie" element={<Messagerie />} />
+          <Route path="notifications" element={<Notifications />} />
+        </Route>
       <Route path="/gestionnaire" element={<GestionnaireDashboard />} />
       <Route path="/prescription-view/:id" element={<PrescriptionView />} />
       <Route path="*" element={<Navigate to="/" replace />} />

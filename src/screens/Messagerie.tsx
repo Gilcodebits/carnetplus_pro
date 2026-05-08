@@ -75,7 +75,7 @@ export function Messagerie() {
   );
 
   return (
-    <div className="p-10 animate-fadeIn h-full overflow-hidden flex flex-col bg-slate-200">
+    <div className="p-10 animate-fadeIn flex flex-col flex-1 min-h-0">
       <div className="flex justify-between items-center mb-10">
         <div>
           <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Messagerie & Alertes</h1>

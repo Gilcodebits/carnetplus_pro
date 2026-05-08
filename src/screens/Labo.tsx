@@ -6,7 +6,7 @@ import { Clock, CheckCircle, AlertCircle, Users, Activity, ArrowUpRight, Trendin
 import { motion } from "framer-motion";
 
 export function Labo() {
-  const [stats, setStats]     = useState<any>({ en_cours: 0, termines: 0, urgents: 0, patients_total: 0 });
+  const [stats, setStats]     = useState<any>({ en_cours: 0, termines: 0, urgents: 0, patients_total: 0, activite_semaine: [] });
   const [recentExams, setRecentExams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,8 +29,13 @@ export function Labo() {
     }
   };
 
-  const data = [65, 45, 85, 55, 95, 35, 75];
-  const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  // Préparation des données pour le graphique (si vide, mettre des zéros)
+  const activityData = stats.activite_semaine.length > 0 
+    ? stats.activite_semaine.map((item: any) => ({ day: item.jour, value: Math.min(item.total * 10, 100) }))
+    : [
+        { day: 'L', value: 0 }, { day: 'M', value: 0 }, { day: 'M', value: 0 },
+        { day: 'J', value: 0 }, { day: 'V', value: 0 }, { day: 'S', value: 0 }, { day: 'D', value: 0 }
+      ];
 
   if (loading) return (
     <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-screen">
@@ -73,10 +78,10 @@ export function Labo() {
               <h3 className="text-2xl font-black text-slate-900 uppercase flex items-center gap-3">
                 <TrendingUp className="text-teal-600 w-8 h-8"/> Flux de Travail
               </h3>
-              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Analyse de la charge hebdomadaire</p>
+              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Analyse de la charge hebdomadaire réelle</p>
             </div>
             <div className="px-6 py-3 bg-teal-50 rounded-2xl text-[10px] font-black text-teal-600 uppercase tracking-widest">
-              +12.5% vs Semaine Dernière
+              Données en temps réel
             </div>
           </div>
 
@@ -89,7 +94,6 @@ export function Labo() {
                 </linearGradient>
               </defs>
               
-              {/* Courbe lissée */}
               <motion.path
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
@@ -108,7 +112,6 @@ export function Labo() {
                 strokeLinecap="round"
               />
 
-              {/* Points d'activité */}
               {[100, 200, 400, 600, 700].map((x, i) => (
                 <circle 
                   key={i} 
@@ -124,9 +127,9 @@ export function Labo() {
             </svg>
             
             <div className="flex justify-between mt-12 px-2">
-              {['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].map((day, i) => (
+              {activityData.map((item: any, i: number) => (
                 <div key={i} className="text-center">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{day}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.day}</p>
                 </div>
               ))}
             </div>
@@ -141,7 +144,6 @@ export function Labo() {
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-12">
               <h3 className="text-2xl font-black uppercase tracking-tight">Priorités</h3>
-              <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center animate-ping opacity-20 absolute -top-2 -left-2" />
               <AlertCircle className="text-rose-500 w-8 h-8 relative z-10"/>
             </div>
             <div className="space-y-6">
@@ -166,9 +168,9 @@ export function Labo() {
                 </div>
               )}
             </div>
-            <button className="w-full mt-12 py-5 bg-teal-600 hover:bg-teal-500 text-white rounded-[1.5rem] font-black text-[10px] uppercase shadow-xl shadow-teal-500/20 transition-all">
+            <Link to="/labo/analyses" className="block w-full mt-12 py-5 bg-teal-600 hover:bg-teal-500 text-white text-center rounded-[1.5rem] font-black text-[10px] uppercase shadow-xl shadow-teal-500/20 transition-all">
               Planning Complet
-            </button>
+            </Link>
           </div>
         </motion.div>
       </div>
