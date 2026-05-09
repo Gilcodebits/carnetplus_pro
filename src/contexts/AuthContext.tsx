@@ -10,6 +10,8 @@ interface User {
   etablissement_id: number;
   etablissement_nom: string;
   photo?: string;
+  telephone?: string;
+  groupe_sanguin?: string;
 }
 
 interface AuthContextType {
