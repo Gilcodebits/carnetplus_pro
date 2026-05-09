@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { ToastProvider } from "./contexts/ToastContext";
 import { Login } from "./screens/Login";
 import { AdminLayout } from "./components/AdminLayout";
 import { MedecinLayout } from "./components/MedecinLayout";
@@ -38,8 +39,8 @@ import { GestionnaireEtablissements } from "./screens/GestionnaireEtablissements
 import { GestionnairePersonnel } from "./screens/GestionnairePersonnel";
 import { GestionnaireTransferts } from "./screens/GestionnaireTransferts";
 import { PageTransition } from "./components/PageTransition";
-import { AnimatePresence } from "framer-motion";
 import { PrescriptionView } from "./screens/PrescriptionView";
+import { Profile } from "./screens/Profile";
 
 const ROLE_HOME: Record<string, string> = {
   admin: "/admin", medecin: "/medecin", secretaire: "/secretaire",
@@ -89,6 +90,7 @@ function AppRoutes() {
         <Route path="settings" element={<AdminSettings />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
+        <Route path="profil" element={<Profile />} />
       </Route>
 
       <Route path="/medecin" element={<ProtectedRoute role="medecin"><MedecinLayout /></ProtectedRoute>}>
@@ -101,6 +103,7 @@ function AppRoutes() {
         <Route path="examen/:id" element={<DemandeExamen />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
+        <Route path="profil" element={<Profile />} />
       </Route>
       <Route path="/secretaire" element={<ProtectedRoute role="secretaire"><SecretaireLayout /></ProtectedRoute>}>
         <Route index element={<SecretaireDashboard tab="rdv" />} />
@@ -111,12 +114,14 @@ function AppRoutes() {
         <Route path="nouveau-patient" element={<NouveauPatient />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
+        <Route path="profil" element={<Profile />} />
       </Route>
       <Route path="/labo" element={<ProtectedRoute role="labo"><LaboLayout /></ProtectedRoute>}>
         <Route index element={<Labo />} />
         <Route path="analyses" element={<LaboAnalyses />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
+        <Route path="profil" element={<Profile />} />
       </Route>
       <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
         <Route index element={<PatientPortal />} />
@@ -128,6 +133,7 @@ function AppRoutes() {
         <Route path="bilan-sante" element={<BilanSante />} />
         <Route path="messagerie" element={<Messagerie />} />
         <Route path="notifications" element={<Notifications />} />
+        <Route path="profil" element={<Profile />} />
       </Route>
       <Route path="/gestionnaire" element={<ProtectedRoute role="gestionnaire"><GestionnaireLayout /></ProtectedRoute>}>
         <Route index element={<GestionnaireDashboard />} />
@@ -136,6 +142,7 @@ function AppRoutes() {
         <Route path="personnel" element={<GestionnairePersonnel />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
+        <Route path="profil" element={<Profile />} />
       </Route>
       <Route path="/prescription-view/:id" element={<PrescriptionView />} />
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -147,9 +154,11 @@ export default function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <ToastProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </ToastProvider>
       </NotificationProvider>
     </AuthProvider>
   );

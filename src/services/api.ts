@@ -52,6 +52,7 @@ export const consultationsAPI = {
 
 export const prescriptionsAPI = {
   list:   (patient_id: number) => request<any[]>(`/prescriptions.php?patient_id=${patient_id}`),
+  get:    (id: number) => request<any>(`/prescriptions.php?id=${id}`),
   create: (data: any) => request<any>('/prescriptions.php', { method:'POST', body: JSON.stringify(data) }),
 };
 

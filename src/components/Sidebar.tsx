@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2, ShieldCheck } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { ConfirmModal } from "./ConfirmModal";
 
 type Role = "admin" | "medecin" | "secretaire" | "labo" | "patient" | "gestionnaire";
 
@@ -67,11 +69,12 @@ export function Sidebar({ role, activePath }: SidebarProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const items    = menuItems[role];
   const grad     = roleGradients[role];
 
   return (
-    <div className="w-64 bg-white border-r border-slate-100 h-screen flex flex-col flex-shrink-0 shadow-sm animate-fadeInLeft relative z-20">
+    <div className="w-64 bg-white border-r border-slate-100 h-screen flex flex-col flex-shrink-0 shadow-sm animate-fadeInLeft relative z-20 no-print">
       {/* Header gradient */}
       <div className={`bg-gradient-to-br ${grad} relative overflow-hidden flex-shrink-0 p-6`}>
         <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"/>
@@ -118,14 +121,29 @@ export function Sidebar({ role, activePath }: SidebarProps) {
 
       {/* Footer / Logout */}
       <div className="p-6 border-t border-gray-50 flex-shrink-0">
-        <button onClick={() => { logout(); navigate("/"); }}
-          className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-rose-600 bg-rose-50/50 hover:bg-rose-600 hover:text-white transition-all group shadow-sm shadow-rose-100">
+        <button 
+          onClick={() => setShowLogoutConfirm(true)}
+          className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-rose-600 bg-rose-50/50 hover:bg-rose-600 hover:text-white transition-all group shadow-sm shadow-rose-100"
+        >
           <div className="p-2 bg-white/50 rounded-xl group-hover:bg-white/20 transition-all">
             <LogOut className="w-4 h-4 text-rose-500 group-hover:text-white transition-all"/>
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest">DÉCONNEXION</span>
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          logout();
+          navigate("/");
+        }}
+        title="Fin de session"
+        message="Voulez-vous vraiment vous déconnecter ? Pour des raisons de sécurité, votre accès sera verrouillé jusqu'à votre prochaine connexion."
+        confirmText="Déconnexion sécurisée"
+        type="danger"
+      />
     </div>
   );
 }

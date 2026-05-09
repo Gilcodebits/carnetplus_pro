@@ -22,7 +22,7 @@ export function PatientLayout() {
         </div>
 
         {/* Global Floating AI Bubble */}
-        <div className="fixed bottom-8 right-8 z-[100]">
+        <div className="fixed bottom-8 right-8 z-[100] no-print">
            <motion.button 
              whileHover={{ scale: 1.1 }}
              whileTap={{ scale: 0.9 }}

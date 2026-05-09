@@ -4,6 +4,7 @@ import { Bell, Search, ChevronDown, CheckCircle2, AlertCircle, Info, User, Setti
 import { useAuth } from "../contexts/AuthContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useSearch } from "../contexts/SearchContext";
+import { ConfirmModal } from "./ConfirmModal";
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -12,6 +13,7 @@ export function Header() {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -30,8 +32,7 @@ export function Header() {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    navigate("/");
+    setShowLogoutConfirm(true);
   };
 
   const getGreeting = () => {
@@ -138,48 +139,41 @@ export function Header() {
 
         <div className="w-px h-10 bg-white/20" />
 
-        {/* User Profile Dropdown */}
-        <div className="relative" ref={profileRef}>
-          <button 
-            onClick={() => { setShowProfileMenu(!showProfileMenu); setShowNotifications(false); }}
-            className="flex items-center gap-4 pl-2 group cursor-pointer outline-none"
-          >
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-black text-white leading-none">{user?.prenom} {user?.nom}</p>
-              <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mt-1.5 flex items-center justify-end gap-1.5">
-                <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-                {user?.role === 'admin' ? 'Administrateur' : user?.role}
-              </p>
+        {/* User Profile */}
+        <button 
+          onClick={() => navigate(`/${user?.role}/profil`)}
+          className="flex items-center gap-4 hover:opacity-80 transition-all group"
+        >
+          <div className="hidden md:block text-right">
+            <p className="text-sm font-black text-white leading-none group-hover:text-blue-100 transition-colors uppercase tracking-tight">
+              {user?.prenom} {user?.nom}
+            </p>
+            <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mt-1.5 flex items-center justify-end gap-1.5">
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+              {user?.role === 'admin' ? 'Administrateur' : user?.role}
+            </p>
+          </div>
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-blue-600 font-black text-lg shadow-lg shadow-blue-900/20 group-hover:scale-105 transition-transform ring-4 ring-white/20">
+              {user?.prenom?.charAt(0)}{user?.nom?.charAt(0)}
             </div>
-            <div className="relative">
-              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-blue-600 font-black text-lg shadow-lg shadow-blue-900/20 group-hover:scale-105 transition-transform ring-4 ring-white/20">
-                {user?.prenom?.charAt(0)}{user?.nom?.charAt(0)}
-              </div>
-              <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-blue-600 rounded-full" />
-            </div>
-            <ChevronDown className={`w-5 h-5 text-blue-200 transition-transform duration-300 ${showProfileMenu ? 'rotate-180 text-white' : 'group-hover:text-white'}`} />
-          </button>
-
-          {showProfileMenu && (
-            <div className="absolute right-0 mt-4 w-64 bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-slate-100 overflow-hidden animate-fadeInUp z-[60]">
-              <div className="p-5 bg-slate-50/50 border-b border-slate-50">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Connecté en tant que</p>
-                <p className="font-black text-gray-900 truncate">{user?.prenom} {user?.nom}</p>
-              </div>
-              <div className="p-2">
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-all group">
-                  <User className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />
-                  Mon Profil
-                </button>
-                <button onClick={() => { setShowProfileMenu(false); navigate(`/${user?.role}/settings`); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-all group">
-                  <Settings className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />
-                  Paramètres
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-blue-600 rounded-full" />
+          </div>
+        </button>
       </div>
+
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          logout();
+          navigate("/");
+        }}
+        title="Fin de session"
+        message="Voulez-vous vraiment vous déconnecter ? Pour des raisons de sécurité, votre accès sera verrouillé jusqu'à votre prochaine connexion."
+        confirmText="Déconnexion sécurisée"
+        type="danger"
+      />
     </header>
   );
 }

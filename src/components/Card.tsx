@@ -9,15 +9,17 @@ interface CardProps {
   animated?: boolean;
   delay?: number;
   noPadding?: boolean;
+  id?: string;
 }
 
-export function Card({ children, className = "", onClick, hover = false, style, animated = false, delay = 0, noPadding = false }: CardProps) {
+export function Card({ children, className = "", onClick, hover = false, style, animated = false, delay = 0, noPadding = false, id }: CardProps) {
   const delayClass = delay ? `delay-${delay}` : "";
   return (
     <div
+      id={id}
       onClick={onClick}
       style={style}
-      className={`bg-white rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 ${noPadding ? '' : 'p-8'} ${hover ? "card-hover cursor-pointer" : ""} ${animated ? `animate-fadeInUp ${delayClass}` : ""} ${className}`}
+      className={`${className.includes('bg-') ? '' : 'bg-white'} rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 ${noPadding ? '' : 'p-8'} ${hover ? "card-hover cursor-pointer" : ""} ${animated ? `animate-fadeInUp ${delayClass}` : ""} ${className}`}
     >
       {children}
     </div>

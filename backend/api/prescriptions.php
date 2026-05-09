@@ -14,6 +14,7 @@ if ($method === 'GET') {
 
     $sql = "
         SELECT pr.*, CONCAT(u.prenom,' ',u.nom) as medecin_nom,
+               u.email as medecin_email, u.telephone as medecin_tel,
                CONCAT(p.prenom,' ',p.nom) as patient_nom,
                p.numero_dossier
         FROM prescriptions pr

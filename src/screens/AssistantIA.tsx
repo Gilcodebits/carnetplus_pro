@@ -3,31 +3,67 @@ import { useNavigate } from "react-router-dom";
 
 import { Card } from "../components/Card";
 import { 
-  ArrowLeft, Mic, MicOff, Send, Bot, 
+  ArrowLeft, ArrowRight, Mic, MicOff, Send, Bot, 
   Sparkles, History, MessageSquare, 
   Zap, Info, ChevronRight, User,
   Activity, ShieldCheck, Search, Loader2,
   AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { authAPI, consultationsAPI, examensAPI } from "../services/api";
 
 export function AssistantIA() {
   const navigate = useNavigate();
   const [isListening, setIsListening] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [thinkingStep, setThinkingStep] = useState("");
   const [message, setMessage] = useState("");
+  const [patientData, setPatientData] = useState<{me: any, consultations: any[], examens: any[]}>({
+    me: null,
+    consultations: [],
+    examens: []
+  });
+
   const [conversation, setConversation] = useState([
-    { role: "assistant", text: "Bonjour ! Je suis votre assistant santé IA. Je suis connecté à votre dossier médical en temps réel. Comment puis-je vous aider ?" },
+    { role: "assistant", text: "Connexion sécurisée en cours..." },
   ]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
-    "Analyse de mes derniers résultats d'examens",
-    "J'ai des douleurs abdominales persistantes",
-    "Interprétation de ma tension artérielle",
-    "Conseils nutritionnels basés sur mon profil",
+    "Analyse de mon dernier examen",
+    "J'ai des douleurs abdominales",
+    "Quand était ma dernière consultation ?",
+    "Résumé de mon état de santé",
   ];
+
+  // Fetch real patient data from the platform
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const me = await authAPI.me();
+        // Assuming user.patient_id exists if the user is a patient
+        const patientId = me.patient_id || me.id; 
+        
+        const [consults, exams] = await Promise.all([
+          consultationsAPI.list(patientId),
+          examensAPI.list({ patient_id: patientId })
+        ]);
+
+        setPatientData({ me, consultations: consults, examens: exams });
+        setConversation([{ 
+          role: "assistant", 
+          text: `Bonjour ${me.nom} ! Je suis votre assistant santé Pro-IA connecté à votre dossier. Je vois que vous avez ${consults.length} consultations et ${exams.length} examens enregistrés. Comment puis-je vous aider ?` 
+        }]);
+      } catch (err) {
+        console.error("Erreur de chargement des données:", err);
+        setConversation([{ role: "assistant", text: "Désolé, je n'ai pas pu me connecter à votre dossier médical. Je vais fonctionner en mode limité." }]);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,11 +72,10 @@ export function AssistantIA() {
   const processResponse = (userMsg: string) => {
     setIsThinking(true);
     const steps = [
-      "Analyse sémantique de la requête...",
-      "Consultation de votre historique clinique...",
-      "Comparaison avec la base de données médicale...",
-      "Simulation de diagnostics différentiels...",
-      "Génération de recommandations personnalisées..."
+      "Interrogation de la base de données clinique...",
+      "Analyse de vos antécédents personnels...",
+      "Vérification des protocoles de soin...",
+      "Génération du diagnostic assisté...",
     ];
 
     let currentStep = 0;
@@ -51,19 +86,60 @@ export function AssistantIA() {
         clearInterval(interval);
         finalizeResponse(userMsg);
       }
-    }, 800);
+    }, 600);
   };
 
   const finalizeResponse = (userMsg: string) => {
     const msg = userMsg.toLowerCase();
     let response = "";
 
-    if (msg.includes("mal") || msg.includes("douleur")) {
-      response = "D'après l'analyse de vos symptômes et de vos antécédents, il pourrait s'agir d'une inflammation légère. Cependant, votre dernier bilan montre une sensibilité hépatique. Je vous recommande une téléconsultation immédiate avec le Dr. Rousseau.";
-    } else if (msg.includes("examen") || msg.includes("résultat")) {
-      response = "Vos résultats du 5 Mai indiquent un taux d'hémoglobine stable (14.2 g/dL). Votre cholestérol LDL est en légère baisse, ce qui est excellent. Continuez votre régime actuel.";
+    const greetings = ["salut", "bonjour", "bonsoir", "ça va", "hello"];
+    const roleInquiry = ["tu fais quoi", "qui es-tu", "ton rôle", "tes fonctions", "tu sers à quoi", "tu es qui"];
+    const negativeState = ["rien", "tout va bien", "pas de problème", "aucun symptôme", "ça va mieux", "pas mal"];
+    const symptoms = ["douleur", "souffre", "fièvre", "toux", "fatigue", "vomir", "nausée", "mal", "fatigué"];
+    const advice = ["conseil", "aider", "astuce", "santé", "recommandation", "bien-être"];
+    const exams = ["examen", "résultat", "bilan", "analyse", "prise de sang"];
+    
+    const lastAIResponse = conversation.filter(m => m.role === "assistant").pop()?.text || "";
+    const lastConsult = patientData.consultations[0];
+    const lastExam = patientData.examens[0];
+
+    // Logique de réponse affinée
+    if (negativeState.some(n => msg.includes(n))) {
+      response = "C'est une excellente nouvelle ! Maintenir cet état de forme est primordial. Souhaitez-vous des conseils pour rester en bonne santé ?";
+    } else if (greetings.some(g => msg.includes(g))) {
+      response = `Bonjour ${patientData.me?.nom || "à vous"} ! Je suis prêt à analyser votre dossier médical. Comment vous sentez-vous aujourd'hui ?`;
+    } else if (roleInquiry.some(r => msg.includes(r))) {
+      response = "Je suis votre assistant Pro-IA. Je peux interpréter vos examens, analyser vos symptômes (comme la fatigue ou les douleurs) et vous orienter vers des spécialistes.";
+    } else if (advice.some(a => msg.includes(a))) {
+      response = "Pour une santé optimale, je vous recommande de maintenir une hydratation régulière (1.5L/jour), d'assurer 7h de sommeil et de pratiquer 30min de marche. Voulez-vous un conseil spécifique à votre dernier bilan ?";
+    } else if (msg.includes("examen") || msg.includes("résultat") || msg.includes("dernier")) {
+      if (lastExam) {
+        response = `Votre dernier examen (${lastExam.type_examen}) remonte au ${new Date(lastExam.created_at).toLocaleDateString('fr-FR')}. Le statut est "${lastExam.statut}". Voulez-vous que j'analyse les valeurs ?`;
+      } else {
+        response = "Je ne trouve pas d'examens récents. La prévention passe par des bilans réguliers. Souhaitez-vous que je vous aide à en planifier un ?";
+      }
+    } else if (msg.includes("consultation") || msg.includes("médecin") || msg.includes("rendez-vous")) {
+      if (lastConsult) {
+        response = `Votre dernière visite était le ${new Date(lastConsult.created_at).toLocaleDateString('fr-FR')} avec le Dr. ${lastConsult.medecin_nom || "un confrère"}. Le motif était : ${lastConsult.motif || "non renseigné"}.`;
+      } else {
+        response = "Aucune consultation récente. Je peux vous proposer une liste de médecins disponibles pour un check-up.";
+      }
+    } else if (symptoms.some(s => msg.includes(s))) {
+      const isFatigue = msg.includes("fatigue") || msg.includes("fatigué");
+      const symptomTerm = isFatigue ? "cet état de fatigue" : "ce symptôme";
+      const historyInfo = patientData.consultations.length > 0 ? `vu votre historique de ${patientData.consultations.length} consultations` : "pour plus de sécurité";
+      response = `Je prends note de ${symptomTerm}. Même si cela peut être passager, ${historyInfo}, il serait sage d'en parler à un professionnel. Voulez-vous un créneau ?`;
+    } else if (msg === "oui" || msg === "ok" || msg === "d'accord") {
+      if (lastAIResponse.includes("médecin") || lastAIResponse.includes("rendez-vous") || lastAIResponse.includes("créneau")) {
+        response = "Parfait. Je prépare votre demande d'orientation médicale. Je vais inclure un résumé de notre échange pour le praticien.";
+      } else {
+        response = "C'est entendu. Avez-vous d'autres questions sur votre dossier ou votre santé ?";
+      }
+    } else if (msg === "non" || msg.includes("non merci") || msg.includes("pas besoin")) {
+      response = "C'est noté. Je reste à votre entière disposition. N'hésitez pas à me solliciter si votre état change ou pour toute autre question.";
     } else {
-      response = "Je traite votre demande. Basé sur les protocoles cliniques actuels, je vous suggère de surveiller votre température et de rester hydraté. Souhaitez-vous que je programme une alerte de suivi ?";
+      response = "Je traite votre message avec attention. Pourriez-vous me donner un peu plus de détails, comme l'intensité de ce que vous ressentez ou depuis quand cela dure ?";
     }
 
     setConversation((prev) => [...prev, { role: "assistant", text: response }]);
@@ -83,9 +159,8 @@ export function AssistantIA() {
   const toggleListening = () => {
     setIsListening(!isListening);
     if (!isListening) {
-      // Simulate voice input
       setTimeout(() => {
-        setMessage("Analyse mes résultats d'examens");
+        setMessage("Analyse mon dernier examen");
         setIsListening(false);
       }, 3000);
     }
@@ -113,16 +188,22 @@ export function AssistantIA() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest opacity-80">Moteur Clinique v4.2 • Analyse en Temps Réel</p>
+                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest opacity-80">Connecté au Cloud Clinique • Temps Réel</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
-               <div className="px-5 py-2.5 bg-slate-900 text-white rounded-2xl flex items-center gap-3 shadow-xl border border-white/10">
-                  <Activity className="w-4 h-4 text-blue-400" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">Dossier Synchronisé</span>
-               </div>
+               {isLoadingData ? (
+                 <div className="flex items-center gap-2 text-[9px] font-black text-blue-600 uppercase tracking-widest">
+                   <Loader2 className="w-4 h-4 animate-spin" /> Synchronisation...
+                 </div>
+               ) : (
+                 <div className="px-5 py-2.5 bg-slate-900 text-white rounded-2xl flex items-center gap-3 shadow-xl border border-white/10">
+                    <Activity className="w-4 h-4 text-blue-400" />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Dossier de {patientData.me?.nom} synchronisé</span>
+                 </div>
+               )}
             </div>
           </div>
         </div>
@@ -233,7 +314,7 @@ export function AssistantIA() {
 
                   <button
                     onClick={handleSend}
-                    disabled={!message.trim() || isThinking}
+                    disabled={!message.trim() || isThinking || isLoadingData}
                     className="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-20 shadow-xl shadow-blue-100"
                   >
                     <Send className="w-6 h-6" />
@@ -286,10 +367,6 @@ export function AssistantIA() {
           </div>
 
         </div>
-      </div>
-  );
-}
-
       </div>
   );
 }

@@ -6,7 +6,7 @@ import {
   Calendar, Bot, Activity, FileText, MapPin, Heart,
   ChevronRight, Zap, ArrowUpRight, Sparkles, TrendingUp, Pill, FlaskConical
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 
@@ -14,6 +14,14 @@ export function PatientPortal() {
   const navigate = useNavigate();
   const [stats, setStats]     = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTipIndex((prev) => (prev + 1) % healthTips.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -39,13 +47,20 @@ export function PatientPortal() {
     </div>
   );
 
-  const currentStats = stats || { 
+  // Dynamiser le score de santé depuis le dernier bilan enregistré localement
+  const savedReport = localStorage.getItem("last_bilan_sante");
+  const localHealthScore = savedReport ? JSON.parse(savedReport).score : null;
+
+  const currentStats = stats ? {
+    ...stats,
+    score_sante: localHealthScore || stats.score_sante || 85
+  } : { 
     patient: { prenom: "Ami" }, 
     prochain_rdv: null, 
     prescriptions: [], 
     examens: [], 
     documents_count: 0, 
-    score_sante: 85,
+    score_sante: localHealthScore || 85,
     derniere_analyse: "Janvier 2024"
   };
 
@@ -170,47 +185,67 @@ export function PatientPortal() {
           </div>
         </div>
 
-        {/* Quick Services - Grid of 3 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <motion.button 
-            whileHover={{ y: -8 }}
-            onClick={()=>navigate("/patient/assistant-ia")} 
-            className="relative group p-8 bg-slate-900 rounded-[2.5rem] shadow-xl overflow-hidden text-left"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-[60px] group-hover:scale-150 transition-transform duration-1000" />
-            <Bot className="w-10 h-10 text-blue-500 mb-6 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Assistant IA</h3>
-            <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] leading-relaxed">Diagnostic vocal & Analyse intelligente de vos symptômes.</p>
-            <div className="mt-6 flex items-center gap-2 text-blue-500 text-[9px] font-black uppercase tracking-widest">
-               Démarrer <Sparkles className="w-4 h-4" />
-            </div>
-          </motion.button>
+        {/* Health Tips Section - WOW Animation Carousel */}
+        <div className="pt-4 pb-12">
+           <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                 <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center border-2 border-emerald-100 shadow-sm"><Sparkles className="w-7 h-7"/></div>
+                 Conseils Santé du Jour
+              </h2>
+              <div className="flex gap-2">
+                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">IA en action</span>
+              </div>
+           </div>
 
-          <motion.button 
-            whileHover={{ y: -8 }}
-            onClick={()=>navigate("/patient/bilan-sante")} 
-            className="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-xl text-left hover:border-emerald-500/30 transition-all group"
-          >
-            <Activity className="w-10 h-10 text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Bilan de Santé</h3>
-            <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] leading-relaxed">Suivi détaillé de vos constantes et graphiques d'évolution.</p>
-            <div className="mt-6 flex items-center gap-2 text-emerald-600 text-[9px] font-black uppercase tracking-widest">
-               Consulter <TrendingUp className="w-4 h-4" />
-            </div>
-          </motion.button>
+           <div className="relative h-40">
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={currentTipIndex}
+                  initial={{ opacity: 0, scale: 0.9, y: 30, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 1.1, y: -30, filter: "blur(10px)" }}
+                  transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+                  className="absolute inset-0"
+                >
+                  <div className="h-full flex items-center gap-10 bg-white p-10 rounded-[3rem] border-2 border-slate-50 shadow-2xl shadow-slate-200/50 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/5 to-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                    
+                    <div className={`w-20 h-20 bg-gradient-to-br ${healthTips[currentTipIndex].color} rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-blue-200 shrink-0`}>
+                       {healthTips[currentTipIndex].icon}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <p className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-3">
+                         {healthTips[currentTipIndex].text.split(":")[0]}
+                      </p>
+                      <p className="text-base font-bold text-slate-600 leading-relaxed">
+                         {healthTips[currentTipIndex].text.split(":")[1]}
+                      </p>
+                    </div>
 
-          <motion.button 
-            whileHover={{ y: -8 }}
-            onClick={()=>navigate("/patient/messagerie")} 
-            className="p-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-xl text-left border border-white/10 group"
-          >
-            <Zap className="w-10 h-10 text-white mb-6 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Messagerie</h3>
-            <p className="text-[9px] text-blue-100/60 font-black uppercase tracking-[0.2em] leading-relaxed">Contactez vos médecins directement pour un avis urgent.</p>
-            <div className="mt-6 flex items-center gap-2 text-white text-[9px] font-black uppercase tracking-widest">
-               Ouvrir <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </motion.button>
+                    <div className="hidden md:flex gap-1">
+                      {healthTips.map((_, i) => (
+                        <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === currentTipIndex ? 'w-6 bg-emerald-500' : 'bg-slate-200'}`} />
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+           </div>
         </div>
       </div>
-
     </div>
   );
 }
+
+const healthTips = [
+  { icon: <Zap className="w-8 h-8"/>, text: "Hydratez-vous : Buvez au moins 1.5L d'eau par jour pour une peau éclatante.", color: "from-blue-500 to-indigo-600" },
+  { icon: <TrendingUp className="w-8 h-8"/>, text: "Activité : Une marche de 30 min réduit le risque cardiovasculaire de 20%.", color: "from-emerald-500 to-teal-600" },
+  { icon: <Heart className="w-8 h-8"/>, text: "Sommeil : Évitez les écrans 1h avant de dormir pour un repos réparateur.", color: "from-rose-500 to-orange-600" },
+  { icon: <Activity className="w-8 h-8"/>, text: "Nutrition : Privilégiez les fruits de saison pour faire le plein de vitamines.", color: "from-amber-500 to-orange-600" },
+  { icon: <Heart className="w-8 h-8"/>, text: "Respiration : Pratiquez la cohérence cardiaque 5 min pour réduire votre stress.", color: "from-indigo-500 to-purple-600" },
+  { icon: <Zap className="w-8 h-8"/>, text: "Posture : Gardez le dos droit devant votre écran pour éviter les tensions.", color: "from-slate-500 to-slate-700" },
+  { icon: <Sparkles className="w-8 h-8"/>, text: "Soleil : Exposez-vous 15 min par jour pour synthétiser la Vitamine D.", color: "from-yellow-500 to-orange-500" },
+  { icon: <Heart className="w-8 h-8"/>, text: "Dents : Le brossage du soir est le plus important pour prévenir les caries.", color: "from-blue-400 to-cyan-500" },
+];

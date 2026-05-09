@@ -10,7 +10,7 @@ import {
   AlertTriangle, ChevronRight, User, 
   ChevronLeft, Info, Heart, Download, 
   Printer, Share2, Sparkles, ShieldCheck,
-  TrendingUp, Clock, FlaskConical
+  TrendingUp, Clock, FlaskConical, Droplets
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -110,222 +110,224 @@ export function PatientDossier() {
 
   return (
     <>
-      <div className="flex-1 flex flex-col relative pt-6 px-10 pb-10">
-        
-        {/* Header Compact */}
-          <div className="max-w-7xl mx-auto w-full mb-10 sticky top-0 z-40 bg-slate-50/90 backdrop-blur-xl -mx-10 px-10 py-6 border-b border-slate-200/50">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden group">
-              
-              <div className="flex items-center gap-6 relative z-10">
-                <div className="relative">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-blue-200 border-2 border-white/20">
-                    {getInitiales(patient.prenom, patient.nom)}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-2 border-white rounded-lg flex items-center justify-center shadow-md">
-                     <span className="text-[8px] font-black text-white uppercase">{patient.groupe_sanguin || "—"}</span>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-4 mb-1">
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">{patient.prenom} {patient.nom}</h1>
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">N° {patient.numero_dossier}</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-slate-400 text-[10px] font-black uppercase tracking-widest opacity-80">
-                    <span className="flex items-center gap-1.5"><User className="w-3 h-3 text-blue-500" /> {calculateAge(patient.date_naissance)} ans</span>
-                    <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                    <span>{patient.sexe==="F"?"Femme":"Homme"}</span>
-                    <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                    <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-indigo-500" /> {patient.date_naissance ? new Date(patient.date_naissance).toLocaleDateString("fr-FR", {day:"numeric", month:"short", year:"numeric"}) : "—"}</span>
-                  </div>
-                </div>
-              </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { margin: 1cm; size: A4; }
+          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
+          
+          /* CRITICAL: Allow parents to expand */
+          html, body, #root, [class*="overflow-hidden"], .flex-1, main { 
+            overflow: visible !important; 
+            height: auto !important; 
+            display: block !important;
+          }
 
-              <div className="flex flex-wrap gap-4 relative z-10 print:hidden">
-                {isMedecin ? (
-                  <>
-                    <button onClick={()=>navigate(`/medecin/consultation/${id}`)} className="flex items-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-blue-300 transition-all active:scale-95 border-2 border-blue-500"><Stethoscope className="w-5 h-5"/> <span>Consultation</span></button>
-                    <button onClick={()=>navigate(`/medecin/prescription/${id}`)} className="flex items-center gap-3 px-6 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-emerald-300 transition-all active:scale-95 border-2 border-emerald-500"><Pill className="w-5 h-5"/> <span>Prescrire</span></button>
-                  </>
-                ) : (
-                  <button 
-                    onClick={async () => {
-                      try {
-                        const html2pdf = (await import('html2pdf.js')).default;
-                        const element = document.getElementById('booklet-pdf');
-                        if (element) {
-                          const opt = {
-                            margin:       0,
-                            filename:     `Carnet_Medical_${patient.prenom}_${patient.nom}.pdf`,
-                            image:        { type: 'jpeg', quality: 0.98 },
-                            html2canvas:  { 
-                              scale: 2, 
-                              useCORS: true, 
-                              letterRendering: true,
-                              backgroundColor: '#ffffff'
-                            },
-                            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-                          };
-                          await html2pdf().set(opt).from(element).save();
-                        }
-                      } catch (e) {
-                        console.error("Erreur PDF:", e);
-                        alert("Erreur lors de la génération du PDF.");
-                      }
-                    }}
-                    className="flex items-center gap-3 px-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-slate-300 transition-all active:scale-95 border-2 border-slate-700"
-                  >
-                    <Download className="w-5 h-5 text-blue-400"/> <span>Télécharger Mon Carnet</span>
-                  </button>
-                )}
-              </div>
-            </div>
+          /* Force hide everything except the booklet */
+          body * { visibility: hidden !important; }
+          #booklet-pdf, #booklet-pdf * { visibility: visible !important; }
+          
+          #booklet-pdf { 
+            display: block !important;
+            position: absolute !important; 
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            opacity: 1 !important;
+            background: white !important;
+          }
+
+          /* Force white text on red background */
+          .blood-group-text {
+            color: white !important;
+            -webkit-print-color-adjust: exact !important;
+          }
+
+          /* Restore complex layouts inside the booklet */
+          #booklet-pdf .flex { display: flex !important; }
+          #booklet-pdf .grid { display: grid !important; }
+          #booklet-pdf .divide-x > * + * { border-left-width: 1px !important; }
+
+          .print-title { font-size: 16px !important; font-weight: 900 !important; }
+          .print-text { font-size: 14px !important; }
+        }
+      `}} />
+
+      {/* Professional Booklet Layout - Optimized for Print */}
+      <div id="booklet-pdf" className="fixed top-0 left-0 opacity-0 pointer-events-none -z-[9999] bg-white p-0 font-sans text-slate-900 w-full min-h-screen">
+        {/* Header - COMPACT */}
+        <div className="p-8 border-b-2 border-slate-900 flex justify-between items-center bg-slate-50/30">
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-tighter italic print-title">Carnet<span className="text-blue-600">Plus</span></h1>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">Dossier Médical Numérique Certifié</p>
           </div>
+          <div className="text-right">
+            <h2 className="text-lg font-black uppercase tracking-tight print-title">Carnet de Santé</h2>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Généré le {new Date().toLocaleDateString('fr-FR')}</p>
+          </div>
+        </div>
 
-          {/* Professional Booklet Layout - Always rendered but invisible to user */}
-          <div id="booklet-pdf" className="fixed top-0 left-0 opacity-0 pointer-events-none -z-[9999] bg-white p-12 font-sans text-slate-900 w-[210mm] min-h-[297mm]">
-            {/* Header with logo-like style */}
-            <div className="border-b-4 border-slate-900 pb-6 mb-8 flex justify-between items-end">
+        {/* Patient Identity - ULTRA COMPACT SINGLE ROW */}
+        <div className="grid grid-cols-4 border-b border-slate-100 divide-x divide-slate-100">
+           <div className="px-6 py-4 col-span-2">
+              <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest block mb-1">Patient</span>
+              <p className="text-sm font-black text-slate-900 uppercase print-text">{patient.prenom} {patient.nom}</p>
+           </div>
+           <div className="px-6 py-4">
+              <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest block mb-1">Dossier N°</span>
+              <p className="text-sm font-black text-slate-900 print-text">{patient.numero_dossier}</p>
+           </div>
+            <div className="px-6 py-4 bg-red-50 flex flex-col justify-center items-center" style={{ backgroundColor: '#fef2f2' }}>
+               <span className="text-[7px] font-black text-red-600 uppercase tracking-widest block mb-1 text-center" style={{ color: '#dc2626' }}>Groupe Sanguin</span>
+               <div className="rounded-lg shadow-sm" style={{ backgroundColor: '#dc2626', padding: '4px 12px' }}>
+                  <p className="text-xl font-black leading-none text-center blood-group-text" style={{ margin: 0 }}>{patient.groupe_sanguin || "—"}</p>
+               </div>
+            </div>
+        </div>
+
+        {/* Essential Info Grid */}
+        <div className="grid grid-cols-2 gap-0 border-b border-slate-100 divide-x divide-slate-100">
+           <div className="p-6 bg-slate-50/20">
+              <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-widest mb-3">Constantes & Alertes</h4>
+              <div className="grid grid-cols-2 gap-4">
+                 <div>
+                    <p className="text-[7px] font-black text-slate-400 uppercase mb-0.5">Tension Artérielle</p>
+                    <p className="text-xs font-black text-slate-900 print-text">12/8 mmHg</p>
+                 </div>
+                 <div>
+                    <p className="text-[7px] font-black text-slate-400 uppercase mb-0.5">IMC</p>
+                    <p className="text-xs font-black text-slate-900 print-text">22.4 (Normal)</p>
+                 </div>
+                 <div className="col-span-2 mt-1">
+                    <p className="text-[7px] font-black text-rose-500 uppercase mb-0.5 tracking-widest">Allergies Signalées</p>
+                    <p className="text-[10px] font-black text-slate-800 uppercase print-text">{patient.allergies || 'Aucune allergie connue.'}</p>
+                 </div>
+              </div>
+           </div>
+           <div className="p-6">
+              <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-widest mb-3">Historique Médical</h4>
+              <div className="space-y-3">
+                 {patient.consultations?.slice(0, 3).map((c: any, i: number) => (
+                    <div key={i} className="flex justify-between items-center border-b border-slate-50 pb-2 last:border-0">
+                       <p className="text-[10px] font-black text-slate-900 uppercase print-text truncate max-w-[150px]">{c.motif}</p>
+                       <p className="text-[8px] font-bold text-slate-400 uppercase">{new Date(c.date_consultation).toLocaleDateString()}</p>
+                    </div>
+                 ))}
+                 {patient.consultations?.length === 0 && <p className="text-[9px] italic text-slate-400">Aucune visite.</p>}
+              </div>
+           </div>
+        </div>
+
+        {/* Detailed Lists - Compact Layout */}
+        <div className="p-8">
+           <div className="grid grid-cols-2 gap-10">
+              {/* Prescriptions */}
               <div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">CarnetPlus</h1>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mt-1">Plateforme de Santé Numérique Certifiée</p>
+                 <h4 className="text-[11px] font-black text-blue-600 uppercase tracking-widest mb-4 border-b border-blue-100 pb-2">Traitements en Cours</h4>
+                 <div className="space-y-4">
+                    {patient.prescriptions?.slice(0, 4).map((p: any, i: number) => (
+                       <div key={i} className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                          <p className="text-[8px] font-black text-blue-400 uppercase mb-2">{new Date(p.created_at).toLocaleDateString()}</p>
+                          <div className="space-y-1.5">
+                             {p.medicaments.map((m: string, j: number) => (
+                                <p key={j} className="text-[10px] font-black text-slate-700 uppercase leading-tight print-text">• {m}</p>
+                             ))}
+                          </div>
+                       </div>
+                    ))}
+                    {patient.prescriptions?.length === 0 && <p className="text-[9px] italic text-slate-400">Aucun traitement.</p>}
+                 </div>
               </div>
-              <div className="text-right">
-                <h2 className="text-xl font-black uppercase tracking-tight underline underline-offset-8 decoration-4 decoration-blue-600">Carnet Médical Individuel</h2>
-                <p className="text-[9px] font-bold text-slate-400 mt-3 uppercase tracking-widest">Généré le {new Date().toLocaleDateString('fr-FR')} à {new Date().toLocaleTimeString('fr-FR')}</p>
+
+              {/* Lab Results */}
+              <div>
+                 <h4 className="text-[11px] font-black text-blue-600 uppercase tracking-widest mb-4 border-b border-blue-100 pb-2">Derniers Examens</h4>
+                 <div className="space-y-2">
+                    {patient.examens?.slice(0, 8).map((e: any, i: number) => (
+                       <div key={i} className="flex justify-between items-center bg-white p-2 border-b border-slate-50">
+                          <p className="text-[10px] font-black text-slate-900 uppercase print-text">{e.type_examen}</p>
+                          <span className="text-[8px] font-black text-emerald-600 uppercase bg-emerald-50 px-2 py-0.5 rounded">Vérifié</span>
+                       </div>
+                    ))}
+                    {patient.examens?.length === 0 && <p className="text-[9px] italic text-slate-400">Aucun examen.</p>}
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        {/* Footer - COMPACT with Authenticity */}
+        <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-slate-100 pt-8">
+           <div className="flex items-center gap-6">
+              <div className="w-20 h-20 bg-white p-1 border border-slate-100 rounded-lg">
+                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`} alt="QR" className="w-full h-full" />
+              </div>
+              <div>
+                 <p className="text-[9px] font-black text-slate-900 uppercase mb-1">Authentification Digitale</p>
+                 <p className="text-[7px] font-bold text-slate-400 uppercase max-w-[200px]">Ce carnet est synchronisé en temps réel avec le portail CarnetPlus. Scannez pour vérifier.</p>
+              </div>
+           </div>
+           
+           <div className="relative">
+              <div className="absolute -top-10 -right-4 w-24 h-24 border-4 border-blue-600 rounded-full flex items-center justify-center -rotate-12 opacity-80 print:opacity-100">
+                 <p className="text-[8px] font-black text-blue-600 uppercase tracking-tighter text-center leading-tight">CERTIFIÉ<br/>CARNETPLUS<br/>OFFICIEL</p>
+              </div>
+              <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.4em]">CarnetPlus Health Systems</p>
+           </div>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col relative pt-6 px-10 pb-10 no-print">
+        {/* Header Compact */}
+        <div className="max-w-7xl mx-auto w-full mb-10 sticky top-0 z-40 bg-slate-50/90 backdrop-blur-xl -mx-10 px-10 py-6 border-b border-slate-200/50">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+            <div className="flex items-center gap-6 relative z-10">
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-blue-200 border-2 border-white/20">
+                  {getInitiales(patient.prenom, patient.nom)}
+                </div>
+                <div className="absolute -bottom-2 -right-2 px-3 py-1.5 bg-red-600 border-2 border-white rounded-xl flex items-center justify-center shadow-lg shadow-red-200" style={{ backgroundColor: '#dc2626' }}>
+                   <span className="text-[10px] font-black text-white uppercase tracking-tighter">{patient.groupe_sanguin || "—"}</span>
+                </div>
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-4 mb-1">
+                  <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">{patient.prenom} {patient.nom}</h1>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">N° {patient.numero_dossier}</span>
+                    <span className="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-red-100 shadow-sm flex items-center gap-2">
+                      <Droplets className="w-3 h-3" />
+                      Groupe {patient.groupe_sanguin || "—"}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-slate-400 text-[10px] font-black uppercase tracking-widest opacity-80">
+                  <span className="flex items-center gap-1.5"><User className="w-3 h-3 text-blue-500" /> {calculateAge(patient.date_naissance)} ans</span>
+                  <div className="w-1 h-1 bg-slate-300 rounded-full" />
+                  <span>{patient.sexe==="F"?"Femme":"Homme"}</span>
+                  <div className="w-1 h-1 bg-slate-300 rounded-full" />
+                  <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-indigo-500" /> {patient.date_naissance ? new Date(patient.date_naissance).toLocaleDateString("fr-FR", {day:"numeric", month:"short", year:"numeric"}) : "—"}</span>
+                </div>
               </div>
             </div>
 
-            {/* Top Info Grid */}
-            <div className="grid grid-cols-2 gap-6 mb-8">
-               {/* Patient Identity */}
-               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                  <div className="flex items-center gap-4 mb-4 border-b border-slate-200 pb-3">
-                     <div className="w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center font-black">{getInitiales(patient.prenom, patient.nom)}</div>
-                     <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">Identité du Patient</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-                     <div>
-                        <p className="text-[8px] font-black uppercase text-slate-400 mb-0.5">Nom et Prénoms</p>
-                        <p className="text-sm font-black uppercase text-slate-900">{patient.prenom} {patient.nom}</p>
-                     </div>
-                     <div>
-                        <p className="text-[8px] font-black uppercase text-slate-400 mb-0.5">N° de Dossier</p>
-                        <p className="text-sm font-black text-blue-600">#{patient.numero_dossier}</p>
-                     </div>
-                     <div>
-                        <p className="text-[8px] font-black uppercase text-slate-400 mb-0.5">Date de Naissance</p>
-                        <p className="text-sm font-black text-slate-900">{new Date(patient.date_naissance).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'})}</p>
-                     </div>
-                     <div>
-                        <p className="text-[8px] font-black uppercase text-slate-400 mb-0.5">Sexe / Groupe Sanguin</p>
-                        <p className="text-sm font-black text-slate-900">{patient.sexe === 'F' ? 'Féminin' : 'Masculin'} <span className="ml-2 px-2 py-0.5 bg-rose-50 text-rose-600 rounded border border-rose-100">{patient.groupe_sanguin || '—'}</span></p>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Medical Constants */}
-               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                  <div className="flex items-center gap-4 mb-4 border-b border-slate-200 pb-3">
-                     <div className="w-10 h-10 bg-emerald-600 text-white rounded-lg flex items-center justify-center font-black"><Heart className="w-5 h-5"/></div>
-                     <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">Constantes & Alertes</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                     <div className="bg-white p-3 rounded-xl border border-slate-100">
-                        <p className="text-[8px] font-black uppercase text-slate-400 mb-0.5">Tension Artérielle</p>
-                        <p className="text-sm font-black text-slate-900">12/8 mmHg</p>
-                     </div>
-                     <div className="bg-white p-3 rounded-xl border border-slate-100">
-                        <p className="text-[8px] font-black uppercase text-slate-400 mb-0.5">IMC</p>
-                        <p className="text-sm font-black text-slate-900">22.4 (Normal)</p>
-                     </div>
-                     <div className="col-span-2 bg-rose-50/30 p-3 rounded-xl border border-rose-100">
-                        <p className="text-[8px] font-black uppercase text-rose-400 mb-0.5">Allergies Signalées</p>
-                        <p className="text-[11px] font-black text-rose-700 leading-tight">{patient.allergies || 'Aucune allergie connue à ce jour.'}</p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-
-            {/* Dense Medical History Grid - 3 Columns */}
-            <div className="grid grid-cols-3 gap-6">
-               {/* Consultations Column */}
-               <div>
-                  <h4 className="flex items-center gap-2 bg-slate-900 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest mb-4">
-                     <Stethoscope className="w-3.5 h-3.5"/> Visites
-                  </h4>
-                  <div className="space-y-4">
-                     {patient.consultations?.length === 0 ? <p className="text-[9px] italic text-slate-400">Aucun historique.</p> : 
-                      patient.consultations.slice(0, 6).map((c: any, i: number) => (
-                        <div key={i} className="relative pl-4 pb-2 border-l-2 border-slate-100">
-                           <div className="absolute top-0 -left-[5px] w-2 h-2 bg-blue-500 rounded-full" />
-                           <p className="text-[8px] font-black text-blue-600 uppercase mb-0.5">{new Date(c.date_consultation).toLocaleDateString()}</p>
-                           <p className="text-[10px] font-black text-slate-900 leading-tight uppercase mb-0.5">{c.motif}</p>
-                           <p className="text-[8px] font-bold text-slate-400 italic">Dr. {c.medecin_nom}</p>
-                        </div>
-                      ))
-                     }
-                  </div>
-               </div>
-
-               {/* Prescriptions Column */}
-               <div>
-                  <h4 className="flex items-center gap-2 bg-slate-900 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest mb-4">
-                     <Pill className="w-3.5 h-3.5"/> Traitements
-                  </h4>
-                  <div className="space-y-4">
-                     {patient.prescriptions?.length === 0 ? <p className="text-[9px] italic text-slate-400">Aucun traitement.</p> : 
-                      patient.prescriptions.slice(0, 5).map((p: any, i: number) => (
-                        <div key={i} className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                           <p className="text-[8px] font-black text-emerald-600 uppercase mb-1.5">{new Date(p.created_at).toLocaleDateString()}</p>
-                           <div className="space-y-1">
-                              {p.medicaments.map((m: string, j: number) => (
-                                 <p key={j} className="text-[9px] font-bold text-slate-700 leading-tight flex items-start gap-1.5">
-                                    <span className="w-1 h-1 bg-emerald-400 rounded-full mt-1.5 shrink-0" />
-                                    {m}
-                                 </p>
-                              ))}
-                           </div>
-                        </div>
-                      ))
-                     }
-                  </div>
-               </div>
-
-               {/* Exams Column */}
-               <div>
-                  <h4 className="flex items-center gap-2 bg-slate-900 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest mb-4">
-                     <FlaskConical className="w-3.5 h-3.5"/> Laboratoire
-                  </h4>
-                  <div className="space-y-3">
-                     {patient.examens?.length === 0 ? <p className="text-[9px] italic text-slate-400">Aucun examen.</p> : 
-                      patient.examens.slice(0, 8).map((e: any, i: number) => (
-                        <div key={i} className="flex justify-between items-start border-b border-slate-50 pb-2">
-                           <div>
-                              <p className="text-[9px] font-black text-slate-900 uppercase leading-none">{e.type_examen}</p>
-                              <p className="text-[7px] font-bold text-slate-400 uppercase mt-1">{new Date(e.date_demande).toLocaleDateString()}</p>
-                           </div>
-                           <span className="text-[7px] font-black bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded uppercase border border-emerald-100">CERTIFIÉ</span>
-                        </div>
-                      ))
-                     }
-                  </div>
-               </div>
-            </div>
-
-            {/* Booklet Footer */}
-            <div className="mt-12 pt-6 border-t-2 border-slate-900 flex justify-between items-center text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">
-               <div className="flex items-center gap-4">
-                  <ShieldCheck className="w-4 h-4 text-slate-900" />
-                  <span>Document Infalsifiable · Plateforme CarnetPlus</span>
-               </div>
-               <div className="flex gap-8">
-                  <span>Page 01 / 01</span>
-                  <span>Copie Conforme au Dossier Numérique</span>
-               </div>
+            <div className="flex flex-wrap gap-4 relative z-10 print:hidden">
+              {isMedecin ? (
+                <>
+                  <button onClick={()=>navigate(`/medecin/consultation/${id}`)} className="flex items-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-blue-300 transition-all active:scale-95 border-2 border-blue-500"><Stethoscope className="w-5 h-5"/> <span>Consultation</span></button>
+                  <button onClick={()=>navigate(`/medecin/prescription/${id}`)} className="flex items-center gap-3 px-6 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-emerald-300 transition-all active:scale-95 border-2 border-emerald-500"><Pill className="w-5 h-5"/> <span>Prescrire</span></button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => window.print()}
+                  className="flex items-center gap-3 px-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-slate-300 transition-all active:scale-95 border-2 border-slate-700"
+                >
+                  <Printer className="w-5 h-5 text-blue-400"/> <span>Télécharger Mon Carnet</span>
+                </button>
+              )}
             </div>
           </div>
+        </div>
 
-          <div id="dossier-content" className="max-w-7xl mx-auto w-full bg-white p-12 rounded-3xl border border-slate-200 shadow-sm print:hidden">
+        <div id="dossier-content" className="max-w-7xl mx-auto w-full bg-white p-12 rounded-3xl border border-slate-200 shadow-sm">
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
@@ -367,11 +369,11 @@ export function PatientDossier() {
                        { label:"Allergies", val: patient.allergies || "Aucune", color:"text-orange-400", full: true },
                        { label:"Antécédents", val: patient.antecedents || "RAS", color:"text-rose-400", full: true },
                      ].map((item, i)=>(
-                       <div key={i} className={`p-5 bg-white/5 border border-white/10 rounded-xl ${item.full ? 'col-span-2' : ''} hover:bg-white/10 transition-all`}>
-                         <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1.5">{item.label}</p>
-                         <p className={`text-xl font-black ${item.color} tracking-tighter`}>{item.val}</p>
-                         {item.sub && <p className="text-[8px] font-black uppercase text-slate-600 mt-1">{item.sub}</p>}
-                       </div>
+                        <div key={i} className={`p-5 bg-white/10 border border-white/20 rounded-xl ${item.full ? 'col-span-2' : ''} hover:bg-white/20 transition-all`}>
+                          <p className="text-[10px] font-black text-white uppercase tracking-[0.1em] mb-2">{item.label}</p>
+                          <p className={`text-3xl font-black ${item.color} tracking-tighter leading-none`}>{item.val}</p>
+                          {item.sub && <p className="text-[9px] font-black uppercase text-white/90 mt-2">{item.sub}</p>}
+                        </div>
                      ))}
                    </div>
                 </Card>
