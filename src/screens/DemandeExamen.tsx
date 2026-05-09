@@ -66,22 +66,24 @@ export function DemandeExamen() {
   return (
     <div className="pt-6 px-10 pb-10 animate-fadeIn bg-slate-200 min-h-screen">
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
-        <div className="flex items-center gap-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-purple-200 border-2 border-white/20">
-            <FlaskConical className="w-8 h-8 text-white"/>
+      <div className="sticky top-0 z-40 bg-slate-200/90 backdrop-blur-xl -mx-10 px-10 py-6 border-b border-slate-300/50 mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-purple-200 border-2 border-white/20">
+              <FlaskConical className="w-8 h-8 text-white"/>
+            </div>
+            <div>
+              <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Prescription Labo</h1>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 bg-white px-3 py-1 rounded-lg border border-slate-100 inline-block">
+                {patient ? `${patient.prenom} ${patient.nom} • ${patient.numero_dossier}` : "Chargement..."}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Prescription Labo</h1>
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 bg-white px-3 py-1 rounded-lg border border-slate-100 inline-block">
-              {patient ? `${patient.prenom} ${patient.nom} • ${patient.numero_dossier}` : "Chargement..."}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-4">
-          <div className="hidden md:flex items-center gap-3 px-6 py-3 bg-white/50 backdrop-blur-md border border-white/20 rounded-2xl">
-             <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
-             <span className="text-[9px] font-black text-purple-700 uppercase tracking-widest">Analyse Labo en cours</span>
+          <div className="flex gap-4">
+            <div className="hidden md:flex items-center gap-3 px-6 py-3 bg-white/50 backdrop-blur-md border border-white/20 rounded-2xl">
+               <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+               <span className="text-[9px] font-black text-purple-700 uppercase tracking-widest">Analyse Labo en cours</span>
+            </div>
           </div>
         </div>
       </div>

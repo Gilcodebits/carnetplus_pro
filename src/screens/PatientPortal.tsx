@@ -54,7 +54,7 @@ export function PatientPortal() {
   const documentsRecents = [
     ...(currentStats.prescriptions || []).map((p: any) => ({ id: p.id, type: "Ordonnance", date: p.created_at, medecin: p.medecin_nom, icon: <Pill className="w-5 h-5 text-emerald-500"/>, color: "bg-emerald-50" })),
     ...(currentStats.examens || []).map((e: any) => ({ id: e.id, type: e.type_examen, date: e.date_demande, medecin: e.medecin_nom, icon: <FlaskConical className="w-5 h-5 text-purple-500"/>, color: "bg-purple-50" }))
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4);
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3);
   return (
     <div className="overflow-auto scrollbar-hide flex flex-col relative">
 
@@ -73,14 +73,14 @@ export function PatientPortal() {
               key={i}
               whileHover={{ y: -5 }}
               onClick={() => stat.path && navigate(stat.path)}
-              className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border-2 border-transparent hover:border-blue-100 transition-all cursor-pointer flex flex-col justify-between group"
+              className="bg-white p-6 rounded-[2rem] shadow-lg shadow-slate-200/50 border border-slate-100 hover:border-blue-200 transition-all cursor-pointer flex flex-col justify-between group"
             >
-              <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
-                <stat.icon className="w-6 h-6" />
+              <div className={`w-10 h-10 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-white mb-4 shadow-md group-hover:scale-110 transition-transform`}>
+                <stat.icon className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stat.val}</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">{stat.label}</p>
+                <h3 className="text-2xl font-black text-slate-900 mb-0.5 tracking-tighter">{stat.val}</h3>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
               </div>
             </motion.div>
           ))}
@@ -132,12 +132,14 @@ export function PatientPortal() {
             </div>
           </div>
 
-          {/* Documents Récents */}
           <div className="xl:col-span-5">
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-8 flex items-center gap-4">
-               <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center border-2 border-orange-100 shadow-sm"><FileText className="w-7 h-7"/></div>
-               Historique Récent
-            </h2>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                 <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center border-2 border-orange-100 shadow-sm"><FileText className="w-7 h-7"/></div>
+                 Historique Récent
+              </h2>
+              <button onClick={()=>navigate("/patient/dossier")} className="px-5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm">Voir plus</button>
+            </div>
             <div className="space-y-4">
               {documentsRecents.length > 0 ? documentsRecents.map((doc, i) => (
                 <div key={i} 
@@ -169,57 +171,44 @@ export function PatientPortal() {
         </div>
 
         {/* Quick Services - Grid of 3 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.button 
-            whileHover={{ y: -10 }}
+            whileHover={{ y: -8 }}
             onClick={()=>navigate("/patient/assistant-ia")} 
-            className="relative group p-12 bg-slate-900 rounded-[4rem] shadow-2xl overflow-hidden text-left"
+            className="relative group p-8 bg-slate-900 rounded-[2.5rem] shadow-xl overflow-hidden text-left"
           >
-            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-600/20 rounded-full blur-[80px] group-hover:scale-150 transition-transform duration-1000" />
-            <Bot className="w-16 h-16 text-blue-500 mb-8 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Assistant IA</h3>
-            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] leading-relaxed">Diagnostic vocal & Analyse intelligente de vos symptômes par Intelligence Artificielle.</p>
-            <div className="mt-8 flex items-center gap-2 text-blue-500 text-[10px] font-black uppercase tracking-widest">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-[60px] group-hover:scale-150 transition-transform duration-1000" />
+            <Bot className="w-10 h-10 text-blue-500 mb-6 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Assistant IA</h3>
+            <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] leading-relaxed">Diagnostic vocal & Analyse intelligente de vos symptômes.</p>
+            <div className="mt-6 flex items-center gap-2 text-blue-500 text-[9px] font-black uppercase tracking-widest">
                Démarrer <Sparkles className="w-4 h-4" />
             </div>
           </motion.button>
 
           <motion.button 
-            whileHover={{ y: -10 }}
+            whileHover={{ y: -8 }}
             onClick={()=>navigate("/patient/bilan-sante")} 
-            className="p-12 bg-white border-2 border-slate-100 rounded-[4rem] shadow-2xl text-left hover:border-emerald-500/30 transition-all group"
+            className="p-8 bg-white border border-slate-100 rounded-[2.5rem] shadow-xl text-left hover:border-emerald-500/30 transition-all group"
           >
-            <Activity className="w-16 h-16 text-emerald-500 mb-8 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Bilan de Santé</h3>
-            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-relaxed">Suivi détaillé de vos constantes biomédicales et graphiques d'évolution.</p>
-            <div className="mt-8 flex items-center gap-2 text-emerald-600 text-[10px] font-black uppercase tracking-widest">
+            <Activity className="w-10 h-10 text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Bilan de Santé</h3>
+            <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] leading-relaxed">Suivi détaillé de vos constantes et graphiques d'évolution.</p>
+            <div className="mt-6 flex items-center gap-2 text-emerald-600 text-[9px] font-black uppercase tracking-widest">
                Consulter <TrendingUp className="w-4 h-4" />
             </div>
           </motion.button>
 
           <motion.button 
-            whileHover={{ y: -10 }}
+            whileHover={{ y: -8 }}
             onClick={()=>navigate("/patient/messagerie")} 
-            className="p-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[4rem] shadow-2xl text-left border-2 border-white/10 group"
+            className="p-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-xl text-left border border-white/10 group"
           >
-            <Zap className="w-16 h-16 text-white mb-8 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Messagerie</h3>
-            <p className="text-[10px] text-blue-100/60 font-black uppercase tracking-[0.2em] leading-relaxed">Contactez vos médecins directement pour un avis ou une question urgente.</p>
-            <div className="mt-8 flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-widest">
+            <Zap className="w-10 h-10 text-white mb-6 group-hover:scale-110 transition-transform duration-500"/><h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Messagerie</h3>
+            <p className="text-[9px] text-blue-100/60 font-black uppercase tracking-[0.2em] leading-relaxed">Contactez vos médecins directement pour un avis urgent.</p>
+            <div className="mt-6 flex items-center gap-2 text-white text-[9px] font-black uppercase tracking-widest">
                Ouvrir <ArrowUpRight className="w-4 h-4" />
             </div>
           </motion.button>
         </div>
-      </div>
-
-      {/* Floating AI Bubble for Premium Feel */}
-      <div className="fixed bottom-10 right-10 z-[100]">
-         <button 
-           onClick={()=>navigate("/patient/assistant-ia")}
-           className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center text-blue-500 shadow-2xl hover:scale-110 active:scale-95 transition-all border-4 border-white group"
-         >
-            <Bot className="w-10 h-10 group-hover:rotate-12 transition-transform" />
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-600 border-2 border-white rounded-full flex items-center justify-center animate-pulse">
-              <div className="w-2 h-2 bg-white rounded-full" />
-            </div>
-         </button>
       </div>
 
     </div>

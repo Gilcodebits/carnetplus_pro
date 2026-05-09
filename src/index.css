@@ -17,6 +17,43 @@
   }
 }
 
+/* Global Print Styles for Medical Documents */
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+  body {
+    background-color: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  /* Force containers to be full width and remove shadows */
+  #dossier-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    break-inside: avoid;
+  }
+  /* Optimize typography for ink */
+  h1, h2, h3, h4 {
+    color: #0f172a !important;
+  }
+  p, span {
+    color: #334155 !important;
+  }
+}
+
 .text-label {
   @apply text-[10px] font-black text-slate-500 uppercase tracking-widest;
 }

@@ -57,10 +57,12 @@ export function MedecinPatients() {
 
   return (
     <div className="p-10 animate-fadeIn h-full flex flex-col bg-slate-200">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-8">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Gestion des Patients</h1>
-          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 opacity-80">Consultez et gérez les dossiers médicaux de votre cabinet.</p>
+      <div className="sticky top-0 z-40 bg-slate-200/90 backdrop-blur-xl -mx-10 px-10 py-6 border-b border-slate-300/50 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div>
+            <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Gestion des Patients</h1>
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 opacity-80">Consultez et gérez les dossiers médicaux de votre cabinet.</p>
+          </div>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 import { Card } from "../components/Card";
-import { CheckCircle, Calendar, Clock, MapPin, User, ArrowRight, Share2, Printer, Sparkles } from "lucide-react";
+import { CheckCircle, Calendar, Clock, MapPin, User, ArrowRight, Share2, Printer, Sparkles, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function ConfirmationRDV() {

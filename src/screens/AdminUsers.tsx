@@ -112,20 +112,22 @@ export function AdminUsers() {
   const roles = ["Tous", "Admin", "Medecin", "Secretaire", "Labo", "Patient", "Gestionnaire"];
 
   return (
-    <div className="p-8 animate-fadeIn bg-slate-200 min-h-screen">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
+    <div className="animate-fadeIn bg-slate-200 min-h-screen">
+      <div className="sticky top-0 z-40 bg-slate-200/80 backdrop-blur-xl px-8 py-6 border-b border-slate-300/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
         <div>
           <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Gestion des Utilisateurs</h1>
           <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 opacity-80">Gérez les comptes, les accès et les permissions de la plateforme.</p>
         </div>
         <button 
           onClick={() => { setEditingUser(null); setFormData({prenom:"", nom:"", email:"", role:"patient", password:"", telephone:""}); setShowModal(true); }}
-          className="flex items-center gap-4 bg-blue-600 text-white px-10 py-5 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:shadow-2xl hover:shadow-blue-300 transition-all active:scale-95 shadow-xl shadow-blue-200/50 border-2 border-blue-500"
+          className="flex items-center gap-4 bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:shadow-2xl hover:shadow-blue-300 transition-all active:scale-95 shadow-xl shadow-blue-200/50 border-2 border-blue-500"
         >
           <UserPlus className="w-5 h-5" />
           <span>NOUVEL UTILISATEUR</span>
         </button>
       </div>
+
+      <div className="px-8 pb-8">
 
       {/* Stats Cards - REDUCED OPACITY / SOFTER COLORS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
@@ -222,60 +224,77 @@ export function AdminUsers() {
           ) : (
             <>
               {filteredUsers.length > 0 ? (
-                filteredUsers.map((u, i) => {
-                  const Icon = roleIcons[u.role] || UserCircle;
-                  return (
-                    <div key={u.id} className={`p-8 rounded-[3rem] border-2 transition-all flex flex-col lg:flex-row items-center justify-between group hover:scale-[1.01] hover:shadow-2xl hover:shadow-blue-200/50 animate-fadeInUp gap-10 ${i % 2 === 0 ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50/30"}`}>
-                      <div className="flex items-center gap-10 w-full lg:w-auto">
-                        <div className="relative">
-                          <div className="w-24 h-24 rounded-[2rem] bg-white border-2 border-slate-100 flex items-center justify-center text-blue-600 font-black text-3xl shadow-xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 uppercase">
-                            {u.prenom.charAt(0)}{u.nom.charAt(0)}
-                          </div>
-                          <div className={`absolute -bottom-1 -right-1 w-8 h-8 border-4 border-white rounded-full shadow-lg ${u.actif !== 0 ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                        </div>
-                        <div>
-                          <p className="font-black text-slate-900 text-3xl uppercase tracking-tighter mb-2 group-hover:text-blue-600 transition-colors leading-none">{u.prenom} {u.nom}</p>
-                          <div className="flex flex-wrap items-center gap-4">
-                             <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">{u.email}</p>
-                             <span className="w-1.5 h-1.5 bg-slate-200 rounded-full" />
-                             <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">{u.telephone || "SANS CONTACT"}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap lg:flex-nowrap items-center gap-10 w-full lg:w-auto justify-between lg:justify-end">
-                        <div className="text-center lg:text-left bg-white p-4 rounded-[1.5rem] border-2 border-slate-100 shadow-sm min-w-[140px]">
-                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-3">Privilège</p>
-                          <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-xl border-2 text-[10px] font-black uppercase tracking-widest ${roleColors[u.role] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
-                            <Icon className="w-4 h-4" />
-                            {u.role}
-                          </div>
-                        </div>
-
-                        <div className="hidden xl:block min-w-[180px] bg-white p-4 rounded-[1.5rem] border-2 border-slate-100 shadow-sm">
-                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-3">Affectation</p>
-                          <p className="text-[11px] font-black text-slate-800 uppercase tracking-tight truncate">{u.etablissement_nom || "Hôpital Central"}</p>
-                          <p className="text-[9px] text-blue-500 font-black uppercase tracking-widest mt-1 opacity-80">Unité Active</p>
-                        </div>
-
-                        <div className="flex gap-4">
-                          <button 
-                            onClick={() => handleEdit(u)}
-                            className="w-16 h-16 text-slate-400 hover:text-blue-600 bg-white rounded-[1.5rem] transition-all border-2 border-slate-100 hover:border-blue-400 shadow-sm flex items-center justify-center active:scale-95"
-                          >
-                            <Edit className="w-7 h-7" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(u.id)}
-                            className="w-16 h-16 text-slate-400 hover:text-rose-600 bg-white rounded-[1.5rem] transition-all border-2 border-slate-100 hover:border-rose-400 shadow-sm flex items-center justify-center active:scale-95"
-                          >
-                            <Trash2 className="w-7 h-7" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
+                <div className="bg-white rounded-[2rem] border-2 border-slate-200 overflow-hidden shadow-xl shadow-slate-200/40">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 border-b-2 border-slate-200">
+                          <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Utilisateur</th>
+                          <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Contact</th>
+                          <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Privilège</th>
+                          <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Statut</th>
+                          <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right whitespace-nowrap">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y-2 divide-slate-100">
+                        {filteredUsers.map((u, i) => {
+                          const Icon = roleIcons[u.role] || UserCircle;
+                          return (
+                            <tr key={u.id} className="hover:bg-blue-50/30 transition-colors group">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-4">
+                                  <div className="relative">
+                                    <div className="w-12 h-12 rounded-xl bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-blue-600 font-black text-lg shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all uppercase">
+                                      {u.prenom.charAt(0)}{u.nom.charAt(0)}
+                                    </div>
+                                    <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 border-2 border-white rounded-full ${u.actif !== 0 ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                                  </div>
+                                  <div>
+                                    <p className="font-black text-slate-900 text-sm uppercase tracking-tight leading-none group-hover:text-blue-600 transition-colors">{u.prenom} {u.nom}</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">ID: {u.id}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-bold text-slate-700">{u.email}</p>
+                                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{u.telephone || "SANS CONTACT"}</p>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 text-[9px] font-black uppercase tracking-widest ${roleColors[u.role] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                                  <Icon className="w-3.5 h-3.5" />
+                                  {u.role}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${u.actif !== 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                                  {u.actif !== 0 ? 'En Ligne' : 'Hors Ligne'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex items-center justify-end gap-2">
+                                  <button 
+                                    onClick={() => handleEdit(u)}
+                                    className="p-2.5 text-slate-400 hover:text-blue-600 bg-white rounded-xl transition-all border-2 border-slate-100 hover:border-blue-200 shadow-sm flex items-center justify-center active:scale-95"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDelete(u.id)}
+                                    className="p-2.5 text-slate-400 hover:text-rose-600 bg-white rounded-xl transition-all border-2 border-slate-100 hover:border-rose-200 shadow-sm flex items-center justify-center active:scale-95"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               ) : (
                 <div className="bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 p-24 text-center">
                   <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border-2 border-slate-100">
@@ -288,6 +307,8 @@ export function AdminUsers() {
             </>
           )}
         </div>
+      </div>
+
       </div>
 
       {/* User Modal - SOFTER THEME */}

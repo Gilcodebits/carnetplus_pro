@@ -11,6 +11,8 @@ import { AdminDashboard } from "./screens/AdminDashboard";
 import { AdminUsers } from "./screens/AdminUsers";
 import { AdminReports } from "./screens/AdminReports";
 import { AdminSettings } from "./screens/AdminSettings";
+import { AdminDemandes } from "./screens/AdminDemandes";
+import AdminEtablissements from "./screens/AdminEtablissements";
 import { Notifications } from "./screens/Notifications";
 import { MedecinDashboard } from "./screens/MedecinDashboard";
 import { MedecinPatients } from "./screens/MedecinPatients";
@@ -31,6 +33,10 @@ import { AssistantIA } from "./screens/AssistantIA";
 import { BilanSante } from "./screens/BilanSante";
 import { Messagerie } from "./screens/Messagerie";
 import { GestionnaireDashboard } from "./screens/GestionnaireDashboard";
+import { GestionnaireLayout } from "./components/GestionnaireLayout";
+import { GestionnaireEtablissements } from "./screens/GestionnaireEtablissements";
+import { GestionnairePersonnel } from "./screens/GestionnairePersonnel";
+import { GestionnaireTransferts } from "./screens/GestionnaireTransferts";
 import { PageTransition } from "./components/PageTransition";
 import { AnimatePresence } from "framer-motion";
 import { PrescriptionView } from "./screens/PrescriptionView";
@@ -77,51 +83,60 @@ function AppRoutes() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="users" element={<AdminUsers />} />
+        <Route path="etablissements" element={<AdminEtablissements />} />
+        <Route path="demandes" element={<AdminDemandes />} />
         <Route path="reports" element={<AdminReports />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
       </Route>
 
-        <Route path="/medecin" element={<ProtectedRoute role="medecin"><MedecinLayout /></ProtectedRoute>}>
-          <Route index element={<MedecinDashboard />} />
-          <Route path="patients" element={<MedecinPatients />} />
-          <Route path="agenda" element={<MedecinAgenda />} />
-          <Route path="dossier/:id" element={<PatientDossier />} />
-          <Route path="consultation/:id" element={<Consultation />} />
-          <Route path="prescription/:id" element={<Prescription />} />
-          <Route path="examen/:id" element={<DemandeExamen />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="messagerie" element={<Messagerie />} />
-        </Route>
-        <Route path="/secretaire" element={<ProtectedRoute role="secretaire"><SecretaireLayout /></ProtectedRoute>}>
-          <Route index element={<SecretaireDashboard tab="rdv"/>} />
-          <Route path="rdv" element={<SecretaireDashboard tab="rdv"/>} />
-          <Route path="patients" element={<SecretaireDashboard tab="patients"/>} />
-          <Route path="patients/:id" element={<PatientDossier/>} />
-          <Route path="modifier-patient/:id" element={<NouveauPatient/>} />
-          <Route path="nouveau-patient" element={<NouveauPatient/>} />
-          <Route path="notifications" element={<Notifications/>} />
-          <Route path="messagerie" element={<Messagerie/>} />
-        </Route>
-        <Route path="/labo" element={<ProtectedRoute role="labo"><LaboLayout /></ProtectedRoute>}>
-          <Route index element={<Labo />} />
-          <Route path="analyses" element={<LaboAnalyses />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="messagerie" element={<Messagerie />} />
-        </Route>
-        <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
-          <Route index element={<PatientPortal />} />
-          <Route path="recherche-rdv" element={<RechercheRDV />} />
-          <Route path="calendrier-rdv" element={<CalendrierRDV />} />
-          <Route path="confirmation-rdv" element={<ConfirmationRDV />} />
-          <Route path="dossier" element={<PatientDossier />} />
-          <Route path="assistant-ia" element={<AssistantIA />} />
-          <Route path="bilan-sante" element={<BilanSante />} />
-          <Route path="messagerie" element={<Messagerie />} />
-          <Route path="notifications" element={<Notifications />} />
-        </Route>
-      <Route path="/gestionnaire" element={<GestionnaireDashboard />} />
+      <Route path="/medecin" element={<ProtectedRoute role="medecin"><MedecinLayout /></ProtectedRoute>}>
+        <Route index element={<MedecinDashboard />} />
+        <Route path="patients" element={<MedecinPatients />} />
+        <Route path="agenda" element={<MedecinAgenda />} />
+        <Route path="dossier/:id" element={<PatientDossier />} />
+        <Route path="consultation/:id" element={<Consultation />} />
+        <Route path="prescription/:id" element={<Prescription />} />
+        <Route path="examen/:id" element={<DemandeExamen />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="messagerie" element={<Messagerie />} />
+      </Route>
+      <Route path="/secretaire" element={<ProtectedRoute role="secretaire"><SecretaireLayout /></ProtectedRoute>}>
+        <Route index element={<SecretaireDashboard tab="rdv" />} />
+        <Route path="rdv" element={<SecretaireDashboard tab="rdv" />} />
+        <Route path="patients" element={<SecretaireDashboard tab="patients" />} />
+        <Route path="patients/:id" element={<PatientDossier />} />
+        <Route path="modifier-patient/:id" element={<NouveauPatient />} />
+        <Route path="nouveau-patient" element={<NouveauPatient />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="messagerie" element={<Messagerie />} />
+      </Route>
+      <Route path="/labo" element={<ProtectedRoute role="labo"><LaboLayout /></ProtectedRoute>}>
+        <Route index element={<Labo />} />
+        <Route path="analyses" element={<LaboAnalyses />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="messagerie" element={<Messagerie />} />
+      </Route>
+      <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
+        <Route index element={<PatientPortal />} />
+        <Route path="recherche-rdv" element={<RechercheRDV />} />
+        <Route path="calendrier-rdv" element={<CalendrierRDV />} />
+        <Route path="confirmation-rdv" element={<ConfirmationRDV />} />
+        <Route path="dossier" element={<PatientDossier />} />
+        <Route path="assistant-ia" element={<AssistantIA />} />
+        <Route path="bilan-sante" element={<BilanSante />} />
+        <Route path="messagerie" element={<Messagerie />} />
+        <Route path="notifications" element={<Notifications />} />
+      </Route>
+      <Route path="/gestionnaire" element={<ProtectedRoute role="gestionnaire"><GestionnaireLayout /></ProtectedRoute>}>
+        <Route index element={<GestionnaireDashboard />} />
+        <Route path="transferts" element={<GestionnaireTransferts />} />
+        <Route path="etablissements" element={<GestionnaireEtablissements />} />
+        <Route path="personnel" element={<GestionnairePersonnel />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="messagerie" element={<Messagerie />} />
+      </Route>
       <Route path="/prescription-view/:id" element={<PrescriptionView />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

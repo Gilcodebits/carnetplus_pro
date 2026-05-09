@@ -204,6 +204,21 @@ CREATE TABLE audit_logs (
   created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ── Demandes d'adhésion (Onboarding) ────────────────────────
+CREATE TABLE demandes_adhesion (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  nom_etablissement VARCHAR(150) NOT NULL,
+  type_structure  ENUM('hopital','clinique','cabinet','laboratoire') NOT NULL,
+  adresse         VARCHAR(255),
+  ville           VARCHAR(100),
+  nom_responsable VARCHAR(150),
+  email_contact   VARCHAR(150) NOT NULL,
+  telephone       VARCHAR(20),
+  motif           TEXT,
+  statut          ENUM('en_attente','approuve','rejete') DEFAULT 'en_attente',
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ============================================================
 --  Données de démonstration
 -- ============================================================

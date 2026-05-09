@@ -101,3 +101,14 @@ export const utilisateursAPI = {
   update: (id: number, data: any) => request<any>('/utilisateurs.php', { method: 'PUT', body: JSON.stringify({ id, ...data }) }),
   delete: (id: number) => request<any>('/utilisateurs.php', { method: 'DELETE', body: JSON.stringify({ id }) }),
 };
+
+export const settingsAPI = {
+  get: () => request<Record<string, string>>('/settings.php'),
+  update: (data: Record<string, string>) => request<any>('/settings.php', { method: 'POST', body: JSON.stringify(data) }),
+};
+
+export const adhesionsAPI = {
+  list: () => request<any[]>('/adhesions.php'),
+  submit: (data: any) => request<any>('/adhesions.php', { method: 'POST', body: JSON.stringify(data) }),
+  updateStatus: (id: number, statut: string) => request<any>(`/adhesions.php?id=${id}`, { method: 'PUT', body: JSON.stringify({ statut }) }),
+};

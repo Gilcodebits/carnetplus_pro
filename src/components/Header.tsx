@@ -34,6 +34,11 @@ export function Header() {
     navigate("/");
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    return hour >= 18 ? "Bonsoir" : "Bonjour";
+  };
+
   return (
     <header className="h-20 bg-blue-600 border-b border-blue-500/30 px-8 flex items-center justify-between sticky top-0 z-50 shadow-lg shadow-blue-600/10">
       {user?.role === 'patient' ? (
@@ -44,7 +49,7 @@ export function Header() {
               {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
             <p className="text-white text-2xl font-black tracking-tight leading-none">
-              Bonjour, <span className="text-blue-200">{user?.prenom}</span> 👋
+              {getGreeting()}, <span className="text-blue-200">{user?.prenom}</span> 👋
             </p>
           </div>
         </div>

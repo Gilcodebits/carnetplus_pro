@@ -45,27 +45,29 @@ export function RechercheRDV() {
   );
 
   return (
-    <div className="overflow-auto scrollbar-hide flex flex-col relative pt-6 px-10 pb-10">
+    <div className="flex flex-col relative pt-6 px-10 pb-10">
         
         {/* Compact Header */}
-        <div className="max-w-6xl mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-200 border-2 border-white/20">
-              <Stethoscope className="w-8 h-8 text-white animate-pulse"/>
-            </div>
-            <div>
-              <div className="flex items-center gap-3">
-                 <span className="w-6 h-1.5 bg-blue-500 rounded-full" />
-                 <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Trouver un Praticien</h1>
+        <div className="sticky top-0 z-40 bg-slate-50/90 backdrop-blur-xl -mx-10 px-10 py-6 border-b border-slate-200/50 mb-10">
+          <div className="max-w-6xl mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-200 border-2 border-white/20">
+                <Stethoscope className="w-8 h-8 text-white animate-pulse"/>
               </div>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 opacity-80">Prenez rendez-vous en quelques clics</p>
+              <div>
+                <div className="flex items-center gap-3">
+                   <span className="w-6 h-1.5 bg-blue-500 rounded-full" />
+                   <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Trouver un Praticien</h1>
+                </div>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 opacity-80">Prenez rendez-vous en quelques clics</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-             <div className="px-5 py-2.5 bg-blue-50 border-2 border-blue-100 rounded-2xl flex items-center gap-3 shadow-sm">
-                <ShieldCheck className="w-4 h-4 text-blue-600" />
-                <span className="text-[9px] font-black text-blue-700 uppercase tracking-widest">Médecins Vérifiés</span>
-             </div>
+            <div className="flex items-center gap-4">
+               <div className="px-5 py-2.5 bg-blue-50 border-2 border-blue-100 rounded-2xl flex items-center gap-3 shadow-sm">
+                  <ShieldCheck className="w-4 h-4 text-blue-600" />
+                  <span className="text-[9px] font-black text-blue-700 uppercase tracking-widest">Médecins Vérifiés</span>
+               </div>
+            </div>
           </div>
         </div>
 

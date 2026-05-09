@@ -1,4 +1,4 @@
-import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2 } from "lucide-react";
+import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2, ShieldCheck } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -10,6 +10,8 @@ const menuItems: Record<Role, {icon:any;label:string;path:string}[]> = {
   admin: [
     {icon:Home,label:"Dashboard",path:"/admin"},
     {icon:Users,label:"Utilisateurs",path:"/admin/users"},
+    {icon:Building2,label:"Établissements",path:"/admin/etablissements"},
+    {icon:ShieldCheck,label:"Demandes",path:"/admin/demandes"},
     {icon:MessageSquare,label:"Messagerie",path:"/admin/messagerie"},
     {icon:BarChart3,label:"Rapports",path:"/admin/reports"},
     {icon:Settings,label:"Paramètres",path:"/admin/settings"},
@@ -37,14 +39,13 @@ const menuItems: Record<Role, {icon:any;label:string;path:string}[]> = {
     {icon:Activity,label:"Bilan Santé",path:"/patient/bilan-sante"},
     {icon:FileText,label:"Dossier Médical",path:"/patient/dossier"},
     {icon:MessageSquare,label:"Messagerie",path:"/patient/messagerie"},
-    {icon:Bell,label:"Notifications",path:"/patient/notifications"},
   ],
   gestionnaire: [
     {icon:Home,label:"Dashboard",path:"/gestionnaire"},
-    {icon:Send,label:"Envois",path:"/gestionnaire?tab=envois"},
-    {icon:Inbox,label:"Réceptions",path:"/gestionnaire?tab=receptions"},
-    {icon:ArrowLeftRight,label:"Historique",path:"/gestionnaire?tab=tous"},
-    {icon:Building2,label:"Établissements",path:"/gestionnaire/etablissements"},
+    {icon:ArrowLeftRight,label:"Transferts & Flux",path:"/gestionnaire/transferts"},
+    {icon:Building2,label:"Réseau Actif",path:"/gestionnaire/etablissements"},
+    {icon:Users,label:"Personnel",path:"/gestionnaire/personnel"},
+    {icon:MessageSquare,label:"Messagerie",path:"/gestionnaire/messagerie"},
   ],
 };
 
@@ -54,7 +55,7 @@ const roleGradients: Record<Role,string> = {
   secretaire:   "from-blue-600 to-blue-800",
   labo:         "from-blue-600 to-blue-800",
   patient:      "from-blue-600 to-blue-800",
-  gestionnaire: "from-orange-500 to-orange-700",
+  gestionnaire: "from-blue-600 to-blue-800",
 };
 
 const roleLabels: Record<Role,string> = {

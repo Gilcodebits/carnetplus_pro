@@ -10,25 +10,41 @@ $id     = intval($_GET['id'] ?? 0);
 
 if ($method === 'GET') {
     $patientId = intval($_GET['patient_id'] ?? 0);
-    $stmt = $db->prepare("
+    $prId      = intval($_GET['id'] ?? 0);
+
+    $sql = "
         SELECT pr.*, CONCAT(u.prenom,' ',u.nom) as medecin_nom,
                CONCAT(p.prenom,' ',p.nom) as patient_nom,
                p.numero_dossier
         FROM prescriptions pr
         JOIN utilisateurs u ON pr.medecin_id = u.id
         JOIN patients p ON pr.patient_id = p.id
-        WHERE pr.patient_id = ?
-        ORDER BY pr.created_at DESC
-    ");
-    $stmt->execute([$patientId ?: $id]);
-    $prescriptions = $stmt->fetchAll();
+    ";
 
-    foreach ($prescriptions as &$pr) {
-        $stmt2 = $db->prepare("SELECT * FROM prescription_medicaments WHERE prescription_id=?");
-        $stmt2->execute([$pr['id']]);
-        $pr['medicaments'] = $stmt2->fetchAll();
+    if ($prId > 0) {
+        $stmt = $db->prepare($sql . " WHERE pr.id = ?");
+        $stmt->execute([$prId]);
+        $prescription = $stmt->fetch();
+        if ($prescription) {
+            $stmt2 = $db->prepare("SELECT * FROM prescription_medicaments WHERE prescription_id=?");
+            $stmt2->execute([$prescription['id']]);
+            $prescription['medicaments'] = $stmt2->fetchAll();
+            echo json_encode($prescription);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Ordonnance introuvable']);
+        }
+    } else {
+        $stmt = $db->prepare($sql . " WHERE pr.patient_id = ? ORDER BY pr.created_at DESC");
+        $stmt->execute([$patientId]);
+        $prescriptions = $stmt->fetchAll();
+        foreach ($prescriptions as &$pr) {
+            $stmt2 = $db->prepare("SELECT * FROM prescription_medicaments WHERE prescription_id=?");
+            $stmt2->execute([$pr['id']]);
+            $pr['medicaments'] = $stmt2->fetchAll();
+        }
+        echo json_encode($prescriptions);
     }
-    echo json_encode($prescriptions);
 }
 
 elseif ($method === 'POST') {

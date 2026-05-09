@@ -1,7 +1,27 @@
 <?php
 require_once __DIR__ . '/../config/cors.php';
+require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
-requireAuth();
+
+$method = $_SERVER['REQUEST_METHOD'];
 $db = getDB();
-$stmt = $db->query("SELECT id,nom,ville,adresse FROM etablissements ORDER BY nom");
-echo json_encode($stmt->fetchAll());
+
+try {
+    $user = requireAuth();
+    if ($user['role'] !== 'admin') throw new Exception("Accès refusé", 403);
+
+    if ($method === 'GET') {
+        // ONLY fetch 'actif' establishments
+        $sql = "SELECT e.*, 
+                (SELECT COUNT(*) FROM utilisateurs u WHERE u.etablissement_id = e.id) as membres_count
+                FROM etablissements e 
+                WHERE e.statut = 'actif'
+                ORDER BY e.nom";
+        
+        $stmt = $db->query($sql);
+        echo json_encode($stmt->fetchAll());
+    } 
+} catch (Exception $e) {
+    http_response_code($e->getCode() ?: 400);
+    echo json_encode(["error" => $e->getMessage()]);
+}
