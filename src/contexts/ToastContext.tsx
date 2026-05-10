@@ -34,22 +34,22 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-4 pointer-events-none">
+      <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-3 pointer-events-none items-center w-full max-w-md px-4">
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
               key={toast.id}
-              initial={{ opacity: 0, x: 100, scale: 0.8 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 100, scale: 0.8 }}
-              className="pointer-events-auto"
+              initial={{ opacity: 0, y: -50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95, transition: { duration: 0.2 } }}
+              className="pointer-events-auto w-full"
             >
               <div className={`
-                flex items-center gap-4 px-6 py-4 rounded-[2rem] shadow-2xl backdrop-blur-xl border
-                ${toast.type === 'success' ? 'bg-emerald-500/90 text-white border-emerald-400' : ''}
-                ${toast.type === 'error' ? 'bg-rose-500/90 text-white border-rose-400' : ''}
-                ${toast.type === 'warning' ? 'bg-amber-500/90 text-white border-amber-400' : ''}
-                ${toast.type === 'info' ? 'bg-blue-600/90 text-white border-blue-500' : ''}
+                flex items-center gap-4 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-md border border-white/20
+                ${toast.type === 'success' ? 'bg-emerald-600 text-white shadow-emerald-200/20' : ''}
+                ${toast.type === 'error' ? 'bg-rose-600 text-white shadow-rose-200/20' : ''}
+                ${toast.type === 'warning' ? 'bg-rose-600 text-white shadow-rose-200/20' : ''}
+                ${toast.type === 'info' ? 'bg-blue-600 text-white shadow-blue-200/20' : ''}
               `}>
                 <div className="p-2 bg-white/20 rounded-xl">
                   {toast.type === 'success' && <CheckCircle2 className="w-5 h-5" />}
@@ -57,10 +57,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   {toast.type === 'warning' && <AlertTriangle className="w-5 h-5" />}
                   {toast.type === 'info' && <Info className="w-5 h-5" />}
                 </div>
-                <p className="font-bold text-sm tracking-tight">{toast.message}</p>
+                <p className="flex-1 font-black text-[11px] uppercase tracking-[0.1em]">{toast.message}</p>
                 <button 
                   onClick={() => removeToast(toast.id)}
-                  className="ml-2 p-1 hover:bg-white/20 rounded-lg transition-colors"
+                  className="p-1 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>

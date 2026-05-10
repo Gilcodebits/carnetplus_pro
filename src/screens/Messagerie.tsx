@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
-import { messagesAPI, notificationAPI } from "../services/api";
+import { messagesAPI, notificationAPI, utilisateursAPI } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { Send, Bell, Mail, Search, User, Clock, Check, MoreVertical, MessageSquarePlus, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,15 +25,22 @@ export function Messagerie() {
 
   const fetchDoctors = async () => {
     try {
-      // Simulation ou appel API réel si disponible
-      const docs = [
-        { id: 101, name: "Dr. Jean Rousseau", specialty: "Cardiologue", online: true },
-        { id: 102, name: "Dr. Marie Curie", specialty: "Généraliste", online: false },
-        { id: 103, name: "Dr. Sarah Ahmed", specialty: "Neurologue", online: true },
-      ];
+      const allUsers = await utilisateursAPI.list();
+      let filtered = allUsers.filter((u: any) => u.id !== user?.id && u.role !== 'patient');
+      
+      if (user?.role !== 'admin') {
+         filtered = filtered.filter((u: any) => u.etablissement_id === user?.etablissement_id);
+      }
+      
+      const docs = filtered.map((u: any) => ({
+        id: u.id,
+        name: `${u.prenom} ${u.nom}`,
+        specialty: u.role.charAt(0).toUpperCase() + u.role.slice(1),
+        online: true
+      }));
       setAvailableDoctors(docs);
     } catch (err) {
-      console.error(err);
+      console.error("Erreur chargement collaborateurs", err);
     }
   };
 
@@ -257,8 +264,7 @@ export function Messagerie() {
                     <div className="absolute inset-0 bg-blue-600/5 rounded-full animate-ping" />
                     <Mail className="w-16 h-16 text-slate-200 relative z-10" />
                   </div>
-                  <h3 className="text-3xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Votre Espace Privé</h3>
-                  <p className="text-slate-400 text-sm font-bold uppercase tracking-widest max-w-sm leading-relaxed opacity-70">Sélectionnez un praticien ou un administrateur pour engager une conversation sécurisée.</p>
+                  <p className="text-slate-400 text-sm font-bold uppercase tracking-widest max-w-sm leading-relaxed opacity-70">Sélectionnez un collaborateur ou un administrateur pour engager une conversation sécurisée.</p>
                 </div>
               )}
             </div>
@@ -309,7 +315,10 @@ export function Messagerie() {
                  <button onClick={() => setShowNewChatModal(false)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all">&times;</button>
               </div>
               <div className="p-8 space-y-4 max-h-[60vh] overflow-y-auto scrollbar-hide">
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 px-2">Sélectionnez un praticien</p>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 px-2">Sélectionnez un collaborateur</p>
+                 {availableDoctors.length === 0 && (
+                   <p className="text-xs text-slate-500 italic px-2">Aucun collaborateur trouvé dans votre établissement.</p>
+                 )}
                  {availableDoctors.map((doc) => (
                    <div 
                     key={doc.id}
@@ -329,7 +338,7 @@ export function Messagerie() {
                  ))}
               </div>
               <div className="p-10 bg-slate-50 text-center">
-                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Vous ne trouvez pas votre médecin ? <br/><span className="text-blue-600 cursor-pointer">Contactez le support</span></p>
+                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Vous ne trouvez pas votre collaborateur ? <br/><span className="text-blue-600 cursor-pointer">Contactez le support</span></p>
               </div>
             </motion.div>
           </div>

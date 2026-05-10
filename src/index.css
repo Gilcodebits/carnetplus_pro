@@ -5,7 +5,7 @@
 @layer base {
   body {
     @apply text-slate-800 antialiased;
-    background-color: #e2e8f0; /* Slate 200 - Darker background for extreme contrast */
+    background-color: #f8fafc; /* Slate 50 - Cleaner & lighter background */
   }
   
   input, textarea, select {
@@ -158,4 +158,13 @@
 }
 .btn-bounce:active {
   transform: scale(0.96);
+}
+
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

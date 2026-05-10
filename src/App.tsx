@@ -38,6 +38,7 @@ import { GestionnaireLayout } from "./components/GestionnaireLayout";
 import { GestionnaireEtablissements } from "./screens/GestionnaireEtablissements";
 import { GestionnairePersonnel } from "./screens/GestionnairePersonnel";
 import { GestionnaireTransferts } from "./screens/GestionnaireTransferts";
+import { GestionnaireJournal } from "./screens/GestionnaireJournal";
 import { PageTransition } from "./components/PageTransition";
 import { PrescriptionView } from "./screens/PrescriptionView";
 import { Profile } from "./screens/Profile";
@@ -140,6 +141,7 @@ function AppRoutes() {
         <Route path="transferts" element={<GestionnaireTransferts />} />
         <Route path="etablissements" element={<GestionnaireEtablissements />} />
         <Route path="personnel" element={<GestionnairePersonnel />} />
+        <Route path="journal" element={<GestionnaireJournal />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
         <Route path="profil" element={<Profile />} />

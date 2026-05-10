@@ -8,18 +8,23 @@ $db = getDB();
 
 try {
     $user = requireAuth();
-    if ($user['role'] !== 'admin') throw new Exception("Accès refusé", 403);
+    // Autoriser les admins ET les gestionnaires à voir le réseau
+    if (!in_array($user['role'], ['admin', 'gestionnaire'])) {
+        throw new Exception("Accès refusé", 403);
+    }
 
     if ($method === 'GET') {
-        // ONLY fetch 'actif' establishments
-        $sql = "SELECT e.*, 
+        // Correction : La table 'etablissements' n'a pas de colonne 'statut' dans carnetplus.sql
+        // On récupère simplement tous les établissements enregistrés
+        $sql = "SELECT e.id, e.nom, e.adresse, e.ville, e.telephone, e.email,
                 (SELECT COUNT(*) FROM utilisateurs u WHERE u.etablissement_id = e.id) as membres_count
                 FROM etablissements e 
-                WHERE e.statut = 'actif'
-                ORDER BY e.nom";
+                ORDER BY e.nom ASC";
         
         $stmt = $db->query($sql);
-        echo json_encode($stmt->fetchAll());
+        $data = $stmt->fetchAll();
+        
+        echo json_encode($data);
     } 
 } catch (Exception $e) {
     http_response_code($e->getCode() ?: 400);

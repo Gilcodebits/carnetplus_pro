@@ -24,6 +24,8 @@ export const authAPI = {
     request<{token:string; user:any}>('/auth.php?action=login', { method:'POST', body: JSON.stringify({email,mot_de_passe}) }),
   logout: () => request('/auth.php?action=logout', { method:'POST' }),
   me:     () => request<any>('/auth.php?action=me'),
+  updatePassword: (data: { current_password: string; new_password: string }) =>
+    request<any>('/auth.php?action=update_password', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 export const patientsAPI = {
@@ -90,6 +92,10 @@ export const messagesAPI = {
 
 export const dashboardAPI = {
   stats: () => request<any>('/dashboard.php'),
+};
+
+export const logsAPI = {
+  list: () => request<any[]>('/logs.php'),
 };
 
 export const etablissementsAPI = {

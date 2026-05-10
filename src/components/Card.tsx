@@ -19,7 +19,7 @@ export function Card({ children, className = "", onClick, hover = false, style, 
       id={id}
       onClick={onClick}
       style={style}
-      className={`${className.includes('bg-') ? '' : 'bg-white'} rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 ${noPadding ? '' : 'p-8'} ${hover ? "card-hover cursor-pointer" : ""} ${animated ? `animate-fadeInUp ${delayClass}` : ""} ${className}`}
+      className={`${className.includes('bg-') ? '' : 'bg-white'} rounded-2xl border border-slate-200 shadow-sm ${noPadding ? '' : 'p-6'} ${hover ? "hover:shadow-md hover:border-slate-300 cursor-pointer transition-all" : ""} ${animated ? `animate-fadeInUp ${delayClass}` : ""} ${className}`}
     >
       {children}
     </div>
@@ -27,14 +27,14 @@ export function Card({ children, className = "", onClick, hover = false, style, 
 }
 
 const colorClasses = {
-  blue: { bg: "bg-gradient-to-br from-blue-50 to-blue-100", icon: "bg-blue-500", text: "text-blue-700", border: "border-blue-200" },
-  green: { bg: "bg-gradient-to-br from-green-50 to-green-100", icon: "bg-green-500", text: "text-green-700", border: "border-green-200" },
-  purple: { bg: "bg-gradient-to-br from-purple-50 to-purple-100", icon: "bg-purple-500", text: "text-purple-700", border: "border-purple-200" },
-  orange: { bg: "bg-gradient-to-br from-orange-50 to-orange-100", icon: "bg-orange-500", text: "text-orange-700", border: "border-orange-200" },
-  violet: { bg: "bg-gradient-to-br from-blue-50 to-blue-100", icon: "bg-blue-500", text: "text-blue-700", border: "border-blue-200" },
-  emerald: { bg: "bg-gradient-to-br from-emerald-50 to-emerald-100", icon: "bg-emerald-500", text: "text-emerald-700", border: "border-emerald-200" },
-  teal: { bg: "bg-gradient-to-br from-teal-50 to-teal-100", icon: "bg-teal-500", text: "text-teal-700", border: "border-teal-200" },
-  rose: { bg: "bg-gradient-to-br from-rose-50 to-rose-100", icon: "bg-rose-500", text: "text-rose-700", border: "border-rose-200" },
+  blue: { bg: "bg-blue-50/50", icon: "bg-blue-600", text: "text-blue-700", border: "border-blue-100" },
+  green: { bg: "bg-green-50/50", icon: "bg-green-600", text: "text-green-700", border: "border-green-100" },
+  purple: { bg: "bg-purple-50/50", icon: "bg-purple-600", text: "text-purple-700", border: "border-purple-100" },
+  orange: { bg: "bg-orange-50/50", icon: "bg-orange-600", text: "text-orange-700", border: "border-orange-100" },
+  violet: { bg: "bg-blue-50/50", icon: "bg-blue-600", text: "text-blue-700", border: "border-blue-100" },
+  emerald: { bg: "bg-emerald-50/50", icon: "bg-emerald-600", text: "text-emerald-700", border: "border-emerald-100" },
+  teal: { bg: "bg-teal-50/50", icon: "bg-teal-600", text: "text-teal-700", border: "border-teal-100" },
+  rose: { bg: "bg-rose-50/50", icon: "bg-rose-600", text: "text-rose-700", border: "border-rose-100" },
 };
 
 interface StatCardProps {
@@ -53,15 +53,15 @@ export function StatCard({ title, value, icon, trend, color = "blue", onClick, d
   return (
     <div
       onClick={onClick}
-      className={`${c.bg} border ${c.border} rounded-xl p-5 animate-fadeInUp ${delayClass} ${onClick ? "card-hover cursor-pointer" : ""}`}
+      className={`${c.bg} border ${c.border} rounded-xl p-5 ${onClick ? "hover:shadow-md cursor-pointer transition-all" : ""}`}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className={`text-sm font-medium ${c.text} opacity-80`}>{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-          {trend && <p className="text-sm text-green-600 mt-2 font-medium">{trend}</p>}
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{title}</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
+          {trend && <p className="text-[10px] text-emerald-600 mt-2 font-bold">{trend}</p>}
         </div>
-        <div className={`w-12 h-12 rounded-xl ${c.icon} flex items-center justify-center text-white shadow-lg`}>
+        <div className={`w-10 h-10 rounded-lg ${c.icon} flex items-center justify-center text-white shadow-sm`}>
           {icon}
         </div>
       </div>

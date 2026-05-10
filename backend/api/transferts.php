@@ -11,8 +11,8 @@ $id     = intval($_GET['id'] ?? 0);
 if ($method === 'GET' && !$id) {
     $statut = $_GET['statut'] ?? '';
     $type   = $_GET['type'] ?? '';
-    $where  = ['t.gestionnaire_id = ?'];
-    $params = [$user['id']];
+    $where  = ['1=1'];
+    $params = [];
     if ($statut) { $where[] = 't.statut = ?';  $params[] = $statut; }
     if ($type)   { $where[] = 't.type = ?';    $params[] = $type; }
 
@@ -52,10 +52,13 @@ elseif ($method === 'GET' && $id) {
 }
 
 elseif ($method === 'POST') {
-    if (empty($input['patient_id']) || empty($input['etablissement_dest_id']) || empty($input['type'])) {
+    // Accepter etab_dest_id OU etablissement_dest_id (compatibilité frontend)
+    $dest_id = $input['etablissement_dest_id'] ?? $input['etab_dest_id'] ?? null;
+    if (empty($input['patient_id']) || empty($dest_id) || empty($input['type'])) {
         http_response_code(400);
         die(json_encode(['error' => 'Patient, établissement destination et type requis']));
     }
+    $source_id = $input['etab_source_id'] ?? $user['etablissement_id'] ?? 1;
     $stmt = $db->prepare("
         INSERT INTO transferts_dossiers
         (patient_id,gestionnaire_id,etablissement_source_id,etablissement_dest_id,motif,type,priorite,notes_gestionnaire)
@@ -63,8 +66,8 @@ elseif ($method === 'POST') {
     ");
     $stmt->execute([
         $input['patient_id'], $user['id'],
-        $user['etablissement_id'],
-        $input['etablissement_dest_id'],
+        $source_id,
+        $dest_id,
         $input['motif'] ?? '',
         $input['type'],
         $input['priorite'] ?? 'normale',
@@ -72,7 +75,7 @@ elseif ($method === 'POST') {
     ]);
     $newId = $db->lastInsertId();
 
-    // Notifier admin dest
+    // Notifier admin
     $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (1,?,?,?)")
        ->execute(["Demande de transfert", "Nouvelle demande de transfert de dossier reçue", "info"]);
 
@@ -83,11 +86,12 @@ elseif ($method === 'PUT' && $id) {
     $statut = $input['statut'] ?? null;
     if (!$statut) { http_response_code(400); die(json_encode(['error'=>'Statut requis'])); }
 
+    // Permettre à tout gestionnaire de mettre à jour (pas seulement le créateur)
     $db->prepare("
         UPDATE transferts_dossiers
         SET statut=?, notes_gestionnaire=?, date_traitement=NOW()
-        WHERE id=? AND gestionnaire_id=?
-    ")->execute([$statut, $input['notes']??'', $id, $user['id']]);
+        WHERE id=?
+    ")->execute([$statut, $input['notes']??'', $id]);
 
     echo json_encode(['message' => 'Transfert mis à jour — statut: '.$statut]);
 }

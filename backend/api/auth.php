@@ -72,6 +72,47 @@ elseif ($method === 'GET' && $action === 'me') {
     echo json_encode($user);
 }
 
+elseif ($method === 'POST' && $action === 'update_password') {
+    $user = requireAuth();
+    $current_pass = $input['current_password'] ?? '';
+    $new_pass     = $input['new_password'] ?? '';
+
+    if (empty($current_pass) || empty($new_pass)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Veuillez remplir tous les champs']);
+        exit;
+    }
+
+    if (strlen($new_pass) < 6) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Le nouveau mot de passe doit contenir au moins 6 caractères']);
+        exit;
+    }
+
+    $db = getDB();
+    // Verify current password
+    $stmt = $db->prepare("SELECT mot_de_passe FROM utilisateurs WHERE id = ?");
+    $stmt->execute([$user['id']]);
+    $dbUser = $stmt->fetch();
+
+    if (!$dbUser || !password_verify($current_pass, $dbUser['mot_de_passe'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Le mot de passe actuel est incorrect']);
+        exit;
+    }
+
+    // Update password
+    $hashed = password_hash($new_pass, PASSWORD_BCRYPT);
+    $db->prepare("UPDATE utilisateurs SET mot_de_passe = ? WHERE id = ?")->execute([$hashed, $user['id']]);
+
+    // Log the action
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $db->prepare("INSERT INTO audit_logs (utilisateur_id, action, details, ip) VALUES (?, ?, ?, ?)")
+       ->execute([$user['id'], 'password_update', 'Mot de passe modifié avec succès', $ip]);
+
+    echo json_encode(['success' => true, 'message' => 'Mot de passe mis à jour']);
+}
+
 else {
     http_response_code(404);
     echo json_encode(['error' => 'Action non trouvée']);

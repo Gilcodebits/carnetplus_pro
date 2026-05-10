@@ -3,8 +3,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { 
   User, Mail, Phone, Shield, Key, Camera, 
   MapPin, Calendar, Heart, Droplets, CheckCircle2,
-  Lock, ArrowRight, Save, LogOut
+  Lock, ArrowRight, Save, LogOut, Eye, EyeOff
 } from "lucide-react";
+import { authAPI } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "../components/Card";
 import { ConfirmModal } from "../components/ConfirmModal";
@@ -32,6 +33,39 @@ export function Profile() {
     new: "",
     confirm: ""
   });
+
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loadingPassword, setLoadingPassword] = useState(false);
+
+  const handleUpdatePassword = async () => {
+    if (!passwords.current || !passwords.new || !passwords.confirm) {
+      showToast("Veuillez remplir tous les champs", "error");
+      return;
+    }
+    if (passwords.new !== passwords.confirm) {
+      showToast("Les nouveaux mots de passe ne correspondent pas", "error");
+      return;
+    }
+    if (passwords.new.length < 6) {
+      showToast("Le mot de passe doit contenir au moins 6 caractères", "error");
+      return;
+    }
+    setLoadingPassword(true);
+    try {
+      await authAPI.updatePassword({
+        current_password: passwords.current,
+        new_password: passwords.new
+      });
+      setPasswords({ current: "", new: "", confirm: "" });
+      showToast("Mot de passe mis à jour avec succès !", "success");
+    } catch (err: any) {
+      showToast(err.message || "Erreur de mise à jour", "error");
+    } finally {
+      setLoadingPassword(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -250,12 +284,15 @@ export function Profile() {
                       <div className="relative">
                         <Key className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input 
-                          type="password" 
+                          type={showCurrent ? "text" : "password"} 
                           placeholder="••••••••"
                           value={passwords.current}
                           onChange={(e) => setPasswords({...passwords, current: e.target.value})}
-                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-6 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
+                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
                         />
+                        <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
+                          {showCurrent ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
                       </div>
                     </div>
 
@@ -265,12 +302,15 @@ export function Profile() {
                         <div className="relative">
                           <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                           <input 
-                            type="password" 
+                            type={showNew ? "text" : "password"} 
                             placeholder="••••••••"
                             value={passwords.new}
                             onChange={(e) => setPasswords({...passwords, new: e.target.value})}
-                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-6 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
+                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
                           />
+                          <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
+                            {showNew ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
                         </div>
                       </div>
                       <div className="space-y-3">
@@ -278,12 +318,15 @@ export function Profile() {
                         <div className="relative">
                           <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                           <input 
-                            type="password" 
+                            type={showConfirm ? "text" : "password"} 
                             placeholder="••••••••"
                             value={passwords.confirm}
                             onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
-                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-6 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
+                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
                           />
+                          <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
+                            {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -291,13 +334,15 @@ export function Profile() {
 
                   <div className="pt-6 flex justify-end">
                     <button 
-                      onClick={() => {
-                        setPasswords({ current: "", new: "", confirm: "" });
-                        showToast("Mot de passe mis à jour avec succès !", "success");
-                      }}
-                      className="flex items-center gap-3 px-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:scale-105 active:scale-95 transition-all"
+                      onClick={handleUpdatePassword}
+                      disabled={loadingPassword}
+                      className="flex items-center gap-3 px-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <ArrowRight className="w-5 h-5" />
+                      {loadingPassword ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <ArrowRight className="w-5 h-5" />
+                      )}
                       Mettre à jour la sécurité
                     </button>
                   </div>

@@ -45,19 +45,11 @@ const menuItems: Record<Role, {icon:any;label:string;path:string}[]> = {
   gestionnaire: [
     {icon:Home,label:"Dashboard",path:"/gestionnaire"},
     {icon:ArrowLeftRight,label:"Transferts & Flux",path:"/gestionnaire/transferts"},
-    {icon:Building2,label:"Réseau Actif",path:"/gestionnaire/etablissements"},
+    {icon:Building2,label:"Réseau Médical",path:"/gestionnaire/etablissements"},
     {icon:Users,label:"Personnel",path:"/gestionnaire/personnel"},
     {icon:MessageSquare,label:"Messagerie",path:"/gestionnaire/messagerie"},
+    {icon:ShieldCheck,label:"Journal Conformité",path:"/gestionnaire/journal"},
   ],
-};
-
-const roleGradients: Record<Role,string> = {
-  admin:        "from-blue-600 to-blue-800",
-  medecin:      "from-blue-500 to-blue-700",
-  secretaire:   "from-blue-600 to-blue-800",
-  labo:         "from-blue-600 to-blue-800",
-  patient:      "from-blue-600 to-blue-800",
-  gestionnaire: "from-blue-600 to-blue-800",
 };
 
 const roleLabels: Record<Role,string> = {
@@ -71,30 +63,26 @@ export function Sidebar({ role, activePath }: SidebarProps) {
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const items    = menuItems[role];
-  const grad     = roleGradients[role];
 
   return (
-    <div className="w-64 bg-white border-r border-slate-100 h-screen flex flex-col flex-shrink-0 shadow-sm animate-fadeInLeft relative z-20 no-print">
-      {/* Header gradient */}
-      <div className={`bg-gradient-to-br ${grad} relative overflow-hidden flex-shrink-0 p-6`}>
-        <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"/>
-        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"/>
-
-        {/* Logo */}
+    <div className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col flex-shrink-0 relative z-20 no-print">
+      {/* Sidebar Header - Blue Gradient */}
+      <div className="p-6 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden flex-shrink-0">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"/>
         <div className="flex items-center gap-3 relative z-10">
-          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-            <Activity className="w-6 h-6 text-white"/>
+          <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
+            <Activity className="w-5 h-5 text-white"/>
           </div>
           <div>
-            <h1 className="font-black text-white text-base tracking-wider leading-none">CARNETPLUS</h1>
-            <p className="text-white/60 text-[10px] uppercase font-bold mt-1 tracking-widest">{roleLabels[role]}</p>
+            <h1 className="font-black text-white text-sm tracking-tight leading-none uppercase">CARNETPLUS</h1>
+            <p className="text-blue-100 text-[9px] uppercase font-bold mt-1 tracking-widest opacity-80">{roleLabels[role]}</p>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto mt-4">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-4">Menu Principal</p>
+      {/* Nav Section */}
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-3 mt-2">Menu</p>
         {items.map((item) => {
           const Icon    = item.icon;
           const isRoot = item.path === "/admin" || item.path === "/medecin" || item.path === "/secretaire" || item.path === "/labo" || item.path === "/patient" || item.path === "/gestionnaire";
@@ -104,31 +92,27 @@ export function Sidebar({ role, activePath }: SidebarProps) {
           
           return (
             <Link key={item.path + item.label} to={item.path}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive
-                  ? `bg-blue-600 text-white shadow-xl shadow-blue-100`
-                  : "text-slate-600 hover:bg-slate-50 hover:text-gray-900"
+                  ? `bg-blue-600 text-white shadow-md shadow-blue-100`
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`}>
-              <div className={`p-2 rounded-xl transition-all ${isActive ? "bg-white/20" : "bg-slate-50 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50"}`}>
-                <Icon className={`w-4 h-4`}/>
-              </div>
-              <span className="text-xs font-black uppercase tracking-tight truncate">{item.label}</span>
-              {isActive && <ChevronRight className="ml-auto w-4 h-4 text-white/50"/>}
+              <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"}`}/>
+              <span className="text-xs font-bold truncate">{item.label}</span>
+              {isActive && <ChevronRight className="ml-auto w-3.5 h-3.5 text-white/70"/>}
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer / Logout */}
-      <div className="p-6 border-t border-gray-50 flex-shrink-0">
+      {/* Sidebar Footer */}
+      <div className="p-4 border-t border-slate-50">
         <button 
           onClick={() => setShowLogoutConfirm(true)}
-          className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-rose-600 bg-rose-50/50 hover:bg-rose-600 hover:text-white transition-all group shadow-sm shadow-rose-100"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-all group"
         >
-          <div className="p-2 bg-white/50 rounded-xl group-hover:bg-white/20 transition-all">
-            <LogOut className="w-4 h-4 text-rose-500 group-hover:text-white transition-all"/>
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-widest">DÉCONNEXION</span>
+          <LogOut className="w-4 h-4 transition-all"/>
+          <span className="text-xs font-bold">Déconnexion</span>
         </button>
       </div>
 
@@ -139,9 +123,9 @@ export function Sidebar({ role, activePath }: SidebarProps) {
           logout();
           navigate("/");
         }}
-        title="Fin de session"
-        message="Voulez-vous vraiment vous déconnecter ? Pour des raisons de sécurité, votre accès sera verrouillé jusqu'à votre prochaine connexion."
-        confirmText="Déconnexion sécurisée"
+        title="Déconnexion"
+        message="Voulez-vous vraiment quitter la session ?"
+        confirmText="Déconnecter"
         type="danger"
       />
     </div>
