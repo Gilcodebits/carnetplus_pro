@@ -7,6 +7,7 @@ import { Calendar, Phone, Mail, Plus, Search, Clock, User, ChevronRight, CheckCi
 import { useAuth } from "../contexts/AuthContext";
 import { PageTransition } from "../components/PageTransition";
 import { motion } from "framer-motion";
+import { formatDate } from "../utils/format";
 
 export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" }) {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
   const [formError, setFormError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [rdvToCancel, setRdvToCancel] = useState<number | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   useEffect(() => {
     setActiveTab(tab);
@@ -50,12 +55,19 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [statsData, patientsData] = await Promise.all([
+      const [statsData, patientsData, allRdvs] = await Promise.all([
         dashboardAPI.stats(),
-        patientsAPI.list()
+        patientsAPI.list(),
+        rdvAPI.list()
       ]);
       setStats(statsData);
-      setRdvList(statsData.rdv_liste || []);
+      // Sort RDVs by date then time
+      const sorted = (allRdvs || []).sort((a: any, b: any) => {
+        const dateCompare = a.date_rdv.localeCompare(b.date_rdv);
+        if (dateCompare !== 0) return dateCompare;
+        return a.heure_rdv.localeCompare(b.heure_rdv);
+      });
+      setRdvList(sorted);
       setPatients(patientsData);
     } catch (err) {
       console.error("Erreur chargement dashboard secrétaire:", err);
@@ -77,12 +89,22 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
     } catch (err) { alert("Erreur confirmation"); }
   };
 
-  const handleCancel = async (id: number) => {
-    if (!confirm("Voulez-vous vraiment annuler ce rendez-vous ?")) return;
+  const handleCancelClick = (id: number) => {
+    setRdvToCancel(id);
+    setCancelReason("");
+    setShowCancelModal(true);
+  };
+
+  const confirmCancel = async () => {
+    if (!rdvToCancel) return;
     try {
-      await rdvAPI.cancel(id);
+      await rdvAPI.cancel(rdvToCancel);
+      setShowCancelModal(false);
+      setRdvToCancel(null);
       loadData();
-    } catch (err) { alert("Erreur annulation"); }
+      setSuccessMsg("Rendez-vous supprimé avec succès.");
+      setTimeout(() => setSuccessMsg(null), 3000);
+    } catch (err) { alert("Erreur suppression"); }
   };
 
   const statColor: any = {
@@ -110,16 +132,36 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
 
     setFormError(null);
     try {
-      await rdvAPI.create(formData);
+      if (editingId) {
+        await rdvAPI.update(editingId, formData);
+        setSuccessMsg("Rendez-vous modifié avec succès !");
+      } else {
+        await rdvAPI.create(formData);
+        setSuccessMsg("Rendez-vous enregistré avec succès !");
+      }
       setShowModal(false);
+      setEditingId(null);
       setFormData({ patient_id: "", medecin_id: "", date_rdv: "", heure_rdv: "", motif: "" });
       setTouched(false);
-      setSuccessMsg("Rendez-vous enregistré avec succès !");
       setTimeout(() => setSuccessMsg(null), 5000);
       loadData();
     } catch (err: any) {
-      setFormError(err.message || "Erreur lors de la création du RDV");
+      setFormError(err.message || "Erreur lors de l'enregistrement du RDV");
     }
+  };
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const handleEditClick = (rdv: any) => {
+    setFormData({
+      patient_id: rdv.patient_id.toString(),
+      medecin_id: rdv.medecin_id.toString(),
+      date_rdv: rdv.date_rdv,
+      heure_rdv: rdv.heure_rdv,
+      motif: rdv.motif || ""
+    });
+    setEditingId(rdv.id);
+    setShowModal(true);
   };
 
   if (loading) return (
@@ -135,10 +177,10 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
     <div className="flex-1 overflow-auto flex flex-col p-12 space-y-12">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Bonjour, Carine</h1>
+          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Tableau de Bord</h1>
           <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2 flex items-center gap-2">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            Prête pour la gestion des patients d'aujourd'hui ?
+            Gestion du Secrétariat en temps réel
           </p>
         </div>
         <button onClick={() => setShowModal(true)}
@@ -222,66 +264,141 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
         </div>
 
         {activeTab === "rdv" ? (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {rdvList.map((rdv, i) => (
-              <div
-                key={rdv.id}
-                className={`group p-8 rounded-[3rem] border-2 transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200 relative overflow-hidden ${rdv.statut === "en_attente" ? "bg-amber-50/30 border-amber-200" : "bg-white border-slate-100 shadow-sm"
-                  }`}
-              >
-                <div className="flex items-start justify-between relative z-10">
-                  <div className="flex gap-6">
-                    <div className={`w-20 h-20 rounded-[2rem] flex flex-col items-center justify-center border-2 shadow-lg ${rdv.statut === "en_attente" ? "bg-amber-500 border-amber-400 text-white" : "bg-slate-50 border-slate-100 text-slate-400"
-                      }`}>
-                      <span className="text-[10px] font-black uppercase opacity-60">Heure</span>
-                      <span className="text-xl font-black">{rdv.heure_rdv?.substring(0, 5)}</span>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{rdv.patient_nom}</h3>
-                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statColor[rdv.statut]}`}>
-                          {statLabel[rdv.statut]}
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
-                          <User className="w-3.5 h-3.5 text-blue-500" /> Dr. {rdv.medecin_nom}
-                        </p>
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
-                          <AlertCircle className="w-3.5 h-3.5 text-orange-500" /> {rdv.motif}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {rdv.statut === "en_attente" && (
-                      <button onClick={() => handleConfirm(rdv.id)} className="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200 hover:scale-110 active:scale-95 transition-all">
-                        <CheckCircle className="w-6 h-6" />
-                      </button>
-                    )}
-                    <button onClick={() => handleCancel(rdv.id)} className="w-12 h-12 bg-white border-2 border-slate-100 text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-50 hover:border-rose-200 transition-all active:scale-95 shadow-sm">
-                      <XCircle className="w-6 h-6" />
-                    </button>
-                  </div>
+          <div className="space-y-12">
+            {/* Section Demandes en attente */}
+            {rdvList.filter(r => r.statut === "en_attente" && r.date_rdv >= today).length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Demandes à confirmer</h2>
+                  <span className="bg-amber-500 text-white text-[10px] px-3 py-1 rounded-full font-black animate-pulse shadow-lg shadow-amber-200">
+                    {rdvList.filter(r => r.statut === "en_attente" && r.date_rdv >= today).length} Nouvelles
+                  </span>
                 </div>
-
-                {/* Interaction link */}
-                <button
-                  onClick={() => navigate(`/secretaire/patients/${rdv.patient_id}`)}
-                  className="absolute bottom-6 right-8 text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  Détails Dossier <ArrowUpRight className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-
-            {rdvList.length === 0 && (
-              <div className="col-span-full py-32 text-center bg-white border-2 border-dashed border-slate-200 rounded-[4rem]">
-                <Calendar className="w-16 h-16 text-slate-200 mx-auto mb-6" />
-                <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Aucun rendez-vous</h4>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">Le planning est vide pour le moment.</p>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  {rdvList.filter(r => r.statut === "en_attente" && r.date_rdv >= today).map((rdv, i) => (
+                    <div
+                      key={rdv.id}
+                      className="group p-8 rounded-[3rem] border-2 bg-amber-50/40 border-amber-200 transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-200/30 relative overflow-hidden"
+                    >
+                      <div className="flex items-start justify-between relative z-10">
+                        <div className="flex gap-6">
+                          <div className="w-20 h-20 rounded-[2rem] flex flex-col items-center justify-center border-2 bg-amber-500 border-amber-400 text-white shadow-lg shadow-amber-200/50">
+                            <span className="text-[10px] font-black uppercase opacity-60">Heure</span>
+                            <span className="text-xl font-black">{rdv.heure_rdv?.substring(0, 5)}</span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{rdv.patient_nom}</h3>
+                              <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statColor[rdv.statut]}`}>
+                                {statLabel[rdv.statut]}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-[10px] text-amber-700 font-black uppercase tracking-widest flex items-center gap-2 mb-1">
+                                <Calendar className="w-3.5 h-3.5" /> {rdv.date_rdv === today ? "Aujourd'hui" : formatDate(rdv.date_rdv)}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
+                                <User className="w-3.5 h-3.5 text-blue-500" /> Dr. {rdv.medecin_nom}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
+                                <AlertCircle className="w-3.5 h-3.5 text-orange-500" /> {rdv.motif}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <button onClick={() => handleConfirm(rdv.id)} className="px-6 py-3 bg-emerald-600 text-white rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 font-black text-[9px] uppercase tracking-widest">
+                            <CheckCircle className="w-4 h-4" /> Confirmer
+                          </button>
+                          <div className="flex gap-2">
+                            <button onClick={() => handleEditClick(rdv)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all active:scale-95 font-black text-[9px] uppercase tracking-widest">
+                              <Edit className="w-4 h-4" /> Modifier
+                            </button>
+                            <button onClick={() => handleCancelClick(rdv.id)} className="flex-1 px-4 py-3 bg-white border-2 border-amber-200 text-rose-500 rounded-xl flex items-center justify-center gap-2 hover:bg-rose-50 hover:border-rose-200 transition-all active:scale-95 font-black text-[9px] uppercase tracking-widest">
+                              <XCircle className="w-4 h-4" /> Annuler
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => navigate(`/secretaire/patients/${rdv.patient_id}`)}
+                        className="absolute bottom-6 right-8 text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Détails Dossier <ArrowUpRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
+
+            {/* Section Agenda Global */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Agenda Global</h2>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-4 py-1.5 rounded-full border border-slate-200">
+                  {rdvList.filter(r => r.statut !== "en_attente" && r.date_rdv >= today).length} Rendez-vous à venir
+                </span>
+              </div>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                {rdvList.filter(r => r.statut !== "en_attente" && r.date_rdv >= today).map((rdv, i) => (
+                  <div
+                    key={rdv.id}
+                    className="group p-8 rounded-[3rem] border-2 bg-white border-slate-100 shadow-sm transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200 relative overflow-hidden"
+                  >
+                    <div className="flex items-start justify-between relative z-10">
+                      <div className="flex gap-6">
+                        <div className="w-20 h-20 rounded-[2rem] flex flex-col items-center justify-center border-2 bg-slate-50 border-slate-100 text-slate-400 shadow-sm">
+                          <span className="text-[10px] font-black uppercase opacity-60">Heure</span>
+                          <span className="text-xl font-black">{rdv.heure_rdv?.substring(0, 5)}</span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{rdv.patient_nom}</h3>
+                            <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statColor[rdv.statut]}`}>
+                              {statLabel[rdv.statut]}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            <p className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mb-1 ${rdv.date_rdv === today ? "text-blue-600" : "text-slate-400"}`}>
+                              <Calendar className="w-3.5 h-3.5" /> {rdv.date_rdv === today ? "Aujourd'hui" : formatDate(rdv.date_rdv)}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
+                              <User className="w-3.5 h-3.5 text-blue-500" /> Dr. {rdv.medecin_nom}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
+                              <AlertCircle className="w-3.5 h-3.5 text-orange-500" /> {rdv.motif}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          {rdv.statut !== "confirme" && (
+                            <button onClick={() => handleConfirm(rdv.id)} className="p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all active:scale-95 shadow-sm border border-emerald-100">
+                              <CheckCircle className="w-5 h-5" />
+                            </button>
+                          )}
+                          <button onClick={() => handleEditClick(rdv)} className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95 shadow-sm border border-slate-100">
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button onClick={() => handleCancelClick(rdv.id)} className="p-3 bg-white border-2 border-slate-100 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-50 hover:border-rose-200 transition-all active:scale-95 shadow-sm">
+                            <XCircle className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => navigate(`/secretaire/patients/${rdv.patient_id}`)}
+                      className="absolute bottom-6 right-8 text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      Détails Dossier <ArrowUpRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         ) : (
           <div className="space-y-6">
@@ -307,47 +424,63 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
               </button>
             </div>
 
-            {/* Patients List */}
-            <div className="space-y-4">
-              {filteredPatients.map((p, i) => (
-                <div key={p.id} onClick={() => navigate(`/secretaire/patients/${p.id}`)}
-                  className="group p-6 flex items-center justify-between bg-white border-2 border-slate-100 rounded-[2.5rem] hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-200/50 transition-all cursor-pointer animate-fadeInUp"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-[2rem] flex items-center justify-center text-blue-600 font-black text-2xl border-2 border-white shadow-inner">
-                      {p.prenom[0]}{p.nom[0]}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight group-hover:text-blue-600 transition-colors">{p.prenom} {p.nom}</h3>
-                      <div className="flex items-center gap-4 mt-2">
-                        <span className="px-3 py-1 bg-slate-50 text-slate-500 text-[9px] font-black uppercase tracking-widest rounded-lg border border-slate-100">
+            {/* Patients List - Refined Compact Version */}
+            <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50/50 border-b-2 border-slate-100">
+                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Patient</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">N° Dossier</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
+                    <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y-2 divide-slate-50">
+                  {filteredPatients.map((p, i) => (
+                    <tr 
+                      key={p.id} 
+                      onClick={() => navigate(`/secretaire/patients/${p.id}`)}
+                      className="group hover:bg-slate-50 transition-all cursor-pointer"
+                    >
+                      <td className="px-8 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-black text-sm border-2 border-white shadow-sm">
+                            {p.prenom[0]}{p.nom[0]}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-slate-900 uppercase tracking-tight group-hover:text-blue-600 transition-colors">{p.prenom} {p.nom}</p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Né(e) le {formatDate(p.date_naissance)}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest rounded-lg">
                           {p.numero_dossier}
                         </span>
-                        <span className="text-slate-200">|</span>
-                        <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold">
-                          <Phone className="w-3 h-3" /> {p.telephone || "—"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-slate-500">
+                          <Phone className="w-3.5 h-3.5 text-blue-500" />
+                          <span className="text-[11px] font-bold">{p.telephone || "—"}</span>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); navigate(`/secretaire/modifier-patient/${p.id}`); }}
-                      className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-600 transition-all"
-                      title="Modifier"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-emerald-600 transition-all" title="Imprimer">
-                      <Printer className="w-4 h-4" />
-                    </button>
-                    <button className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                      </td>
+                      <td className="px-8 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                           <button 
+                             onClick={(e) => { e.stopPropagation(); navigate(`/secretaire/modifier-patient/${p.id}`); }}
+                             className="p-2.5 bg-white border border-slate-200 rounded-lg text-slate-400 hover:text-blue-600 transition-all shadow-sm"
+                           >
+                             <Edit className="w-3.5 h-3.5" />
+                           </button>
+                           <button className="p-2.5 bg-slate-900 text-white rounded-lg hover:scale-110 transition-all shadow-md">
+                             <ChevronRight className="w-4 h-4" />
+                           </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -363,10 +496,10 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
           >
             <div className="p-12 border-b-2 border-slate-50 bg-slate-50/30 flex justify-between items-center">
               <div>
-                <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Nouveau RDV</h2>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">Enregistrement d'une nouvelle visite</p>
+                <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tight">{editingId ? "Modifier le RDV" : "Nouveau RDV"}</h2>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">{editingId ? "Mise à jour des détails du rendez-vous" : "Enregistrement d'une nouvelle visite"}</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all border border-slate-100">
+              <button onClick={() => { setShowModal(false); setEditingId(null); setFormData({ patient_id: "", medecin_id: "", date_rdv: "", heure_rdv: "", motif: "" }); }} className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all border border-slate-100">
                 <XCircle className="w-8 h-8" />
               </button>
             </div>
@@ -443,6 +576,53 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
                 className="flex-1 py-6 bg-blue-600 text-white rounded-[2.5rem] font-black text-[11px] uppercase tracking-widest shadow-2xl shadow-blue-200 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Confirmer le Rendez-vous
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Modal Annulation avec Motif */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg border-2 border-slate-100 overflow-hidden"
+          >
+            <div className="p-10 border-b-2 border-slate-50 bg-slate-50/30 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Annuler le RDV</h2>
+                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-1">Veuillez préciser le motif de l'annulation</p>
+              </div>
+              <button onClick={() => setShowCancelModal(false)} className="text-slate-300 hover:text-slate-900 transition-colors">
+                <XCircle className="w-8 h-8" />
+              </button>
+            </div>
+            <div className="p-10 space-y-6">
+              <div className="space-y-3">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Motif d'annulation</label>
+                <textarea
+                  placeholder="Ex: Patient indisponible, Médecin absent..."
+                  value={cancelReason}
+                  onChange={e => setCancelReason(e.target.value)}
+                  className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:bg-white focus:border-rose-500 outline-none text-sm font-bold transition-all h-32 resize-none"
+                />
+              </div>
+            </div>
+            <div className="p-10 border-t-2 border-slate-50 flex gap-4">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
+              >
+                Ignorer
+              </button>
+              <button
+                onClick={confirmCancel}
+                disabled={!cancelReason.trim()}
+                className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-rose-200 hover:bg-rose-700 transition-all disabled:opacity-30"
+              >
+                Confirmer l'annulation
               </button>
             </div>
           </motion.div>

@@ -3,9 +3,13 @@
 @tailwind utilities;
 
 @layer base {
+  html, body {
+    @apply h-screen overflow-hidden;
+    background-color: #f8fafc;
+  }
+  
   body {
     @apply text-slate-800 antialiased;
-    background-color: #f8fafc; /* Slate 50 - Cleaner & lighter background */
   }
   
   input, textarea, select {

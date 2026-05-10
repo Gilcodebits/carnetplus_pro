@@ -90,6 +90,15 @@ elseif ($method === 'POST') {
     $db->prepare("INSERT INTO audit_logs (utilisateur_id,action,table_cible,id_cible) VALUES (?,?,?,?)")
        ->execute([$user['id'], 'create_consultation', 'consultations', $newId]);
 
+    // Notifier le patient
+    $stmt = $db->prepare("SELECT utilisateur_id FROM patients WHERE id=?");
+    $stmt->execute([$input['patient_id']]);
+    $patUser = $stmt->fetchColumn();
+    if ($patUser) {
+        $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+           ->execute([$patUser, 'Nouvelle consultation', 'Une nouvelle consultation a été enregistrée dans votre dossier.', 'info']);
+    }
+
     echo json_encode(['id' => $newId, 'message' => 'Consultation enregistrée']);
 }
 

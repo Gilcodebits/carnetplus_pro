@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../contexts/ToastContext";
+import { formatDate } from "../utils/format";
 
 const statutConfig: Record<string, { label: string, color: string, icon: any }> = {
   en_attente: { label: "En attente", color: "bg-orange-100 text-orange-700 border-orange-200", icon: Clock },
@@ -154,7 +155,7 @@ export function GestionnaireTransferts() {
                         <div className="flex items-center gap-3 text-[10px] text-slate-900 font-black uppercase tracking-widest opacity-60">
                           <span>Dossier #{t.numero_dossier}</span>
                           <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                          <span>Le {new Date(t.date_demande).toLocaleDateString()}</span>
+                          <span>Le {formatDate(t.date_demande)}</span>
                         </div>
                       </div>
                     </div>

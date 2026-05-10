@@ -13,6 +13,7 @@ import {
   TrendingUp, Clock, FlaskConical, Droplets
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatDate } from "../utils/format";
 
 /* ── Helpers ──────────────────────────────────────────────── */
 const getInitiales = (prenom: string, nom: string) => 
@@ -34,6 +35,7 @@ export function PatientDossier() {
   const { id }   = useParams();
   const isPatient = user?.role === 'patient';
   const isMedecin = user?.role === 'medecin';
+  const isSecretaire = user?.role === 'secretaire';
   
   const [patient, setPatient]   = useState<any>(null);
   const [loading, setLoading]   = useState(true);
@@ -162,7 +164,7 @@ export function PatientDossier() {
           </div>
           <div className="text-right">
             <h2 className="text-lg font-black uppercase tracking-tight print-title">Carnet de Santé</h2>
-            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Généré le {new Date().toLocaleDateString('fr-FR')}</p>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Généré le {formatDate(new Date())}</p>
           </div>
         </div>
 
@@ -209,7 +211,7 @@ export function PatientDossier() {
                  {patient.consultations?.slice(0, 3).map((c: any, i: number) => (
                     <div key={i} className="flex justify-between items-center border-b border-slate-50 pb-2 last:border-0">
                        <p className="text-[10px] font-black text-slate-900 uppercase print-text truncate max-w-[150px]">{c.motif}</p>
-                       <p className="text-[8px] font-bold text-slate-400 uppercase">{new Date(c.date_consultation).toLocaleDateString()}</p>
+                       <p className="text-[8px] font-bold text-slate-400 uppercase">{formatDate(c.date_consultation)}</p>
                     </div>
                  ))}
                  {patient.consultations?.length === 0 && <p className="text-[9px] italic text-slate-400">Aucune visite.</p>}
@@ -226,7 +228,7 @@ export function PatientDossier() {
                  <div className="space-y-4">
                     {patient.prescriptions?.slice(0, 4).map((p: any, i: number) => (
                        <div key={i} className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                          <p className="text-[8px] font-black text-blue-400 uppercase mb-2">{new Date(p.created_at).toLocaleDateString()}</p>
+                          <p className="text-[8px] font-black text-blue-400 uppercase mb-2">{formatDate(p.created_at)}</p>
                           <div className="space-y-1.5">
                              {p.medicaments.map((m: string, j: number) => (
                                 <p key={j} className="text-[10px] font-black text-slate-700 uppercase leading-tight print-text">• {m}</p>
@@ -304,23 +306,32 @@ export function PatientDossier() {
                   <div className="w-1 h-1 bg-slate-300 rounded-full" />
                   <span>{patient.sexe==="F"?"Femme":"Homme"}</span>
                   <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                  <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-indigo-500" /> {patient.date_naissance ? new Date(patient.date_naissance).toLocaleDateString("fr-FR", {day:"numeric", month:"short", year:"numeric"}) : "—"}</span>
+                  <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-indigo-500" /> {patient.date_naissance ? formatDate(patient.date_naissance) : "—"}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-4 relative z-10 print:hidden">
-              {isMedecin ? (
+              {isMedecin && (
                 <>
                   <button onClick={()=>navigate(`/medecin/consultation/${id}`)} className="flex items-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-blue-300 transition-all active:scale-95 border-2 border-blue-500"><Stethoscope className="w-5 h-5"/> <span>Consultation</span></button>
                   <button onClick={()=>navigate(`/medecin/prescription/${id}`)} className="flex items-center gap-3 px-6 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-emerald-300 transition-all active:scale-95 border-2 border-emerald-500"><Pill className="w-5 h-5"/> <span>Prescrire</span></button>
                 </>
-              ) : (
+              )}
+              {isPatient && (
                 <button 
                   onClick={() => window.print()}
                   className="flex items-center gap-3 px-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-slate-300 transition-all active:scale-95 border-2 border-slate-700"
                 >
                   <Printer className="w-5 h-5 text-blue-400"/> <span>Télécharger Mon Carnet</span>
+                </button>
+              )}
+              {isSecretaire && (
+                <button 
+                  onClick={() => window.print()}
+                  className="flex items-center gap-3 px-6 py-4 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
+                >
+                  <Printer className="w-5 h-5 text-blue-600"/> <span>Imprimer le Dossier</span>
                 </button>
               )}
             </div>
@@ -425,7 +436,7 @@ export function PatientDossier() {
                                      </div>
                                      <div>
                                         <div className="flex items-center gap-3 mb-1">
-                                           <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{new Date(c.date_consultation).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'})}</span>
+                                           <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{formatDate(c.date_consultation)}</span>
                                            <span className="w-1 h-1 bg-slate-200 rounded-full" />
                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dr. {c.medecin_nom}</span>
                                         </div>
@@ -452,7 +463,7 @@ export function PatientDossier() {
                                     <Pill className="w-6 h-6" />
                                  </div>
                                  <div className="flex flex-col items-end">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{new Date(p.created_at).toLocaleDateString()}</p>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{formatDate(p.created_at)}</p>
                                     <button 
                                       onClick={() => navigate(`/prescription-view/${p.id}`)}
                                       className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[8px] font-black uppercase hover:bg-emerald-600 hover:text-white transition-all print:hidden"
@@ -485,7 +496,7 @@ export function PatientDossier() {
                                  </div>
                                  <div>
                                     <div className="flex items-center gap-3 mb-1">
-                                       <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest">{new Date(e.date_demande).toLocaleDateString()}</span>
+                                       <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest">{formatDate(e.date_demande)}</span>
                                        <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase ${e.statut === 'termine' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'}`}>
                                          {e.statut}
                                        </span>

@@ -61,8 +61,21 @@ elseif ($method === 'POST') {
 
 elseif ($method === 'PUT' && $id) {
     requireRole(['labo','medecin','admin']);
+    $statut = $input['statut'] ?? 'en_attente';
+    
     $db->prepare("UPDATE examens SET statut=?,resultat=?,date_resultat=NOW() WHERE id=?")
-       ->execute([$input['statut']??'en_cours', $input['resultat']??'', $id]);
+       ->execute([$statut, $input['resultat']??'', $id]);
+
+    // Notifier le patient si l'examen est terminé
+    if ($statut === 'termine') {
+        $stmt = $db->prepare("SELECT e.type_examen, p.utilisateur_id FROM examens e JOIN patients p ON e.patient_id = p.id WHERE e.id = ?");
+        $stmt->execute([$id]);
+        $info = $stmt->fetch();
+        if ($info && $info['utilisateur_id']) {
+            $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+               ->execute([$info['utilisateur_id'], 'Résultat disponible', "Votre résultat d'examen ({$info['type_examen']}) est disponible.", 'success']);
+        }
+    }
     echo json_encode(['message' => 'Examen mis à jour']);
 }
 

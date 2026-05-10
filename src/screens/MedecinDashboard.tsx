@@ -80,73 +80,58 @@ export function MedecinDashboard() {
   }
 
   return (
-    <div className="p-10 animate-fadeIn bg-slate-200 min-h-screen">
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
-        <div className="flex items-center gap-6">
-           <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-200 border-2 border-white/20">
-             <Stethoscope className="w-8 h-8 text-white"/>
-           </div>
-           <div>
-             <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Bonjour, Dr. {user?.nom}</h1>
-             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 opacity-80">
-               {new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" })}
-             </p>
-           </div>
-        </div>
-      </div>
-
+    <div className="p-8 animate-fadeIn bg-slate-200 min-h-screen">
       {/* Stats Cards - Soft UI Theme */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-blue-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-blue-100 shadow-sm">
-              <Users className="w-6 h-6 text-blue-600" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white p-5 rounded-[1.5rem] shadow-xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-blue-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-blue-100 shadow-sm">
+              <Users className="w-5 h-5 text-blue-600" />
             </div>
-            <span className="text-[9px] font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-blue-100 shadow-sm">Suivis</span>
+            <span className="text-[8px] font-black text-blue-700 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-widest border border-blue-100 shadow-sm">Suivis</span>
           </div>
           <div>
-            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.mes_patients || 0}</h3>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Mes Patients Actifs</p>
+            <h3 className="text-2xl font-black text-slate-900 mb-0.5 tracking-tight">{stats.mes_patients || 0}</h3>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Mes Patients Actifs</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-emerald-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-emerald-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-emerald-100 shadow-sm">
-              <Calendar className="w-6 h-6 text-emerald-600" />
+        <div className="bg-white p-5 rounded-[1.5rem] shadow-xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-emerald-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-emerald-100 shadow-sm">
+              <Calendar className="w-5 h-5 text-emerald-600" />
             </div>
-            <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-emerald-100 shadow-sm">Aujourd'hui</span>
+            <span className="text-[8px] font-black text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-widest border border-emerald-100 shadow-sm">Auj.</span>
           </div>
           <div>
-            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.rdv_today || 0}</h3>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Consultations prévues</p>
+            <h3 className="text-2xl font-black text-slate-900 mb-0.5 tracking-tight">{stats.rdv_today || 0}</h3>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Consultations prévues</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-purple-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-purple-100 shadow-sm">
-              <Activity className="w-6 h-6 text-purple-600" />
+        <div className="bg-white p-5 rounded-[1.5rem] shadow-xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-purple-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-purple-100 shadow-sm">
+              <Activity className="w-5 h-5 text-purple-600" />
             </div>
-            <span className="text-[9px] font-black text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-purple-100 shadow-sm">Hebdo</span>
+            <span className="text-[8px] font-black text-purple-700 bg-purple-50 px-2 py-1 rounded-md uppercase tracking-widest border border-purple-100 shadow-sm">Hebdo</span>
           </div>
           <div>
-            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.consultations_semaine || 0}</h3>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Suivi Hebdomadaire</p>
+            <h3 className="text-2xl font-black text-slate-900 mb-0.5 tracking-tight">{stats.consultations_semaine || 0}</h3>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Suivi Hebdomadaire</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-2xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-orange-400 transition-all hover:-translate-y-1">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-orange-50 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-orange-100 shadow-sm">
-              <Pill className="w-6 h-6 text-orange-500" />
+        <div className="bg-white p-5 rounded-[1.5rem] shadow-xl shadow-slate-200/50 border-2 border-slate-200 flex flex-col justify-between group hover:border-orange-400 transition-all hover:-translate-y-1">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-orange-100 shadow-sm">
+              <Pill className="w-5 h-5 text-orange-500" />
             </div>
-            <span className="text-[9px] font-black text-orange-700 bg-orange-50 px-2.5 py-1 rounded-lg uppercase tracking-widest border-2 border-orange-100 shadow-sm">Actives</span>
+            <span className="text-[8px] font-black text-orange-700 bg-orange-50 px-2 py-1 rounded-md uppercase tracking-widest border border-orange-100 shadow-sm">Actives</span>
           </div>
           <div>
-            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stats.prescriptions_actives || 0}</h3>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Traitement en cours</p>
+            <h3 className="text-2xl font-black text-slate-900 mb-0.5 tracking-tight">{stats.prescriptions_actives || 0}</h3>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Traitement en cours</p>
           </div>
         </div>
       </div>
@@ -237,33 +222,44 @@ export function MedecinDashboard() {
             <div className="p-6 overflow-hidden">
               <div className="space-y-2 max-h-[700px] overflow-y-auto pr-2">
                 {filteredPatients.length > 0 ? (
-                  filteredPatients.map((p, index) => (
-                    <div 
-                    key={p.id}
-                    onClick={() => navigate(`/medecin/dossier/${p.id}`)}
-                    className={`p-6 rounded-[2.5rem] border-2 transition-all cursor-pointer group flex items-center gap-6 hover:scale-[1.01] hover:shadow-2xl hover:shadow-blue-200/40 ${index % 2 === 0 ? 'bg-white border-slate-200' : 'bg-blue-50/20 border-blue-50'}`}
-                  >
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-105 transition-transform duration-300 border-2 border-white/20">
-                      {getInitiales(p.prenom, p.nom)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-4 mb-2">
-                        <p className="font-black text-slate-900 text-lg leading-none uppercase tracking-tight group-hover:text-blue-600 transition-colors">{p.prenom} {p.nom}</p>
-                        <span className="px-3 py-1 bg-white border-2 border-slate-100 rounded-xl text-[10px] font-black text-slate-500 font-mono uppercase tracking-widest shadow-sm">{p.numero_dossier}</span>
+                  <>
+                    {filteredPatients.slice(0, 5).map((p, index) => (
+                      <div 
+                      key={p.id}
+                      onClick={() => navigate(`/medecin/dossier/${p.id}`)}
+                      className={`p-6 rounded-[2.5rem] border-2 transition-all cursor-pointer group flex items-center gap-6 hover:scale-[1.01] hover:shadow-2xl hover:shadow-blue-200/40 ${index % 2 === 0 ? 'bg-white border-slate-200' : 'bg-blue-50/20 border-blue-50'}`}
+                    >
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-105 transition-transform duration-300 border-2 border-white/20">
+                        {getInitiales(p.prenom, p.nom)}
                       </div>
-                      <div className="flex items-center gap-5">
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{calculateAge(p.date_naissance)} ans</p>
-                        <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 border-2 border-slate-100 rounded-xl">
-                          <Activity className="w-3.5 h-3.5 text-emerald-500" />
-                          <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Groupe {p.groupe_sanguin || '—'}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-4 mb-2">
+                          <p className="font-black text-slate-900 text-lg leading-none uppercase tracking-tight group-hover:text-blue-600 transition-colors">{p.prenom} {p.nom}</p>
+                          <span className="px-3 py-1 bg-white border-2 border-slate-100 rounded-xl text-[10px] font-black text-slate-500 font-mono uppercase tracking-widest shadow-sm">{p.numero_dossier}</span>
+                        </div>
+                        <div className="flex items-center gap-5">
+                          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{calculateAge(p.date_naissance)} ans</p>
+                          <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 border-2 border-slate-100 rounded-xl">
+                            <Activity className="w-3.5 h-3.5 text-emerald-500" />
+                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Groupe {p.groupe_sanguin || '—'}</span>
+                          </div>
                         </div>
                       </div>
+                      <button className="p-4 bg-white rounded-2xl text-slate-300 group-hover:text-blue-600 group-hover:bg-blue-50 transition-all border-2 border-slate-100 group-hover:border-blue-200 shadow-sm active:scale-90">
+                        <ChevronRight className="w-7 h-7" />
+                      </button>
                     </div>
-                    <button className="p-4 bg-white rounded-2xl text-slate-300 group-hover:text-blue-600 group-hover:bg-blue-50 transition-all border-2 border-slate-100 group-hover:border-blue-200 shadow-sm active:scale-90">
-                      <ChevronRight className="w-7 h-7" />
-                    </button>
-                  </div>
-                  ))
+                    ))}
+                    {filteredPatients.length > 5 && (
+                      <button 
+                        onClick={() => navigate("/medecin/patients")}
+                        className="w-full mt-4 py-4 bg-blue-50 text-blue-600 rounded-[2rem] font-black text-[11px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2 group"
+                      >
+                        Voir tous les patients ({filteredPatients.length})
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    )}
+                  </>
                 ) : (
                   <div className="py-24 text-center">
                     <div className="w-20 h-20 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6">

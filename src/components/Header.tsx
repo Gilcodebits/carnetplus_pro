@@ -1,14 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Search, ChevronDown, CheckCircle2, AlertCircle, Info, User, Settings, LogOut, Calendar } from "lucide-react";
+import { Bell, Search, ChevronDown, CheckCircle2, AlertCircle, Info, User, Settings, LogOut, Calendar, X } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useSearch } from "../contexts/SearchContext";
+import { rdvAPI } from "../services/api";
 import { ConfirmModal } from "./ConfirmModal";
+import { motion, AnimatePresence } from "framer-motion";
+import { formatDate } from "../utils/format";
 
 export function Header() {
   const { user, logout } = useAuth();
-  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, deleteNotification, deleteAll } = useNotifications();
   const { searchQuery, setSearchQuery } = useSearch();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -31,9 +34,48 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleNotificationClick = (n: any) => {
+    if (!n.lu) markAsRead(n.id);
+    setShowNotifications(false);
+    
+    const titre = n.titre.toLowerCase();
+    const role = user?.role;
+    
+    if (titre.includes("message")) {
+      navigate(`/${role}/messagerie`);
+    } else if (titre.includes("rendez-vous") || titre.includes("rdv")) {
+      if (role === 'patient') navigate('/patient/calendrier-rdv');
+      else if (role === 'medecin') navigate('/medecin/agenda');
+      else if (role === 'secretaire') {
+        if (n.patient_id) navigate(`/secretaire/patients/${n.patient_id}`);
+        else navigate('/secretaire');
+      }
+      else navigate(`/${role}`);
+    } else if (titre.includes("ordonnance") || titre.includes("analyse") || titre.includes("bilan")) {
+      if (role === 'patient') navigate('/patient/dossier');
+    }
+  };
+
+  const handleConfirmRDV = async (e: React.MouseEvent, n: any) => {
+    e.stopPropagation();
+    try {
+      // Mock logic: extract RDV ID or use notification ID for demo
+      const rdvId = n.rdv_id || n.id;
+      await rdvAPI.update(rdvId, { statut: 'confirme' });
+      markAsRead(n.id);
+      setShowNotifications(false);
+      // Small toast simulation or navigation
+      navigate('/secretaire'); 
+    } catch (err) {
+      console.error("Erreur confirmation RDV:", err);
+    }
+  };
+
   const getGreeting = () => {
     const hour = new Date().getHours();
-    return hour >= 18 ? "Bonsoir" : "Bonjour";
+    if (hour >= 18 || hour < 5) return "Bonsoir";
+    if (hour >= 12) return "Bon après-midi";
+    return "Bonjour";
   };
 
   const roleLabels: Record<string,string> = {
@@ -42,102 +84,130 @@ export function Header() {
   };
 
   return (
-    <header className="h-20 bg-blue-600 px-8 flex items-center justify-between sticky top-0 z-50 shadow-lg shadow-blue-900/10">
-      {user?.role === 'patient' ? (
-        <div className="flex items-center gap-3">
+    <header className="h-16 bg-blue-600 px-8 flex items-center justify-between sticky top-0 z-50 shadow-lg shadow-blue-900/10">
+      <div className="flex items-center gap-8 flex-1">
+        <div className="flex items-center gap-3 min-w-max">
           <div className="flex flex-col">
             <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest opacity-80">
-              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              {formatDate(new Date())}
             </p>
             <p className="text-white text-xl font-bold tracking-tight leading-none mt-0.5">
-              {getGreeting()}, <span className="text-blue-200">{user?.prenom}</span> 👋
+              {getGreeting()},{" "}
+              <span className="text-blue-200">
+                {user?.role === 'medecin' ? `Dr. ${user?.nom}` : user?.prenom}
+              </span> 👋
             </p>
           </div>
         </div>
-      ) : (
-        <div className="flex-1 max-w-xl">
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-blue-200 group-focus-within:text-white transition-colors" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher..."
-              className="block w-full pl-12 pr-6 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-100 focus:outline-none focus:bg-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/5 transition-all text-sm font-medium backdrop-blur-sm"
-            />
-          </div>
-        </div>
-      )}
 
-      <div className="flex items-center gap-6">
-        {/* Date Display for Staff */}
-        {user?.role !== 'patient' && (
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/10 rounded-lg text-blue-50 text-[10px] font-bold uppercase tracking-widest">
-            <Calendar className="w-3.5 h-3.5 text-blue-200" />
-            {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+        {user?.role !== 'patient' && user?.role !== 'secretaire' && (
+          <div className="flex-1 max-w-xl hidden md:block">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-blue-200 group-focus-within:text-white transition-colors" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Rechercher un patient, un dossier..."
+                className="w-full bg-blue-700/50 border border-blue-500/30 text-white placeholder-blue-300 text-xs font-bold rounded-2xl py-3 pl-11 pr-4 focus:outline-none focus:bg-blue-700 focus:border-blue-400 focus:ring-4 focus:ring-blue-400/10 transition-all"
+              />
+            </div>
           </div>
         )}
+      </div>
 
+      <div className="flex items-center gap-4">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <button 
-            onClick={() => { setShowNotifications(!showNotifications); setShowProfileMenu(false); }}
-            className={`relative p-2 rounded-xl transition-all group ${
-              showNotifications ? "bg-white/20 text-white" : "text-blue-100 hover:text-white hover:bg-white/10"
-            }`}
+            onClick={() => setShowNotifications(!showNotifications)}
+            className={`p-2.5 rounded-xl transition-all relative ${showNotifications ? 'bg-white text-blue-600 shadow-lg' : 'text-blue-100 hover:bg-white/10'}`}
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-rose-500 border-2 border-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-[8px] text-white font-bold">{unreadCount}</span>
-              </div>
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-blue-600 shadow-lg animate-pulse">
+                {unreadCount}
+              </span>
             )}
           </button>
 
-          {showNotifications && (
-            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-fadeInUp z-[60]">
-              <div className="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                <h3 className="font-bold text-slate-900 text-sm">Notifications</h3>
-              </div>
-              <div className="max-h-[300px] overflow-y-auto scrollbar-hide">
-                {notifications.length > 0 ? (
-                  notifications.slice(0, 5).map((n) => (
-                    <div 
-                      key={n.id} 
-                      onClick={() => { if(!n.lu) markAsRead(n.id); }}
-                      className={`p-4 hover:bg-slate-50 transition-all border-b border-slate-50 cursor-pointer group ${!n.lu ? 'bg-blue-50/30' : ''}`}
-                    >
-                      <div className="flex gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          n.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 
-                          n.type === 'warning' ? 'bg-orange-50 text-orange-600' : 
-                          'bg-blue-50 text-blue-600'
-                        }`}>
-                          {n.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : 
-                           n.type === 'warning' ? <AlertCircle className="w-4 h-4" /> : 
-                           <Info className="w-4 h-4" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-xs text-slate-900 truncate">{n.titre}</p>
-                          <p className="text-[10px] text-slate-500 leading-relaxed line-clamp-2 mt-0.5">{n.message}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-10 text-center text-slate-400 text-xs italic">Aucune notification</div>
-                )}
-              </div>
-              <button 
-                onClick={() => { setShowNotifications(false); navigate(`/${user?.role}/notifications`); }}
-                className="w-full p-3 text-[10px] font-bold text-blue-600 hover:bg-slate-50 transition-all text-center border-t border-slate-100 uppercase tracking-widest"
+          <AnimatePresence>
+            {showNotifications && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute right-0 mt-3 w-80 bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/20 border border-slate-100 overflow-hidden z-50"
               >
-                Voir tout
-              </button>
-            </div>
-          )}
+                <div className="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                  <h3 className="font-bold text-slate-900 text-sm">Notifications</h3>
+                  {notifications.length > 0 && (
+                    <button onClick={(e) => { e.stopPropagation(); deleteAll(); }} className="text-[9px] text-rose-500 font-bold uppercase tracking-widest hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors">Tout effacer</button>
+                  )}
+                </div>
+                <div className="max-h-[300px] overflow-y-auto scrollbar-hide">
+                  {notifications.length > 0 ? (
+                    notifications.slice(0, 5).map((n) => (
+                      <div 
+                        key={n.id} 
+                        onClick={() => handleNotificationClick(n)}
+                        className={`relative p-4 hover:bg-slate-50 transition-all border-b border-slate-50 cursor-pointer group ${!n.lu ? 'bg-blue-50/30' : ''}`}
+                      >
+                        <div className="flex gap-3 pr-6">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                            n.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 
+                            n.type === 'warning' ? 'bg-orange-50 text-orange-600' : 
+                            'bg-blue-50 text-blue-600'
+                          }`}>
+                            {n.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : 
+                             n.type === 'warning' ? <AlertCircle className="w-4 h-4" /> : 
+                             <Info className="w-4 h-4" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-xs text-slate-900 truncate">{n.titre}</p>
+                            <p className="text-[10px] text-slate-500 leading-relaxed line-clamp-2 mt-0.5">{n.message}</p>
+                            
+                            {user?.role === 'secretaire' && n.titre.toLowerCase().includes("rdv") && !n.lu && (
+                              <div className="mt-3 flex gap-2">
+                                <button 
+                                  onClick={(e) => handleConfirmRDV(e, n)}
+                                  className="px-3 py-1.5 bg-emerald-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all active:scale-95"
+                                >
+                                  Confirmer maintenant
+                                </button>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); navigate(n.patient_id ? `/secretaire/patients/${n.patient_id}` : '/secretaire'); setShowNotifications(false); }}
+                                  className="px-3 py-1.5 bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-all"
+                                >
+                                  Voir détails
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); deleteNotification(n.id); }} 
+                          className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-all"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-10 text-center text-slate-400 text-xs italic">Aucune notification</div>
+                  )}
+                </div>
+                <button 
+                  onClick={() => { setShowNotifications(false); navigate(`/${user?.role}/notifications`); }}
+                  className="w-full p-3 text-[10px] font-bold text-blue-600 hover:bg-slate-50 transition-all text-center border-t border-slate-100 uppercase tracking-widest"
+                >
+                  Voir tout
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="w-px h-6 bg-white/20" />

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import { messagesAPI, notificationAPI, utilisateursAPI } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
-import { Send, Bell, Mail, Search, User, Clock, Check, MoreVertical, MessageSquarePlus, ChevronRight } from "lucide-react";
+import { Send, Bell, Mail, Search, User, Clock, Check, CheckCheck, MoreVertical, MessageSquarePlus, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function Messagerie() {
@@ -21,7 +21,15 @@ export function Messagerie() {
   useEffect(() => {
     loadData();
     fetchDoctors();
+    const interval = setInterval(() => loadData(true), 5000);
+    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (selectedConvId) {
+      messagesAPI.markRead(selectedConvId).catch(console.error);
+    }
+  }, [selectedConvId]);
 
   const fetchDoctors = async () => {
     try {
@@ -51,8 +59,8 @@ export function Messagerie() {
     // Optionnel: ajouter un message de bienvenue automatique si c'est nouveau
   };
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
     try {
       const [msgData, notifData] = await Promise.all([
         messagesAPI.list(),
@@ -63,14 +71,14 @@ export function Messagerie() {
     } catch (err) {
       console.error("Erreur messagerie:", err);
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   };
 
   // Regrouper les messages par interlocuteur
   const conversationsMap = new Map();
   allMessages.forEach(m => {
-    const isMine = !m.expediteur_nom.includes("Admin"); // Simplification pour démo
+    const isMine = Number(m.expediteur_id) === Number(user?.id);
     const otherId = isMine ? m.destinataire_id : m.expediteur_id;
     const otherName = isMine ? m.destinataire_nom : m.expediteur_nom;
     
@@ -94,7 +102,7 @@ export function Messagerie() {
         contenu: message
       });
       setMessage("");
-      loadData();
+      loadData(true);
     } catch (err) {
       alert("Erreur lors de l'envoi");
     }
@@ -110,30 +118,30 @@ export function Messagerie() {
   );
 
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col overflow-hidden bg-slate-50/30">
+    <div className="p-10 animate-fadeIn h-[calc(100vh-64px)] flex flex-col bg-slate-200">
       {/* Fixed Top Header */}
-      <div className="px-8 lg:px-12 pt-10 pb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-50/30 border-b border-slate-200/50">
-        <div>
-          <div className="flex items-center gap-4 mb-2">
-             <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-                <Mail className="w-6 h-6 text-white" />
-             </div>
-             <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Messagerie</h1>
-          </div>
-          <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mt-1 ml-16">Communication cryptée de bout en bout</p>
+      <div className="sticky top-0 z-40 bg-slate-200/90 backdrop-blur-xl -mx-10 -mt-10 px-10 pb-4 pt-6 border-b border-slate-300/50 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4">
+           <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1rem] flex items-center justify-center shadow-md border border-white/20">
+              <Mail className="w-6 h-6 text-white" />
+           </div>
+           <div>
+             <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Messagerie</h1>
+             <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-0.5 opacity-80">Communication cryptée de bout en bout</p>
+           </div>
         </div>
         <button 
           onClick={() => setShowNewChatModal(true)}
-          className="px-10 py-5 bg-slate-900 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-slate-300 hover:bg-blue-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center gap-3"
+          className="px-8 py-4 bg-slate-900 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest shadow-xl hover:bg-blue-600 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center gap-3"
         >
-           <MessageSquarePlus className="w-5 h-5 text-blue-400" /> Démarrer une discussion
+           <MessageSquarePlus className="w-4 h-4 text-blue-400" /> Démarrer une discussion
         </button>
       </div>
 
       {/* Main Layout Area - Fixed Height */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 px-8 lg:px-12 py-8 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden min-h-0">
         {/* Unified Chat & List Card */}
-        <div className="lg:col-span-9 flex flex-col min-h-0 h-full">
+        <div className="lg:col-span-12 flex flex-col min-h-0 h-full">
           <Card noPadding className="rounded-[3.5rem] border-0 shadow-2xl shadow-slate-200/60 flex-1 flex overflow-hidden bg-white">
               {/* Sidebar: Conversations List - Scrollable */}
             <div className="w-full md:w-80 border-r border-slate-100 flex flex-col bg-slate-50/40 backdrop-blur-md">
@@ -210,7 +218,7 @@ export function Messagerie() {
                   {/* Chat Messages - Scrollable */}
                   <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/20 scrollbar-hide">
                     {[...(selectedConv?.messages || [])].reverse().map((msg, i) => {
-                      const isMine = !msg.expediteur_nom.includes("Admin");
+                      const isMine = Number(msg.expediteur_id) === Number(user?.id);
                       return (
                         <div key={i} className={`flex ${isMine ? "justify-end" : "justify-start"} animate-fadeInUp group`}>
                           <div className={`max-w-[70%] space-y-2`}>
@@ -225,8 +233,17 @@ export function Messagerie() {
                               {new Date(msg.created_at).toLocaleTimeString().substring(0,5)}
                               {isMine && (
                                 <div className="flex items-center gap-1">
-                                   <Check className="w-3 h-3 text-blue-500" />
-                                   <span className="text-blue-500">Lu</span>
+                                   {Number(msg.lu) === 1 ? (
+                                     <>
+                                       <CheckCheck className="w-3 h-3 text-blue-500" />
+                                       <span className="text-blue-500">Lu</span>
+                                     </>
+                                   ) : (
+                                     <>
+                                       <Check className="w-3 h-3 text-slate-300" />
+                                       <span className="text-slate-300 italic">Envoyé</span>
+                                     </>
+                                   )}
                                 </div>
                               )}
                             </div>
@@ -267,34 +284,6 @@ export function Messagerie() {
                   <p className="text-slate-400 text-sm font-bold uppercase tracking-widest max-w-sm leading-relaxed opacity-70">Sélectionnez un collaborateur ou un administrateur pour engager une conversation sécurisée.</p>
                 </div>
               )}
-            </div>
-          </Card>
-        </div>
-
-        {/* Notifications Column - Scrollable */}
-        <div className="lg:col-span-3 flex flex-col min-h-0 h-full">
-          <Card className="rounded-[3.5rem] border-0 shadow-2xl shadow-slate-200/60 flex-1 flex flex-col overflow-hidden bg-white p-12">
-            <div className="flex items-center justify-between mb-12">
-               <h3 className="font-black text-slate-900 flex items-center gap-5 uppercase tracking-tight text-xl">
-                 <div className="w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200">
-                   <Bell className="w-6 h-6 text-white animate-bounce" />
-                 </div>
-                 Alertes
-               </h3>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto space-y-6 pr-2 scrollbar-hide">
-              {notifications.map((notif, i) => (
-                <motion.div 
-                  key={notif.id || i} 
-                  className={`p-8 rounded-[2.8rem] border transition-all cursor-pointer group shadow-sm hover:shadow-2xl hover:bg-white relative overflow-hidden ${
-                    i % 2 === 0 ? "border-slate-100 bg-slate-50/50" : "border-slate-50 bg-white"
-                  }`}
-                >
-                  <p className="text-[12px] font-black text-slate-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight mb-3 leading-tight">{notif.titre}</p>
-                  <p className="text-[11px] text-slate-500 font-bold leading-relaxed uppercase tracking-widest opacity-60 line-clamp-3">{notif.message}</p>
-                </motion.div>
-              ))}
             </div>
           </Card>
         </div>

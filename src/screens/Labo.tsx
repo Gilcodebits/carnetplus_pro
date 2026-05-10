@@ -30,7 +30,7 @@ export function Labo() {
   };
 
   // Préparation des données pour le graphique (si vide, mettre des zéros)
-  const activityData = stats.activite_semaine.length > 0 
+  const activityData = (stats.activite_semaine && stats.activite_semaine.length > 0)
     ? stats.activite_semaine.map((item: any) => ({ day: item.jour, value: Math.min(item.total * 10, 100) }))
     : [
         { day: 'L', value: 0 }, { day: 'M', value: 0 }, { day: 'M', value: 0 },
@@ -47,18 +47,19 @@ export function Labo() {
   );
 
   return (
-    <div className="p-12 space-y-12 bg-slate-50/50 min-h-screen">
-      <div className="flex justify-between items-center">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-            <LayoutDashboard className="w-10 h-10 text-teal-600" /> Dashboard Labo
-          </h1>
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 ml-14">Performance & Monitoring Biomédical</p>
-        </motion.div>
+    <div className="min-h-screen bg-slate-50/50 overflow-x-hidden scrollbar-hide">
+      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 px-12 py-8 flex justify-between items-center shadow-sm">
+        <div>
+           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+             <Activity className="w-6 h-6 text-teal-600" /> Monitoring Labo
+           </h2>
+        </div>
         <Link to="/labo/analyses" className="px-8 py-4 bg-teal-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-teal-500/20 hover:shadow-2xl transition-all flex items-center gap-3">
           <Zap className="w-4 h-4" /> Gérer les Analyses
         </Link>
       </div>
+
+      <div className="p-12 space-y-12">
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <StatCard title="En cours" value={stats.en_cours || 0} icon={<Clock/>} color="orange" delay={100} />
@@ -175,5 +176,6 @@ export function Labo() {
         </motion.div>
       </div>
     </div>
-  );
+  </div>
+);
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2, ShieldCheck } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useMessages } from "../contexts/MessageContext";
 import { ConfirmModal } from "./ConfirmModal";
 
 type Role = "admin" | "medecin" | "secretaire" | "labo" | "patient" | "gestionnaire";
@@ -59,6 +60,7 @@ const roleLabels: Record<Role,string> = {
 
 export function Sidebar({ role, activePath }: SidebarProps) {
   const { logout } = useAuth();
+  const { unreadMessagesCount } = useMessages();
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -81,7 +83,7 @@ export function Sidebar({ role, activePath }: SidebarProps) {
       </div>
 
       {/* Nav Section */}
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-hide">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-3 mt-2">Menu</p>
         {items.map((item) => {
           const Icon    = item.icon;
@@ -99,7 +101,16 @@ export function Sidebar({ role, activePath }: SidebarProps) {
               }`}>
               <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"}`}/>
               <span className="text-xs font-bold truncate">{item.label}</span>
-              {isActive && <ChevronRight className="ml-auto w-3.5 h-3.5 text-white/70"/>}
+              
+              {item.label === "Messagerie" && unreadMessagesCount > 0 && (
+                <span className={`ml-auto px-1.5 py-0.5 rounded-lg text-[9px] font-black ${
+                  isActive ? "bg-white text-blue-600" : "bg-rose-500 text-white shadow-lg shadow-rose-200"
+                }`}>
+                  {unreadMessagesCount}
+                </span>
+              )}
+              
+              {isActive && item.label !== "Messagerie" && <ChevronRight className="ml-auto w-3.5 h-3.5 text-white/70"/>}
             </Link>
           );
         })}

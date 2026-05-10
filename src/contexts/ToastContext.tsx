@@ -20,11 +20,21 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const showToast = useCallback((message: string, type: ToastType) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 5000);
+    setToasts((prev) => {
+      // Éviter les doublons exacts (même message et type)
+      const isDuplicate = prev.some(t => t.message === message && t.type === type);
+      if (isDuplicate) return prev;
+      
+      const id = Math.random().toString(36).substring(2, 9);
+      // Limiter à 3 toasts maximum pour éviter l'encombrement
+      const newToasts = [...prev, { id, message, type }].slice(-3);
+      
+      setTimeout(() => {
+        setToasts((curr) => curr.filter((t) => t.id !== id));
+      }, 5000);
+      
+      return newToasts;
+    });
   }, []);
 
   const removeToast = (id: string) => {

@@ -9,6 +9,8 @@ interface Notification {
   type: 'info' | 'success' | 'warning' | 'error';
   lu: number;
   created_at: string;
+  patient_id?: number;
+  rdv_id?: number;
 }
 
 interface NotificationContextType {

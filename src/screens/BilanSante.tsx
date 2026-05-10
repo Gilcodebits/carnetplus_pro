@@ -9,6 +9,7 @@ import {
   BarChart3, Scale, Droplets
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatDate } from "../utils/format";
 
 export function BilanSante() {
   const navigate = useNavigate();
@@ -96,7 +97,7 @@ export function BilanSante() {
           </div>
           <div className="text-right">
             <h2 className="text-lg font-black uppercase tracking-tight print-title">Rapport de Bilan de Santé</h2>
-            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Généré le {new Date().toLocaleDateString('fr-FR')}</p>
+            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Généré le {formatDate(new Date())}</p>
           </div>
         </div>
 
@@ -109,7 +110,7 @@ export function BilanSante() {
              <div className="flex-1">
                 <h3 className="text-xl font-black uppercase tracking-tight mb-2">Diagnostic de Vigueur</h3>
                 <p className="text-sm font-bold text-slate-600 leading-relaxed">
-                   Votre bilan du {new Date().toLocaleDateString()} présente un indice global de {stats.global}/100. 
+                   Votre bilan du {formatDate(new Date())} présente un indice global de {stats.global}/100. 
                    L'analyse IA suggère une attention particulière sur votre {stats.sommeil < 80 ? 'sommeil' : 'niveau de stress'}.
                 </p>
              </div>

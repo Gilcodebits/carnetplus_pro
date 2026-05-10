@@ -93,6 +93,16 @@ elseif ($method === 'PUT' && $id) {
         WHERE id=?
     ")->execute([$statut, $input['notes']??'', $id]);
 
+    // Notifier le patient
+    $stmt = $db->prepare("SELECT p.utilisateur_id FROM transferts_dossiers t JOIN patients p ON t.patient_id = p.id WHERE t.id = ?");
+    $stmt->execute([$id]);
+    $patUser = $stmt->fetchColumn();
+    if ($patUser) {
+        $msg = "Le statut de votre demande de transfert est désormais : " . strtoupper($statut);
+        $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+           ->execute([$patUser, 'Suivi de transfert', $msg, 'info']);
+    }
+
     echo json_encode(['message' => 'Transfert mis à jour — statut: '.$statut]);
 }
 

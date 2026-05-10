@@ -12,11 +12,11 @@ export function PatientLayout() {
   
   return (
     <SearchProvider>
-      <div className="flex h-screen bg-gray-50 overflow-hidden relative">
+      <div className="flex h-screen bg-slate-100 overflow-hidden relative">
         <Sidebar role="patient" activePath={location.pathname} />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {isHome && <Header />}
-          <main className="flex-1 overflow-auto scrollbar-hide">
+          <main className="flex-1 overflow-auto bg-slate-100 scrollbar-hide">
             <Outlet />
           </main>
         </div>

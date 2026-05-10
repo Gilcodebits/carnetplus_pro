@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import { prescriptionsAPI } from "../services/api";
 import { Printer, ArrowLeft, Pill, Calendar, User, Hospital, ShieldCheck, Download, FileText } from "lucide-react";
+import { formatDate } from "../utils/format";
 
 export function PrescriptionView() {
   const { id } = useParams();
@@ -113,7 +114,7 @@ export function PrescriptionView() {
             </div>
             <div className="text-right shrink-0">
                <p className="text-xl font-black text-slate-900 tracking-tighter leading-none">N° {prescription.id?.toString().padStart(6, '0')}</p>
-               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Le {new Date(prescription.created_at).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'})}</p>
+               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Le {formatDate(prescription.created_at)}</p>
             </div>
           </div>
         </div>

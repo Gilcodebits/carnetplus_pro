@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Building2, Search, CheckCircle2, XCircle, Clock, Mail, MapPin, User, ArrowRight, ShieldCheck, RefreshCw } from "lucide-react";
 import { adhesionsAPI } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatDate } from "../utils/format";
 
 export function AdminDemandes() {
   const [demandes, setDemandes] = useState<any[]>([]);
@@ -206,7 +207,7 @@ export function AdminDemandes() {
                     ) : (
                       <div className="w-full p-3 bg-slate-50 rounded-xl text-center border border-slate-100">
                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                          Traitée le {new Date(d.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          Traitée le {formatDate(d.created_at)}
                         </p>
                       </div>
                     )}

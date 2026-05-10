@@ -25,6 +25,10 @@ if ($method === 'GET') {
         $p = $stmt->fetch();
         if ($p) { $where[] = 'r.patient_id = ?'; $params[] = $p['id']; }
     }
+    if ($user['role'] === 'medecin') {
+        $where[] = 'r.medecin_id = ?';
+        $params[] = $user['id'];
+    }
 
     $sql = "
         SELECT r.*,
@@ -49,6 +53,19 @@ elseif ($method === 'POST') {
     // Si le rôle est médecin, on utilise son ID s'il n'est pas spécifié
     if ($user['role'] === 'medecin' && empty($input['medecin_id'])) {
         $input['medecin_id'] = $user['id'];
+    }
+
+    // Si le rôle est patient, on récupère son ID patient réel depuis la table patients
+    if ($user['role'] === 'patient') {
+        $stmt = $db->prepare("SELECT id FROM patients WHERE utilisateur_id=?");
+        $stmt->execute([$user['id']]);
+        $p = $stmt->fetch();
+        if ($p) { 
+            $input['patient_id'] = $p['id']; 
+        } else {
+            http_response_code(400);
+            die(json_encode(['error' => 'Profil patient non trouvé pour cet utilisateur']));
+        }
     }
 
     if (empty($input['patient_id']) || empty($input['medecin_id']) ||
@@ -93,8 +110,21 @@ elseif ($method === 'POST') {
 elseif ($method === 'PUT' && $id) {
     requireRole(['secretaire','admin']);
     $statut = $input['statut'] ?? null;
+    
+    // Récupérer les infos du RDV pour la notification
+    $stmt = $db->prepare("SELECT r.*, p.utilisateur_id FROM rendez_vous r JOIN patients p ON r.patient_id = p.id WHERE r.id = ?");
+    $stmt->execute([$id]);
+    $rdv = $stmt->fetch();
+
     if ($statut) {
         $db->prepare("UPDATE rendez_vous SET statut=? WHERE id=?")->execute([$statut, $id]);
+        
+        // Notifier le patient
+        if ($rdv && $rdv['utilisateur_id']) {
+            $msg = $statut === 'confirme' ? "Votre RDV du {$rdv['date_rdv']} est confirmé." : "Statut de votre RDV mis à jour : {$statut}.";
+            $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+               ->execute([$rdv['utilisateur_id'], 'Mise à jour RDV', $msg, $statut === 'confirme' ? 'success' : 'info']);
+        }
     } else {
         $db->prepare("UPDATE rendez_vous SET date_rdv=?,heure_rdv=?,motif=?,statut=? WHERE id=?")
            ->execute([$input['date_rdv']??'', $input['heure_rdv']??'', $input['motif']??'', $input['statut']??'planifie', $id]);
@@ -104,8 +134,19 @@ elseif ($method === 'PUT' && $id) {
 
 elseif ($method === 'DELETE' && $id) {
     requireRole(['secretaire','admin']);
-    $db->prepare("UPDATE rendez_vous SET statut='annule' WHERE id=?")->execute([$id]);
-    echo json_encode(['message' => 'RDV annulé']);
+    
+    // Récupérer les infos pour notifier avant suppression
+    $stmt = $db->prepare("SELECT r.date_rdv, p.utilisateur_id FROM rendez_vous r JOIN patients p ON r.patient_id = p.id WHERE r.id = ?");
+    $stmt->execute([$id]);
+    $rdv = $stmt->fetch();
+    
+    if ($rdv && $rdv['utilisateur_id']) {
+        $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+           ->execute([$rdv['utilisateur_id'], 'RDV Annulé', "Votre rendez-vous du {$rdv['date_rdv']} a été annulé/supprimé par le secrétariat.", 'error']);
+    }
+
+    $db->prepare("DELETE FROM rendez_vous WHERE id=?")->execute([$id]);
+    echo json_encode(['message' => 'RDV supprimé']);
 }
 
 else { http_response_code(405); echo json_encode(['error' => 'Méthode non autorisée']); }

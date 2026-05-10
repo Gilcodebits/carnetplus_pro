@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Card } from "../components/Card";
 import { 
-  ArrowLeft, ArrowRight, Mic, MicOff, Send, Bot, 
+  ArrowLeft, ArrowRight, Send, Bot, 
   Sparkles, History, MessageSquare, 
   Zap, Info, ChevronRight, User,
   Activity, ShieldCheck, Search, Loader2,
@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { authAPI, consultationsAPI, examensAPI } from "../services/api";
+import { formatDate } from "../utils/format";
 
 export function AssistantIA() {
   const navigate = useNavigate();
-  const [isListening, setIsListening] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [thinkingStep, setThinkingStep] = useState("");
@@ -115,13 +115,13 @@ export function AssistantIA() {
       response = "Pour une santé optimale, je vous recommande de maintenir une hydratation régulière (1.5L/jour), d'assurer 7h de sommeil et de pratiquer 30min de marche. Voulez-vous un conseil spécifique à votre dernier bilan ?";
     } else if (msg.includes("examen") || msg.includes("résultat") || msg.includes("dernier")) {
       if (lastExam) {
-        response = `Votre dernier examen (${lastExam.type_examen}) remonte au ${new Date(lastExam.created_at).toLocaleDateString('fr-FR')}. Le statut est "${lastExam.statut}". Voulez-vous que j'analyse les valeurs ?`;
+        response = `Votre dernier examen (${lastExam.type_examen}) remonte au ${formatDate(lastExam.created_at)}. Le statut est "${lastExam.statut}". Voulez-vous que j'analyse les valeurs ?`;
       } else {
         response = "Je ne trouve pas d'examens récents. La prévention passe par des bilans réguliers. Souhaitez-vous que je vous aide à en planifier un ?";
       }
     } else if (msg.includes("consultation") || msg.includes("médecin") || msg.includes("rendez-vous")) {
       if (lastConsult) {
-        response = `Votre dernière visite était le ${new Date(lastConsult.created_at).toLocaleDateString('fr-FR')} avec le Dr. ${lastConsult.medecin_nom || "un confrère"}. Le motif était : ${lastConsult.motif || "non renseigné"}.`;
+        response = `Votre dernière visite était le ${formatDate(lastConsult.created_at)} avec le Dr. ${lastConsult.medecin_nom || "un confrère"}. Le motif était : ${lastConsult.motif || "non renseigné"}.`;
       } else {
         response = "Aucune consultation récente. Je peux vous proposer une liste de médecins disponibles pour un check-up.";
       }
@@ -153,16 +153,6 @@ export function AssistantIA() {
       setConversation((prev) => [...prev, { role: "user", text: newMsg }]);
       setMessage("");
       processResponse(newMsg);
-    }
-  };
-
-  const toggleListening = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
-      setTimeout(() => {
-        setMessage("Analyse mon dernier examen");
-        setIsListening(false);
-      }, 3000);
     }
   };
 
@@ -277,31 +267,11 @@ export function AssistantIA() {
 
               {/* Advanced Input Area */}
               <div className="p-8 bg-slate-50 border-t border-slate-100">
-                <div className={`relative flex gap-4 p-4 bg-white border-2 rounded-[2rem] items-center pr-4 transition-all shadow-sm ${isListening ? 'border-blue-600 shadow-blue-100' : 'border-transparent'}`}>
+                <div className="relative flex gap-4 p-4 bg-white border-2 border-transparent rounded-[2rem] items-center pr-4 transition-all shadow-sm">
                   
-                  {isListening && (
-                    <div className="absolute -top-12 left-0 right-0 flex justify-center gap-1">
-                      {[1,2,3,4,5,4,3,2,1].map((h, i) => (
-                        <motion.div 
-                          key={i}
-                          animate={{ height: [8, h*4, 8] }}
-                          transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.05 }}
-                          className="w-1 bg-blue-600 rounded-full"
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  <button
-                    onClick={toggleListening}
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shrink-0 shadow-lg ${
-                      isListening 
-                        ? "bg-rose-600 text-white shadow-rose-200 animate-pulse" 
-                        : "bg-slate-900 text-blue-500 hover:scale-105"
-                    }`}
-                  >
-                    {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-                  </button>
+                  <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
+                     <Bot className="w-6 h-6 text-blue-500" />
+                  </div>
 
                   <input
                     type="text"

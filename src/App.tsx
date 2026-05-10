@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { MessageProvider } from "./contexts/MessageContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { Login } from "./screens/Login";
 import { AdminLayout } from "./components/AdminLayout";
@@ -33,6 +34,7 @@ import { ConfirmationRDV } from "./screens/ConfirmationRDV";
 import { AssistantIA } from "./screens/AssistantIA";
 import { BilanSante } from "./screens/BilanSante";
 import { Messagerie } from "./screens/Messagerie";
+import { SecretairePatients } from "./screens/SecretairePatients";
 import { GestionnaireDashboard } from "./screens/GestionnaireDashboard";
 import { GestionnaireLayout } from "./components/GestionnaireLayout";
 import { GestionnaireEtablissements } from "./screens/GestionnaireEtablissements";
@@ -109,7 +111,7 @@ function AppRoutes() {
       <Route path="/secretaire" element={<ProtectedRoute role="secretaire"><SecretaireLayout /></ProtectedRoute>}>
         <Route index element={<SecretaireDashboard tab="rdv" />} />
         <Route path="rdv" element={<SecretaireDashboard tab="rdv" />} />
-        <Route path="patients" element={<SecretaireDashboard tab="patients" />} />
+        <Route path="patients" element={<SecretairePatients />} />
         <Route path="patients/:id" element={<PatientDossier />} />
         <Route path="modifier-patient/:id" element={<NouveauPatient />} />
         <Route path="nouveau-patient" element={<NouveauPatient />} />
@@ -156,11 +158,13 @@ export default function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <ToastProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </ToastProvider>
+        <MessageProvider>
+          <ToastProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ToastProvider>
+        </MessageProvider>
       </NotificationProvider>
     </AuthProvider>
   );

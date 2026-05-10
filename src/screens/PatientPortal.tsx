@@ -7,6 +7,7 @@ import {
   ChevronRight, Zap, ArrowUpRight, Sparkles, TrendingUp, Pill, FlaskConical
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatDate } from "../utils/format";
 
 
 
@@ -64,7 +65,7 @@ export function PatientPortal() {
     derniere_analyse: "Janvier 2024"
   };
 
-  const prochainRdv = currentStats.prochain_rdv ? [currentStats.prochain_rdv] : [];
+  const prochainRdv = stats?.rdv_liste?.filter((r: any) => r.statut !== 'annule' && r.date_rdv >= new Date().toISOString().split('T')[0]).sort((a: any, b: any) => a.date_rdv.localeCompare(b.date_rdv) || a.heure_rdv.localeCompare(b.heure_rdv)).slice(0, 1) || [];
   
   const documentsRecents = [
     ...(currentStats.prescriptions || []).map((p: any) => ({ id: p.id, type: "Ordonnance", date: p.created_at, medecin: p.medecin_nom, icon: <Pill className="w-5 h-5 text-emerald-500"/>, color: "bg-emerald-50" })),
@@ -79,7 +80,7 @@ export function PatientPortal() {
         {/* Key Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { label: "Prochain RDV", val: currentStats.prochain_rdv ? new Date(currentStats.prochain_rdv.date_rdv).toLocaleDateString('fr-FR', {day:'numeric', month:'short'}) : "Aucun", icon: Calendar, color: "from-blue-500 to-blue-600", path: "/patient/calendrier-rdv" },
+            { label: "Prochain RDV", val: currentStats.prochain_rdv ? formatDate(currentStats.prochain_rdv.date_rdv) : "Aucun", icon: Calendar, color: "from-blue-500 to-blue-600", path: "/patient/calendrier-rdv" },
             { label: "Assistant IA", val: "Actif", icon: Bot, color: "from-purple-500 to-purple-600", path: "/patient/assistant-ia" },
             { label: "Bilan Santé", val: `${currentStats.score_sante || 85}/100`, icon: Activity, color: "from-emerald-500 to-emerald-600", path: "/patient/bilan-sante" },
             { label: "Documents", val: currentStats.documents_count || 4, icon: FileText, color: "from-orange-500 to-orange-600", path: "/patient/dossier" },
@@ -101,92 +102,8 @@ export function PatientPortal() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-12">
-          
-          {/* Planning Médical */}
-          <div className="xl:col-span-7">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border-2 border-blue-100 shadow-sm"><Calendar className="w-7 h-7"/></div>
-                 Calendrier Médical
-              </h2>
-              <button onClick={()=>navigate("/patient/calendrier-rdv")} className="px-6 py-3 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-blue-500 hover:text-blue-600 transition-all active:scale-95 shadow-sm">Tout voir</button>
-            </div>
-
-            <div className="space-y-6">
-              {prochainRdv.length > 0 ? prochainRdv.map((rdv: any, i: number) => (
-                <div key={rdv.id || i} className="p-8 rounded-[3rem] border-2 border-slate-100 bg-white hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-200/50 transition-all group cursor-pointer relative overflow-hidden">
-                  <div className="flex items-center justify-between relative z-10">
-                    <div className="flex items-center gap-8">
-                      <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-slate-100 text-slate-900 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner group-hover:border-blue-400">
-                         <span className="text-[10px] font-black uppercase opacity-60 mb-1 tracking-widest">Heure</span>
-                         <span className="text-2xl font-black">{rdv.heure_rdv?.substring(0,5)}</span>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                           <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest group-hover:bg-white/20 group-hover:text-white transition-all">Consultation</span>
-                           <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest group-hover:bg-emerald-400/20 group-hover:text-emerald-100 transition-all">Confirmé</span>
-                        </div>
-                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight group-hover:text-white transition-colors">Dr. {rdv.medecin_nom}</h3>
-                        <p className="text-[11px] text-slate-400 font-black uppercase tracking-widest mt-2 flex items-center gap-3 group-hover:text-blue-100 transition-all">
-                          <MapPin className="w-4 h-4 text-rose-500 group-hover:text-white transition-all" /> 
-                          Clinique CarnetPlus · Secteur A
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-8 h-8 text-slate-200 group-hover:text-white transition-all group-hover:translate-x-2" />
-                  </div>
-                </div>
-              )) : (
-                <div className="py-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white">
-                  <Calendar className="w-16 h-16 text-slate-100 mx-auto mb-6" />
-                  <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">Aucun rendez-vous planifié</p>
-                  <button onClick={()=>navigate("/patient/calendrier-rdv")} className="mt-8 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-200 hover:scale-105 transition-all">Prendre RDV</button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="xl:col-span-5">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-                 <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center border-2 border-orange-100 shadow-sm"><FileText className="w-7 h-7"/></div>
-                 Historique Récent
-              </h2>
-              <button onClick={()=>navigate("/patient/dossier")} className="px-5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm">Voir plus</button>
-            </div>
-            <div className="space-y-4">
-              {documentsRecents.length > 0 ? documentsRecents.map((doc, i) => (
-                <div key={i} 
-                  onClick={() => doc.type === "Ordonnance" && navigate(`/patient/dossier`)} 
-                  className="p-6 rounded-[2.5rem] border-2 border-slate-50 bg-white hover:border-blue-600 hover:shadow-xl hover:shadow-blue-200/30 transition-all cursor-pointer group flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-6">
-                    <div className={`w-14 h-14 ${doc.color || 'bg-slate-50'} rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
-                      {doc.icon}
-                    </div>
-                    <div>
-                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{doc.type}</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Émis par Dr. {doc.medecin}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                     <span className="text-[9px] font-black text-slate-300 uppercase hidden sm:block">{new Date(doc.date).toLocaleDateString('fr-FR')}</span>
-                     <ArrowUpRight className="w-5 h-5 text-slate-200 group-hover:text-blue-600 transition-all"/>
-                  </div>
-                </div>
-              )) : (
-                 <div className="py-16 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-[3rem]">
-                    <FileText className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Votre dossier est encore vierge</p>
-                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Health Tips Section - WOW Animation Carousel */}
-        <div className="pt-4 pb-12">
+        <div className="pt-4">
            <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
                  <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center border-2 border-emerald-100 shadow-sm"><Sparkles className="w-7 h-7"/></div>
@@ -234,6 +151,103 @@ export function PatientPortal() {
               </AnimatePresence>
            </div>
         </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-12">
+          
+          {/* Planning Médical */}
+          <div className="xl:col-span-7">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border-2 border-blue-100 shadow-sm"><Calendar className="w-7 h-7"/></div>
+                 Calendrier Médical
+              </h2>
+              <button onClick={()=>navigate("/patient/calendrier-rdv")} className="px-6 py-3 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-blue-500 hover:text-blue-600 transition-all active:scale-95 shadow-sm">Tout voir</button>
+            </div>
+
+            <div className="space-y-6">
+              {prochainRdv.length > 0 ? prochainRdv.map((rdv: any, i: number) => (
+                <div key={rdv.id || i} className="p-8 rounded-[3rem] border-2 border-slate-100 bg-white hover:bg-blue-600 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-200/50 transition-all group cursor-pointer relative overflow-hidden">
+                  <div className="flex items-center justify-between relative z-10">
+                    <div className="flex items-center gap-8">
+                      <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-slate-100 text-slate-900 group-hover:bg-white group-hover:text-blue-600 transition-all shadow-inner group-hover:border-white">
+                         <span className="text-[10px] font-black uppercase opacity-60 mb-1 tracking-widest">Heure</span>
+                         <span className="text-2xl font-black">{rdv.heure_rdv?.substring(0,5)}</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                           <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest group-hover:bg-white/20 group-hover:text-white transition-all">Consultation</span>
+                           <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                             rdv.statut === 'confirme' ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-400/20 group-hover:text-emerald-100' : 
+                             rdv.statut === 'en_attente' ? 'bg-orange-50 text-orange-600 group-hover:bg-orange-400/20 group-hover:text-orange-100' :
+                             'bg-blue-50 text-blue-600 group-hover:bg-white/20 group-hover:text-white'
+                           }`}>
+                             {rdv.statut === 'en_attente' ? 'En attente' : rdv.statut === 'confirme' ? 'Confirmé' : 'Planifié'}
+                           </span>
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight group-hover:text-white transition-colors">Dr. {rdv.medecin_nom}</h3>
+                        <div className="flex items-center gap-4 mt-2">
+                           <p className="text-[11px] text-blue-600 font-black uppercase tracking-widest flex items-center gap-2 group-hover:text-white transition-all">
+                             <Calendar className="w-3.5 h-3.5" />
+                             {formatDate(rdv.date_rdv)}
+                           </p>
+                           <p className="text-[11px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2 group-hover:text-blue-100 transition-all">
+                             <MapPin className="w-3.5 h-3.5 text-rose-500 group-hover:text-white" /> 
+                             Secteur A
+                           </p>
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-8 h-8 text-slate-200 group-hover:text-white transition-all group-hover:translate-x-2" />
+                  </div>
+                </div>
+              )) : (
+                <div className="py-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white">
+                  <Calendar className="w-16 h-16 text-slate-100 mx-auto mb-6" />
+                  <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">Aucun rendez-vous planifié</p>
+                  <button onClick={()=>navigate("/patient/calendrier-rdv")} className="mt-8 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-200 hover:scale-105 transition-all">Prendre RDV</button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="xl:col-span-5">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                 <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center border-2 border-orange-100 shadow-sm"><FileText className="w-7 h-7"/></div>
+                 Historique Récent
+              </h2>
+              <button onClick={()=>navigate("/patient/dossier")} className="px-5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm">Voir plus</button>
+            </div>
+            <div className="space-y-4">
+              {documentsRecents.length > 0 ? documentsRecents.map((doc, i) => (
+                <div key={i} 
+                  onClick={() => doc.type === "Ordonnance" && navigate(`/patient/dossier`)} 
+                  className="p-6 rounded-[2.5rem] border-2 border-slate-50 bg-white hover:border-blue-600 hover:shadow-xl hover:shadow-blue-200/30 transition-all cursor-pointer group flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-6">
+                    <div className={`w-14 h-14 ${doc.color || 'bg-slate-50'} rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
+                      {doc.icon}
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{doc.type}</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Émis par Dr. {doc.medecin}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                     <span className="text-[9px] font-black text-slate-300 uppercase hidden sm:block">{formatDate(doc.date)}</span>
+                     <ArrowUpRight className="w-5 h-5 text-slate-200 group-hover:text-blue-600 transition-all"/>
+                  </div>
+                </div>
+              )) : (
+                 <div className="py-16 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-[3rem]">
+                    <FileText className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Votre dossier est encore vierge</p>
+                 </div>
+              )}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

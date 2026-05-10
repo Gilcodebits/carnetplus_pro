@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ShieldCheck, Clock, User, Search, Filter, CheckCircle, ShieldAlert, Lock, Zap } from "lucide-react";
 import { logsAPI } from "../services/api";
 import { useToast } from "../contexts/ToastContext";
+import { formatDateTime } from "../utils/format";
 
 export function GestionnaireJournal() {
   const [logs, setLogs]           = useState<any[]>([]);
@@ -142,7 +143,7 @@ export function GestionnaireJournal() {
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-2">
                           <Clock className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                          <span className="text-[11px] font-black text-slate-900">{log.date}</span>
+                          <span className="text-[11px] font-black text-slate-900">{formatDateTime(log.date)}</span>
                         </div>
                       </td>
                       <td className="px-8 py-5">

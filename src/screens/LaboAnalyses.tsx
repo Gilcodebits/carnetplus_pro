@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { examensAPI } from "../services/api";
-import { TestTube, CheckCircle, Clock, AlertCircle, Search, Filter, ArrowUpRight, Download, FlaskConical, Beaker } from "lucide-react";
+import { TestTube, CheckCircle, Clock, AlertCircle, Search, Filter, ArrowUpRight, Download, FlaskConical, Beaker, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatDate } from "../utils/format";
 
 export function LaboAnalyses() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"en-cours" | "termines">("en-cours");
   const [examens, setExamens]     = useState<any[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -66,18 +68,18 @@ export function LaboAnalyses() {
   );
 
   return (
-    <div className="p-12 space-y-12 bg-slate-50/50 min-h-screen">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Gestion des Analyses</h1>
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-2">
-            <span className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"/> {filtered.length} examens répertoriés
-          </p>
+    <div className="bg-slate-50/50 overflow-x-hidden scrollbar-hide min-h-screen">
+      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 px-12 py-8 space-y-8 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Gestion des Analyses</h1>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-2">
+              <span className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"/> {filtered.length} examens répertoriés
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 border-b-2 border-slate-100 pb-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex gap-12">
             {[
               { id: 'en-cours', label: 'En cours', count: filtered.filter(e => e.statut !== 'termine' && e.statut !== 'transmis').length },
@@ -104,7 +106,9 @@ export function LaboAnalyses() {
             />
           </div>
         </div>
+      </div>
 
+      <div className="p-12">
         <div className="grid gap-6">
           <AnimatePresence mode="wait">
             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid gap-6">
@@ -122,7 +126,7 @@ export function LaboAnalyses() {
                         </p>
                         <span className="w-1.5 h-1.5 bg-slate-200 rounded-full"/>
                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-orange-500"/> {new Date(e.date_demande).toLocaleDateString()}
+                          <Clock className="w-4 h-4 text-orange-500"/> {formatDate(e.date_demande)}
                         </p>
                       </div>
                     </div>
@@ -140,8 +144,11 @@ export function LaboAnalyses() {
                           Saisir Résultats
                         </button>
                       ) : (
-                        <button className="px-10 py-5 bg-slate-50 text-slate-600 rounded-[1.5rem] font-black text-[10px] uppercase border-2 border-slate-100 hover:bg-white transition-all flex items-center gap-3">
-                          <Download className="w-4 h-4"/> PDF
+                        <button 
+                          onClick={() => navigate(`/labo/patients/${e.patient_id}`)}
+                          className="px-10 py-5 bg-teal-50 text-teal-600 rounded-[1.5rem] font-black text-[10px] uppercase border-2 border-teal-100 hover:bg-teal-600 hover:text-white transition-all flex items-center gap-3"
+                        >
+                          <User className="w-4 h-4"/> Dossier Patient
                         </button>
                       )}
                       <div 
@@ -163,9 +170,8 @@ export function LaboAnalyses() {
             </motion.div>
           </AnimatePresence>
         </div>
-      </div>
 
-      {/* Modal de Saisie de Résultats */}
+        {/* Modal de Saisie de Résultats */}
       <AnimatePresence>
         {selectedExamen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
@@ -226,5 +232,6 @@ export function LaboAnalyses() {
         )}
       </AnimatePresence>
     </div>
-  );
+  </div>
+);
 }

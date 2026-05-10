@@ -132,6 +132,16 @@ elseif ($user['role'] === 'patient') {
         $stmt->execute([$pid]);
         $stats['prochain_rdv'] = $stmt->fetch() ?: null;
 
+        // Récupérer tous les RDV à venir pour la liste
+        $stmt = $db->prepare("
+            SELECT r.*, CONCAT(m.prenom,' ',m.nom) as medecin_nom
+            FROM rendez_vous r JOIN utilisateurs m ON r.medecin_id=m.id
+            WHERE r.patient_id=? AND r.date_rdv>=CURDATE() AND r.statut!='annule'
+            ORDER BY r.date_rdv ASC, r.heure_rdv ASC
+        ");
+        $stmt->execute([$pid]);
+        $stats['rdv_liste'] = $stmt->fetchAll() ?: [];
+
         $stmt = $db->prepare("
             SELECT pr.*, CONCAT(m.prenom,' ',m.nom) as medecin_nom
             FROM prescriptions pr JOIN utilisateurs m ON pr.medecin_id=m.id

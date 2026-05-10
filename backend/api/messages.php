@@ -27,9 +27,22 @@ elseif ($method === 'POST') {
         http_response_code(400);
         die(json_encode(['error' => 'Destinataire et contenu requis']));
     }
-    $stmt = $db->prepare("INSERT INTO messages (expediteur_id,destinataire_id,objet,contenu) VALUES (?,?,?,?)");
+    $stmt = $db->prepare("INSERT INTO messages (expediteur_id,destinataire_id,objet,contenu,lu) VALUES (?,?,?,?,0)");
     $stmt->execute([$user['id'], $input['destinataire_id'], $input['objet']??'', $input['contenu']]);
     echo json_encode(['id' => $db->lastInsertId(), 'message' => 'Message envoyé']);
+}
+
+elseif ($method === 'PUT') {
+    // Marquer les messages d'un interlocuteur comme lus
+    $interlocuteur_id = intval($_GET['interlocuteur_id'] ?? 0);
+    if ($interlocuteur_id) {
+        $stmt = $db->prepare("UPDATE messages SET lu=1 WHERE expediteur_id=? AND destinataire_id=?");
+        $stmt->execute([$interlocuteur_id, $user['id']]);
+        echo json_encode(['message' => 'Messages marqués comme lus']);
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID interlocuteur requis']);
+    }
 }
 
 else { http_response_code(405); echo json_encode(['error' => 'Méthode non autorisée']); }

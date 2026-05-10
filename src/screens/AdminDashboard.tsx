@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { StatCard, Card } from "../components/Card";
 import { dashboardAPI } from "../services/api";
 import { Users, Activity, TrendingUp, AlertCircle, BarChart3, CheckCircle2, Info } from "lucide-react";
+import { formatDateTime } from "../utils/format";
 
 export function AdminDashboard() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export function AdminDashboard() {
                 <div className="flex-1">
                   <div className="flex justify-between items-start mb-1">
                     <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{log.action.replace('_', ' ')}</p>
-                    <p className="text-[10px] text-slate-400 font-black tracking-widest bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">{new Date(log.created_at).toLocaleTimeString()}</p>
+                    <p className="text-[10px] text-slate-400 font-black tracking-widest bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">{formatDateTime(log.created_at)}</p>
                   </div>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                     Utilisateur : <span className="text-blue-600">{log.utilisateur_nom || 'Système'}</span>

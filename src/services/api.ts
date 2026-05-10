@@ -86,8 +86,9 @@ export const notificationAPI = {
 };
 
 export const messagesAPI = {
-  list:   () => request<any[]>('/messages.php'),
-  send:   (data: any) => request<any>('/messages.php', { method:'POST', body: JSON.stringify(data) }),
+  list:     () => request<any[]>('/messages.php'),
+  send:     (data: any) => request<any>('/messages.php', { method:'POST', body: JSON.stringify(data) }),
+  markRead: (interlocuteur_id: number) => request<any>(`/messages.php?interlocuteur_id=${interlocuteur_id}`, { method:'PUT' }),
 };
 
 export const dashboardAPI = {
