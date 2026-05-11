@@ -81,24 +81,17 @@ export function AdminDashboard() {
         <Card className="border-slate-200 shadow-2xl shadow-slate-200/50">
           <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Alertes Systèmes</h2>
           <div className="space-y-4">
-            <div className="p-5 bg-orange-50 border-2 border-orange-100 rounded-[2rem] flex items-start gap-4 shadow-sm">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-orange-200 shadow-sm flex-shrink-0">
-                <AlertCircle className="w-6 h-6 text-orange-600" />
+            {stats.system?.alerts?.map((alert: any, i: number) => (
+              <div key={i} className={`p-5 ${alert.bg} border-2 ${alert.border} rounded-[2rem] flex items-start gap-4 shadow-sm`}>
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-200 shadow-sm flex-shrink-0">
+                  {alert.type === 'warning' ? <AlertCircle className="w-6 h-6 text-orange-600" /> : <Activity className="w-6 h-6 text-blue-600" />}
+                </div>
+                <div>
+                  <p className={`text-sm font-black ${alert.text} uppercase tracking-tight`}>{alert.title}</p>
+                  <p className={`text-[10px] ${alert.subtext} font-bold uppercase tracking-widest mt-1 opacity-80`}>{alert.desc}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-black text-orange-900 uppercase tracking-tight">Serveur de sauvegarde</p>
-                <p className="text-[10px] text-orange-700 font-bold uppercase tracking-widest mt-1 opacity-80">Synchronisation planifiée : 02h00 • Dernière réussite : OK</p>
-              </div>
-            </div>
-            <div className="p-5 bg-blue-50 border-2 border-blue-100 rounded-[2rem] flex items-start gap-4 shadow-sm">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-blue-200 shadow-sm flex-shrink-0">
-                <Activity className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm font-black text-blue-900 uppercase tracking-tight">Mise à jour v2.1 disponible</p>
-                <p className="text-[10px] text-blue-700 font-bold uppercase tracking-widest mt-1 opacity-80">Correctifs de sécurité critiques • Installation recommandée</p>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="mt-10">
@@ -109,11 +102,7 @@ export function AdminDashboard() {
               <span className="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">Moniteur Direct</span>
             </div>
             <div className="space-y-6">
-              {[
-                { label: "Charge CPU globale", pct: 12, color: "bg-blue-600" },
-                { label: "Bande passante réseau", pct: 34, color: "bg-indigo-600" },
-                { label: "Temps de réponse API", pct: 85, color: "bg-emerald-500" },
-              ].map((item) => (
+              {stats.system?.performance?.map((item: any) => (
                 <div key={item.label} className="group">
                   <div className="flex justify-between text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2.5">
                     <span>{item.label}</span>

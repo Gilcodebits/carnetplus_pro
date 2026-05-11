@@ -25,6 +25,36 @@ if (in_array($user['role'], ['admin'])) {
         LIMIT 5
     ");
     $stats['logs'] = $stmt->fetchAll() ?: [];
+
+    // ── Simulation de métriques système dynamiques ──────────────────────────
+    // On génère des valeurs qui varient légèrement pour simuler un moniteur vivant
+    $stats['system'] = [
+        'performance' => [
+            ['label' => "Charge CPU globale",   'pct' => rand(8, 15),   'color' => "bg-blue-600"],
+            ['label' => "Bande passante réseau", 'pct' => rand(25, 45),  'color' => "bg-indigo-600"],
+            ['label' => "Temps de réponse API", 'pct' => rand(80, 95),  'color' => "bg-emerald-500"],
+        ],
+        'alerts' => [
+            [
+                'title' => "Serveur de sauvegarde",
+                'desc' => "Synchronisation planifiée : 02h00 • Dernière réussite : OK",
+                'type' => 'warning',
+                'bg' => 'bg-orange-50',
+                'border' => 'border-orange-100',
+                'text' => 'text-orange-900',
+                'subtext' => 'text-orange-700'
+            ],
+            [
+                'title' => "Mise à jour v2.1 disponible",
+                'desc' => "Correctifs de sécurité critiques • Installation recommandée",
+                'type' => 'info',
+                'bg' => 'bg-blue-50',
+                'border' => 'border-blue-100',
+                'text' => 'text-blue-900',
+                'subtext' => 'text-blue-700'
+            ]
+        ]
+    ];
 }
 elseif ($user['role'] === 'medecin') {
     $uid = $user['id'];
