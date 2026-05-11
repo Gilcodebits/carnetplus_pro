@@ -43,8 +43,8 @@ elseif ($user['role'] === 'medecin') {
     $stats['rdv_liste'] = $stmt->fetchAll() ?: [];
 }
 elseif ($user['role'] === 'secretaire') {
-    $stats['rdv_today']      = (int)$db->query("SELECT COUNT(*) FROM rendez_vous WHERE date_rdv=CURDATE()")->fetchColumn();
-    $stats['rdv_attente']    = (int)$db->query("SELECT COUNT(*) FROM rendez_vous WHERE statut='planifie' AND date_rdv>=CURDATE()")->fetchColumn();
+    $stats['rdv_today']      = (int)$db->query("SELECT COUNT(*) FROM rendez_vous r JOIN utilisateurs m ON r.medecin_id=m.id WHERE r.date_rdv=CURDATE() AND m.etablissement_id=$etabId")->fetchColumn();
+    $stats['rdv_attente']    = (int)$db->query("SELECT COUNT(*) FROM rendez_vous r JOIN utilisateurs m ON r.medecin_id=m.id WHERE r.statut='planifie' AND r.date_rdv>=CURDATE() AND m.etablissement_id=$etabId")->fetchColumn();
     $stats['patients_total'] = (int)$db->query("SELECT COUNT(*) FROM patients WHERE etablissement_id=$etabId")->fetchColumn();
     
     $stmt = $db->prepare("
@@ -53,27 +53,29 @@ elseif ($user['role'] === 'secretaire') {
         FROM rendez_vous r 
         JOIN patients p ON r.patient_id=p.id 
         JOIN utilisateurs m ON r.medecin_id=m.id
-        WHERE r.date_rdv=CURDATE() ORDER BY r.heure_rdv
+        WHERE r.date_rdv=CURDATE() AND m.etablissement_id=? 
+        ORDER BY r.heure_rdv
     ");
-    $stmt->execute();
+    $stmt->execute([$etabId]);
     $stats['rdv_liste'] = $stmt->fetchAll() ?: [];
 }
 elseif ($user['role'] === 'labo') {
-    $stats['demandes']  = (int)$db->query("SELECT COUNT(*) FROM examens WHERE statut='demande'")->fetchColumn();
-    $stats['en_cours']  = (int)$db->query("SELECT COUNT(*) FROM examens WHERE statut='en_cours'")->fetchColumn();
-    $stats['termines']  = (int)$db->query("SELECT COUNT(*) FROM examens WHERE statut='termine' AND DATE(date_resultat)=CURDATE()")->fetchColumn();
-    $stats['urgents']   = (int)$db->query("SELECT COUNT(*) FROM examens WHERE urgence=1 AND statut IN('demande','en_cours')")->fetchColumn();
+    // Filtrer par établissement via le médecin qui a prescrit ou via le patient (ici on utilise l'etabId du labo)
+    $stats['demandes']  = (int)$db->query("SELECT COUNT(*) FROM examens e JOIN consultations c ON e.consultation_id=c.id JOIN utilisateurs m ON c.medecin_id=m.id WHERE e.statut='demande' AND m.etablissement_id=$etabId")->fetchColumn();
+    $stats['en_cours']  = (int)$db->query("SELECT COUNT(*) FROM examens e JOIN consultations c ON e.consultation_id=c.id JOIN utilisateurs m ON c.medecin_id=m.id WHERE e.statut='en_cours' AND m.etablissement_id=$etabId")->fetchColumn();
+    $stats['termines']  = (int)$db->query("SELECT COUNT(*) FROM examens e JOIN consultations c ON e.consultation_id=c.id JOIN utilisateurs m ON c.medecin_id=m.id WHERE e.statut='termine' AND DATE(e.date_resultat)=CURDATE() AND m.etablissement_id=$etabId")->fetchColumn();
+    $stats['urgents']   = (int)$db->query("SELECT COUNT(*) FROM examens e JOIN consultations c ON e.consultation_id=c.id JOIN utilisateurs m ON c.medecin_id=m.id WHERE e.urgence=1 AND e.statut IN('demande','en_cours') AND m.etablissement_id=$etabId")->fetchColumn();
 }
 elseif ($user['role'] === 'gestionnaire') {
 
-    // ── Compteurs principaux ─────────────────────────────────
-    $stats['en_attente'] = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE statut='en_attente'")->fetchColumn();
-    $stats['acceptes']   = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE statut='accepte'")->fetchColumn();
-    $stats['transferes'] = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE statut='transfere'")->fetchColumn();
-    $stats['urgents']    = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE priorite='urgente' AND statut='en_attente'")->fetchColumn();
+    // ── Compteurs filtrés par établissement ──────────────────
+    $stats['en_attente'] = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE statut='en_attente' AND (etablissement_source_id = $etabId OR etablissement_dest_id = $etabId)")->fetchColumn();
+    $stats['acceptes']   = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE statut='accepte' AND (etablissement_source_id = $etabId OR etablissement_dest_id = $etabId)")->fetchColumn();
+    $stats['transferes'] = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE statut='transfere' AND (etablissement_source_id = $etabId OR etablissement_dest_id = $etabId)")->fetchColumn();
+    $stats['urgents']    = (int)$db->query("SELECT COUNT(*) FROM transferts_dossiers WHERE priorite='urgente' AND statut='en_attente' AND (etablissement_source_id = $etabId OR etablissement_dest_id = $etabId)")->fetchColumn();
 
-    // ── Flux récents ─────────────────────────────────────────
-    $stmt = $db->query("
+    // ── Flux récents filtrés ─────────────────────────────────
+    $stmt = $db->prepare("
         SELECT t.id, t.statut, t.type, t.priorite, t.date_demande, t.motif,
                CONCAT(p.prenom, ' ', p.nom) AS patient_nom,
                p.numero_dossier,
@@ -83,9 +85,11 @@ elseif ($user['role'] === 'gestionnaire') {
         JOIN patients       p  ON t.patient_id             = p.id
         JOIN etablissements es ON t.etablissement_source_id = es.id
         JOIN etablissements ed ON t.etablissement_dest_id   = ed.id
+        WHERE t.etablissement_source_id = ? OR t.etablissement_dest_id = ?
         ORDER BY t.date_demande DESC
         LIMIT 5
     ");
+    $stmt->execute([$etabId, $etabId]);
     $stats['transfert_liste'] = $stmt->fetchAll() ?: [];
 
     // ── Charge réseau : on calcule pour chaque établissement ─

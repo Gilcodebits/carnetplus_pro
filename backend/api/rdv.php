@@ -25,9 +25,13 @@ if ($method === 'GET') {
         $p = $stmt->fetch();
         if ($p) { $where[] = 'r.patient_id = ?'; $params[] = $p['id']; }
     }
-    if ($user['role'] === 'medecin') {
+    elseif ($user['role'] === 'medecin') {
         $where[] = 'r.medecin_id = ?';
         $params[] = $user['id'];
+    }
+    elseif (in_array($user['role'], ['secretaire', 'gestionnaire'])) {
+        $where[] = 'm.etablissement_id = ?';
+        $params[] = $user['etablissement_id'];
     }
 
     $sql = "

@@ -13,6 +13,12 @@ if ($method === 'GET' && !$id) {
     $type   = $_GET['type'] ?? '';
     $where  = ['1=1'];
     $params = [];
+    
+    if ($user['role'] === 'gestionnaire') {
+        $etabId = intval($user['etablissement_id']);
+        $where[] = "(t.etablissement_source_id = $etabId OR t.etablissement_dest_id = $etabId)";
+    }
+
     if ($statut) { $where[] = 't.statut = ?';  $params[] = $statut; }
     if ($type)   { $where[] = 't.type = ?';    $params[] = $type; }
 
@@ -45,8 +51,17 @@ elseif ($method === 'GET' && $id) {
         JOIN utilisateurs   g  ON t.gestionnaire_id = g.id
         WHERE t.id = ?
     ");
+    
     $stmt->execute([$id]);
     $t = $stmt->fetch();
+    
+    // Sécurité supplémentaire : Vérifier que le gestionnaire a le droit de voir ce transfert précis
+    if ($t && $user['role'] === 'gestionnaire') {
+        if ($t['etablissement_source_id'] != $user['etablissement_id'] && $t['etablissement_dest_id'] != $user['etablissement_id']) {
+            http_response_code(403);
+            die(json_encode(['error' => 'Accès refusé à ce dossier de transfert']));
+        }
+    }
     if (!$t) { http_response_code(404); die(json_encode(['error' => 'Transfert introuvable'])); }
     echo json_encode($t);
 }
@@ -92,21 +107,53 @@ elseif ($method === 'PUT' && $id) {
     $statut = $input['statut'] ?? null;
     if (!$statut) { http_response_code(400); die(json_encode(['error'=>'Statut requis'])); }
 
-    // Permettre à tout gestionnaire de mettre à jour (pas seulement le créateur)
+    // Mettre à jour le statut du transfert
     $db->prepare("
         UPDATE transferts_dossiers
         SET statut=?, notes_gestionnaire=?, date_traitement=NOW()
         WHERE id=?
     ")->execute([$statut, $input['notes']??'', $id]);
 
-    // Notifier le patient
-    $stmt = $db->prepare("SELECT p.utilisateur_id FROM transferts_dossiers t JOIN patients p ON t.patient_id = p.id WHERE t.id = ?");
+    // LOGIQUE DE TRANSFERT DE PROPRIÉTÉ :
+    // Si le transfert est finalisé ('transfere'), on change l'établissement du patient
+    if ($statut === 'transfere') {
+        $stmt = $db->prepare("SELECT patient_id, etablissement_dest_id FROM transferts_dossiers WHERE id = ?");
+        $stmt->execute([$id]);
+        $info = $stmt->fetch();
+        if ($info) {
+            $db->prepare("UPDATE patients SET etablissement_id = ? WHERE id = ?")
+               ->execute([$info['etablissement_dest_id'], $info['patient_id']]);
+            // Également mettre à jour l'établissement du compte utilisateur lié
+            $db->prepare("UPDATE utilisateurs u JOIN patients p ON u.id = p.utilisateur_id SET u.etablissement_id = ? WHERE p.id = ?")
+               ->execute([$info['etablissement_dest_id'], $info['patient_id']]);
+        }
+    }
+
+    // Notifier le patient ET le gestionnaire demandeur
+    $stmt = $db->prepare("SELECT p.utilisateur_id, t.gestionnaire_id, es.nom as source_nom 
+                          FROM transferts_dossiers t 
+                          JOIN patients p ON t.patient_id = p.id 
+                          JOIN etablissements es ON t.etablissement_source_id = es.id
+                          WHERE t.id = ?");
     $stmt->execute([$id]);
-    $patUser = $stmt->fetchColumn();
-    if ($patUser) {
-        $msg = "Le statut de votre demande de transfert est désormais : " . strtoupper($statut);
-        $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
-           ->execute([$patUser, 'Suivi de transfert', $msg, 'info']);
+    $info = $stmt->fetch();
+    
+    if ($info) {
+        // 1. Notifier le patient
+        if ($info['utilisateur_id']) {
+            $msg = "Le statut de votre demande de transfert est désormais : " . strtoupper($statut);
+            $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+               ->execute([$info['utilisateur_id'], 'Suivi de transfert', $msg, 'info']);
+        }
+        // 2. Notifier le gestionnaire émetteur si c'est quelqu'un d'autre qui répond
+        if ($info['gestionnaire_id'] != $user['id']) {
+            $type_notif = ($statut === 'accepte' || $statut === 'transfere') ? 'success' : ($statut === 'refuse' ? 'error' : 'info');
+            $titre_notif = "Mise à jour Transfert : " . strtoupper($statut);
+            $note = !empty($input['notes']) ? " — Motif : " . $input['notes'] : "";
+            $msg_notif = "L'établissement destinataire a répondu à votre demande : " . $statut . $note;
+            $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+               ->execute([$info['gestionnaire_id'], $titre_notif, $msg_notif, $type_notif]);
+        }
     }
 
     echo json_encode(['message' => 'Transfert mis à jour — statut: '.$statut]);

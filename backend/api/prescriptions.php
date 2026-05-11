@@ -9,8 +9,20 @@ $input  = json_decode(file_get_contents('php://input'), true) ?? [];
 $id     = intval($_GET['id'] ?? 0);
 
 if ($method === 'GET') {
+    $prId = intval($_GET['id'] ?? 0);
+
+    // Sécurité : si c'est un patient, on force son propre ID et on ignore le paramètre GET
     $patientId = intval($_GET['patient_id'] ?? 0);
-    $prId      = intval($_GET['id'] ?? 0);
+    if ($user['role'] === 'patient') {
+        $stmt = $db->prepare("SELECT id FROM patients WHERE utilisateur_id = ?");
+        $stmt->execute([$user['id']]);
+        $realPatientId = $stmt->fetchColumn();
+        if (!$realPatientId) {
+            http_response_code(404);
+            die(json_encode(['error' => 'Profil patient introuvable']));
+        }
+        $patientId = $realPatientId; // Forcer son propre ID, ignorer tout paramètre GET
+    }
 
     $sql = "
         SELECT pr.*, CONCAT(u.prenom,' ',u.nom) as medecin_nom,
@@ -26,6 +38,13 @@ if ($method === 'GET') {
         $stmt = $db->prepare($sql . " WHERE pr.id = ?");
         $stmt->execute([$prId]);
         $prescription = $stmt->fetch();
+
+        // Vérification de propriété : un patient ne peut lire que ses propres ordonnances
+        if ($prescription && $user['role'] === 'patient' && $prescription['patient_id'] != $patientId) {
+            http_response_code(403);
+            die(json_encode(['error' => 'Accès refusé à cette ordonnance']));
+        }
+
         if ($prescription) {
             $stmt2 = $db->prepare("SELECT * FROM prescription_medicaments WHERE prescription_id=?");
             $stmt2->execute([$prescription['id']]);

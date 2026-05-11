@@ -28,21 +28,41 @@ export function AdminDemandes() {
 
   const [rejectionModal, setRejectionModal] = useState<{show: boolean, id: number | null}>({show: false, id: null});
   const [rejectionReason, setRejectionReason] = useState("");
+  const [statusMessage, setStatusMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
   const handleUpdateStatus = async (id: number, statut: string, reason?: string) => {
+    if (statut === 'rejete' && (!reason || reason.trim().length < 5)) {
+      setStatusMessage({type: 'error', text: "Veuillez saisir un motif de rejet valable (min 5 car.)."});
+      return;
+    }
+
     try {
-      const res: any = await adhesionsAPI.updateStatus(id, statut);
+      await adhesionsAPI.updateStatus(id, statut, reason);
       setDemandes(demandes.map(d => d.id === id ? { ...d, statut } : d));
       
-      if (statut === 'approuve') {
-        alert("Succès ! L'établissement a été approuvé.\n\nSIMULATION EMAIL ENVOYÉ À L'ÉTABLISSEMENT :\nObjet: Bienvenue sur CarnetPlus\nCorps: Votre demande a été approuvée. Vos accès gestionnaire ont été créés.");
-      } else if (statut === 'rejete') {
-        alert(`Demande rejetée.\n\nSIMULATION EMAIL ENVOYÉ À L'ÉTABLISSEMENT :\nObjet: Suite à votre demande d'adhésion\nCorps: Votre demande a été rejetée pour la raison suivante : ${reason || "Dossier incomplet"}`);
+      setStatusMessage({
+        type: 'success', 
+        text: statut === 'approuve' 
+          ? "Établissement approuvé avec succès. Email envoyé." 
+          : "Demande rejetée. Notification envoyée."
+      });
+
+      if (statut === 'rejete') {
         setRejectionModal({show: false, id: null});
         setRejectionReason("");
       }
-    } catch (err) {
-      alert("Erreur lors de la mise à jour");
+      
+      // Auto-hide success after 4s
+      setTimeout(() => setStatusMessage(null), 4000);
+    } catch (err: any) {
+      setStatusMessage({
+        type: 'error', 
+        text: err.response?.data?.error || err.message || "Erreur lors de la mise à jour"
+      });
+      // Auto-hide error after 8s (longer for reading)
+      setTimeout(() => setStatusMessage(null), 8000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,7 +81,33 @@ export function AdminDemandes() {
   };
 
   return (
-    <div className="animate-fadeIn bg-slate-50 min-h-screen">
+    <div className="animate-fadeIn bg-slate-50 min-h-screen relative">
+      {/* Status Toasts */}
+      <AnimatePresence>
+        {statusMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.95, x: '-50%' }}
+            className={`fixed top-10 left-1/2 z-[110] p-6 rounded-[2rem] shadow-2xl border-2 flex items-center gap-6 min-w-[400px] backdrop-blur-xl ${
+              statusMessage.type === 'success' 
+                ? 'bg-emerald-500/95 border-emerald-400 text-white shadow-emerald-200/40' 
+                : 'bg-rose-500/95 border-rose-400 text-white shadow-rose-200/40'
+            }`}
+          >
+            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+              {statusMessage.type === 'success' ? <CheckCircle2 className="w-7 h-7 text-white" /> : <XCircle className="w-7 h-7 text-white" />}
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">{statusMessage.type === 'success' ? 'Opération Réussie' : 'Une erreur est survenue'}</p>
+              <p className="text-sm font-black leading-tight">{statusMessage.text}</p>
+            </div>
+            <button onClick={() => setStatusMessage(null)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+              <XCircle className="w-5 h-5 text-white/50" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header */}
       <div className="sticky top-0 z-40 bg-slate-50/80 backdrop-blur-xl px-8 lg:px-12 py-6 border-b border-slate-200/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
         <div>
@@ -261,8 +307,9 @@ export function AdminDemandes() {
                   Annuler
                 </button>
                 <button 
+                  disabled={rejectionReason.trim().length < 5}
                   onClick={() => handleUpdateStatus(rejectionModal.id!, 'rejete', rejectionReason)}
-                  className="flex-[2] py-4 bg-rose-600 text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-rose-200"
+                  className="flex-[2] py-4 bg-rose-600 text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-rose-200 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95"
                 >
                   Confirmer le Rejet
                 </button>

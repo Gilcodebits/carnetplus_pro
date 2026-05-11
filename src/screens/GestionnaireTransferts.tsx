@@ -25,6 +25,8 @@ export function GestionnaireTransferts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedTransfert, setSelectedTransfert] = useState<any>(null);
+  const [refusalModal, setRefusalModal] = useState<{ show: boolean; id: number | null }>({ show: false, id: null });
+  const [refusalReason, setRefusalReason] = useState("");
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -43,14 +45,24 @@ export function GestionnaireTransferts() {
     }
   };
 
-  const handleAction = async (id: number, statut: string) => {
+  const handleAction = async (id: number, statut: string, notes?: string) => {
     try {
-      await transfertsAPI.update(id, { statut });
-      showToast(`Flux ${statut === 'accepte' ? 'accepté' : statut === 'refuse' ? 'refusé' : 'finalisé'}`, "success");
+      await transfertsAPI.update(id, { statut, notes });
+      showToast(`Flux ${statut === 'accepte' ? 'accepté ✓' : statut === 'refuse' ? 'refusé — motif transmis' : 'finalisé ✓'}`, statut === 'refuse' ? 'error' : 'success');
       loadTransferts();
     } catch (err) {
       showToast("Erreur lors de la mise à jour", "error");
     }
+  };
+
+  const handleRefuse = async () => {
+    if (!refusalModal.id) return;
+    if (refusalReason.trim().length < 10) {
+      return showToast("Le motif de refus doit contenir au moins 10 caractères", "warning");
+    }
+    await handleAction(refusalModal.id, 'refuse', refusalReason);
+    setRefusalModal({ show: false, id: null });
+    setRefusalReason("");
   };
 
   const filtered = transferts.filter(t => {
@@ -178,23 +190,33 @@ export function GestionnaireTransferts() {
                       </div>
 
                       <div className="flex gap-2">
-                        {t.statut === "en_attente" && (
+                        {t.statut === "en_attente" && t.type === "reception" && (
                           <>
-                            <button onClick={() => handleAction(t.id, "accepte")} className="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center hover:bg-emerald-700 transition-all shadow-lg active:scale-90">
-                              <CheckCircle className="w-5 h-5" />
+                            <button 
+                              onClick={() => handleAction(t.id, "accepte")}
+                              className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg active:scale-90"
+                            >
+                              <CheckCircle className="w-4 h-4" /> Accepter
                             </button>
-                            <button onClick={() => handleAction(t.id, "refuse")} className="w-10 h-10 bg-white text-rose-600 border-2 border-rose-100 rounded-xl flex items-center justify-center hover:bg-rose-50 transition-all active:scale-90">
-                              <XCircle className="w-5 h-5" />
+                            <button 
+                              onClick={() => { setRefusalModal({ show: true, id: t.id }); setRefusalReason(""); }}
+                              className="flex items-center gap-2 px-4 py-2.5 bg-white text-rose-600 border-2 border-rose-200 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all active:scale-90"
+                            >
+                              <XCircle className="w-4 h-4" /> Refuser
                             </button>
                           </>
                         )}
+                        {t.statut === "en_attente" && t.type === "envoi" && (
+                          <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">En attente réponse</span>
+                        )}
                         {t.statut === "accepte" && (
                           <button onClick={() => handleAction(t.id, "transfere")} className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95">
-                            Transférer
+                            Finaliser
                           </button>
                         )}
                         <button 
                           onClick={() => setSelectedTransfert(t)}
+                          title="Voir le dossier"
                           className="w-10 h-10 bg-slate-100 text-slate-900 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-90"
                         >
                           <FileText className="w-5 h-5" />
@@ -221,6 +243,74 @@ export function GestionnaireTransferts() {
             onClose={() => setShowModal(false)} 
             onSave={() => { loadTransferts(); setShowModal(false); }} 
           />
+        )}
+      </AnimatePresence>
+
+      {/* Modale de Refus avec Motif Obligatoire */}
+      <AnimatePresence>
+        {refusalModal.show && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center z-[200] p-4">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} 
+              animate={{ scale: 1, opacity: 1, y: 0 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md border-2 border-rose-100 overflow-hidden"
+            >
+              <div className="h-2 bg-rose-500 w-full" />
+              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-rose-50/30">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-rose-600 shadow-lg border border-rose-100">
+                    <XCircle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Refuser le Transfert</h2>
+                    <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mt-1">Motif obligatoire</p>
+                  </div>
+                </div>
+                <button onClick={() => setRefusalModal({ show: false, id: null })} className="w-9 h-9 flex items-center justify-center hover:bg-rose-100 text-slate-500 rounded-full">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                  <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-xs font-bold text-amber-800">Le motif sera automatiquement transmis à l'établissement demandeur pour qu'il puisse orienter son patient vers un autre établissement.</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest">
+                    Motif du refus <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    value={refusalReason}
+                    onChange={e => setRefusalReason(e.target.value)}
+                    rows={4}
+                    placeholder="Ex: Capacité d'accueil insuffisante, Manque de spécialiste disponible, Équipement non adapté..."
+                    className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-200 focus:border-rose-400 rounded-2xl outline-none font-medium text-slate-900 text-sm resize-none transition-all placeholder:text-slate-300"
+                  />
+                  <p className={`text-[10px] font-black uppercase tracking-widest text-right ${
+                    refusalReason.length < 10 ? 'text-rose-400' : 'text-emerald-500'
+                  }`}>
+                    {refusalReason.length} / 10 caractères minimum
+                  </p>
+                </div>
+              </div>
+              <div className="px-8 pb-8 flex gap-4">
+                <button
+                  onClick={handleRefuse}
+                  disabled={refusalReason.trim().length < 10}
+                  className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+                >
+                  Confirmer le Refus
+                </button>
+                <button
+                  onClick={() => setRefusalModal({ show: false, id: null })}
+                  className="px-8 py-4 bg-white text-slate-900 border-2 border-slate-200 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all"
+                >
+                  Annuler
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

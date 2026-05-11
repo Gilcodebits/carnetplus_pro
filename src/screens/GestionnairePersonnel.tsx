@@ -36,7 +36,7 @@ export function GestionnairePersonnel() {
   const [userToDelete, setUserToDelete] = useState<any>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
   
-  const [formData, setFormData] = useState({ prenom: "", nom: "", email: "", role: "medecin", password: "", telephone: "" });
+  const [formData, setFormData] = useState({ prenom: "", nom: "", email: "", role: "medecin", telephone: "" });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export function GestionnairePersonnel() {
 
   const handleEdit = (user: any) => {
     setEditingUser(user);
-    setFormData({ prenom: user.prenom, nom: user.nom, email: user.email, role: user.role, password: "", telephone: user.telephone || "" });
+    setFormData({ prenom: user.prenom, nom: user.nom, email: user.email, role: user.role, telephone: user.telephone || "" });
     setShowModal(true);
   };
 
@@ -92,16 +92,17 @@ export function GestionnairePersonnel() {
       const dataToSave = { ...formData, etablissement_id: currentUser?.etablissement_id };
       if (editingUser) {
         await utilisateursAPI.update(editingUser.id, dataToSave);
-        showToast("Équipe mise à jour", "success");
+        showToast("Profil mis à jour avec succès", "success");
       } else {
         await utilisateursAPI.create(dataToSave);
-        showToast("Nouveau membre ajouté", "success");
+        showToast(`✅ Compte créé ! Identifiants envoyés par email à ${formData.email}`, "success");
         if (activeTab !== "Tous") setActiveTab("Tous");
       }
       setShowModal(false);
+      setFormData({ prenom: "", nom: "", email: "", role: "medecin", telephone: "" });
       await loadUsers();
     } catch (err: any) {
-      showToast(err.message, "error");
+      showToast(err.message || "Erreur lors de l'opération", "error");
     } finally {
       setSubmitting(false);
     }
@@ -125,7 +126,7 @@ export function GestionnairePersonnel() {
             <Users className="w-3 h-3 text-blue-600"/> {users.length} Membres enregistrés
           </p>
         </div>
-        <button onClick={() => { setEditingUser(null); setFormData({prenom:"", nom:"", email:"", role:"medecin", password:"", telephone:""}); setShowModal(true); }}
+        <button onClick={() => { setEditingUser(null); setFormData({prenom:"", nom:"", email:"", role:"medecin", telephone:""}); setShowModal(true); }}
           className="w-full md:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-blue-100 active:scale-95">
           <UserPlus className="w-4 h-4" /> Ajouter un membre
         </button>
@@ -267,9 +268,14 @@ export function GestionnairePersonnel() {
                   </div>
                 </div>
                 {!editingUser && (
-                  <div className="space-y-1.5">
-                    <label className="block text-[9px] font-black text-slate-900 uppercase tracking-widest">Mot de passe provisoire</label>
-                    <input required type="password" value={formData.password} onChange={e=>setFormData({...formData, password:e.target.value})} className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm" />
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                      <Shield className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-0.5">Mot de passe auto-généré</p>
+                      <p className="text-xs font-bold text-blue-600/80">Un mot de passe temporaire sécurisé sera généré automatiquement et envoyé à l'adresse email du nouveau membre. Il pourra le modifier lors de sa première connexion.</p>
+                    </div>
                   </div>
                 )}
                 <div className="pt-4 flex gap-3">

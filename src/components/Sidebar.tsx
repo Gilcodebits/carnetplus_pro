@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2, ShieldCheck } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -64,6 +64,28 @@ export function Sidebar({ role, activePath }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [pendingDemandesCount, setPendingDemandesCount] = useState(0);
+
+  // Fetch pending demandes count for admins
+  useEffect(() => {
+    if (role === 'admin') {
+      const fetchCount = async () => {
+        try {
+          const { adhesionsAPI } = await import("../services/api");
+          const data = await adhesionsAPI.list();
+          const count = data.filter((d: any) => d.statut === 'en_attente').length;
+          setPendingDemandesCount(count);
+        } catch (err) {
+          console.error("Failed to fetch pending count", err);
+        }
+      };
+      fetchCount();
+      // Optional: Refresh every 2 minutes
+      const timer = setInterval(fetchCount, 120000);
+      return () => clearInterval(timer);
+    }
+  }, [role]);
+
   const items    = menuItems[role];
 
   return (
@@ -107,6 +129,14 @@ export function Sidebar({ role, activePath }: SidebarProps) {
                   isActive ? "bg-white text-blue-600" : "bg-rose-500 text-white shadow-lg shadow-rose-200"
                 }`}>
                   {unreadMessagesCount}
+                </span>
+              )}
+
+              {item.label === "Demandes" && pendingDemandesCount > 0 && (
+                <span className={`ml-auto px-1.5 py-0.5 rounded-lg text-[9px] font-black ${
+                  isActive ? "bg-white text-blue-600" : "bg-blue-500 text-white shadow-lg shadow-blue-200"
+                }`}>
+                  {pendingDemandesCount}
                 </span>
               )}
               

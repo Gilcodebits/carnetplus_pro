@@ -14,6 +14,12 @@ try {
         exit;
     }
 
+    $where = "1=1";
+    if ($user['role'] === 'gestionnaire') {
+        $etabId = intval($user['etablissement_id']);
+        $where = "u.etablissement_id = $etabId";
+    }
+
     $stmt = $db->query("
         SELECT 
             a.id, 
@@ -21,13 +27,14 @@ try {
             COALESCE(a.details, '') as details, 
             COALESCE(a.ip, '0.0.0.0') as ip, 
             a.created_at as date,
-            COALESCE(CONCAT_WS(' ', u.prenom, u.nom), 'Système') as utilisateur,
+            COALESCE(CONCAT_WS(' ', u.prenom, u.nom), 'Personnel') as utilisateur,
             CASE 
                 WHEN a.action LIKE '%ERREUR%' OR a.action LIKE '%ECHEC%' THEN 'ALERT'
                 ELSE 'SUCCESS'
             END as statut
         FROM audit_logs a
-        LEFT JOIN utilisateurs u ON a.utilisateur_id = u.id
+        JOIN utilisateurs u ON a.utilisateur_id = u.id
+        WHERE $where
         ORDER BY a.created_at DESC
         LIMIT 100
     ");

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Building2, Mail, Phone, MapPin, Send, 
-  ArrowLeft, CheckCircle2, Shield, Activity
+  ArrowLeft, CheckCircle2, Shield, Activity, XCircle
 } from "lucide-react";
 import { adhesionsAPI } from "../services/api";
 
@@ -19,17 +19,23 @@ export function PartnerRequest() {
     telephone: "", 
     motif: ""
   });
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [mailStatus, setMailStatus] = useState<string | null>(null);
+  const [mailError, setMailError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
-      await adhesionsAPI.submit(form);
+      const res: any = await adhesionsAPI.submit(form);
+      setMailStatus(res.mail_status);
+      setMailError(res.mail_error);
       setSuccess(true);
-    } catch (err) {
-      alert("Erreur lors de l'envoi de la demande. Veuillez réessayer.");
+    } catch (err: any) {
+      setError(err.message || "Une erreur est survenue lors de l'envoi de votre demande. Veuillez vérifier vos informations.");
     } finally {
       setLoading(false);
     }
@@ -47,9 +53,19 @@ export function PartnerRequest() {
             <CheckCircle2 className="w-12 h-12 text-emerald-500" />
           </div>
           <h2 className="text-3xl font-black text-slate-900 mb-4">Demande Envoyée !</h2>
-          <p className="text-slate-500 mb-10 leading-relaxed font-medium">
+          <p className="text-slate-500 mb-6 leading-relaxed font-medium">
             Merci pour votre intérêt ! Notre équipe examine votre demande d'adhésion et vous contactera sous 24h à 48h.
           </p>
+
+          {mailStatus === 'failed' && (
+            <div className="mb-8 p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl text-left">
+              <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Erreur de Notification</p>
+              <p className="text-xs font-bold text-orange-700 leading-tight">
+                {mailError || "L'email n'a pas pu être envoyé."}
+              </p>
+            </div>
+          )}
+
           <button 
             onClick={() => navigate('/')}
             className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-blue-600 transition-all"
@@ -218,6 +234,17 @@ export function PartnerRequest() {
                   />
                 </div>
               </div>
+              
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-5 bg-rose-50 border-2 border-rose-100 rounded-[1.5rem] flex items-center gap-4 text-rose-600 shadow-sm shadow-rose-100"
+                >
+                  <XCircle className="w-6 h-6 flex-shrink-0" />
+                  <p className="text-sm font-bold leading-tight">{error}</p>
+                </motion.div>
+              )}
 
               <button
                 disabled={loading}

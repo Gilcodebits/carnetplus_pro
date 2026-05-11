@@ -16,6 +16,20 @@ if ($method === 'GET') {
     if ($patientId) { $where[] = 'e.patient_id = ?'; $params[] = $patientId; }
     if ($statut)    { $where[] = 'e.statut = ?';     $params[] = $statut; }
 
+    // Sécurisation par établissement
+    if ($user['role'] !== 'admin' && $user['role'] !== 'patient') {
+        $where[] = 'm.etablissement_id = ?';
+        $params[] = $user['etablissement_id'];
+    }
+    // Si c'est un patient, il ne voit que les siens (déjà géré par patientId généralement, mais on renforce)
+    if ($user['role'] === 'patient') {
+        $stmt = $db->prepare("SELECT id FROM patients WHERE utilisateur_id=?");
+        $stmt->execute([$user['id']]);
+        $pid = $stmt->fetchColumn();
+        $where[] = 'e.patient_id = ?';
+        $params[] = $pid;
+    }
+
     $stmt = $db->prepare("
         SELECT e.*, CONCAT(p.prenom,' ',p.nom) as patient_nom, p.numero_dossier,
                CONCAT(m.prenom,' ',m.nom) as medecin_nom

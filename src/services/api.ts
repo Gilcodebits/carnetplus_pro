@@ -118,5 +118,5 @@ export const settingsAPI = {
 export const adhesionsAPI = {
   list: () => request<any[]>('/adhesions.php'),
   submit: (data: any) => request<any>('/adhesions.php', { method: 'POST', body: JSON.stringify(data) }),
-  updateStatus: (id: number, statut: string) => request<any>(`/adhesions.php?id=${id}`, { method: 'PUT', body: JSON.stringify({ statut }) }),
+  updateStatus: (id: number, statut: string, motif?: string) => request<any>(`/adhesions.php?id=${id}`, { method: 'PUT', body: JSON.stringify({ statut, motif }) }),
 };
