@@ -28,6 +28,12 @@ export const authAPI = {
     request<any>('/auth.php?action=update_password', { method: 'POST', body: JSON.stringify(data) }),
 };
 
+export const forgotPasswordAPI = {
+  request: (email: string) => request<any>('/forgot_password.php?action=request', { method: 'POST', body: JSON.stringify({ email }) }),
+  verify:  (token: string) => request<any>(`/forgot_password.php?action=verify&token=${token}`),
+  reset:   (token: string, password: string) => request<any>('/forgot_password.php?action=reset', { method: 'POST', body: JSON.stringify({ token, password }) }),
+};
+
 export const patientsAPI = {
   list:   (q='') => request<any[]>(`/patients.php${q ? `?q=${encodeURIComponent(q)}` : ''}`),
   get:    (id: number) => request<any>(`/patients.php?id=${id}`),

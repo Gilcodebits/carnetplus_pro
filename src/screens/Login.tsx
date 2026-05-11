@@ -231,7 +231,7 @@ export function Login() {
                   </button>
                 </div>
                 <div className="flex justify-end mt-2 mr-1">
-                  <button className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">Mot de passe oublié ?</button>
+                  <button onClick={() => navigate('/forgot-password')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors focus:outline-none">Mot de passe oublié ?</button>
                 </div>
               </div>
 

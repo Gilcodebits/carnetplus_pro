@@ -46,6 +46,7 @@ import { PrescriptionView } from "./screens/PrescriptionView";
 import { Profile } from "./screens/Profile";
 import { Landing } from "./screens/Landing";
 import { PartnerRequest } from "./screens/PartnerRequest";
+import { ForgotPassword } from "./screens/ForgotPassword";
 
 const ROLE_HOME: Record<string, string> = {
   admin: "/admin", medecin: "/medecin", secretaire: "/secretaire",
@@ -86,6 +87,8 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/rejoindre" element={<PartnerRequest />} />
       <Route path="/login" element={<AuthRedirect />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ForgotPassword />} />
 
       {/* Admin Protected Routes with Layout */}
       <Route path="/admin" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
