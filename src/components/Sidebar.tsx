@@ -71,15 +71,15 @@ export function Sidebar({ role, activePath }: SidebarProps) {
       {/* Sidebar Header - Blue Gradient */}
       <div className="p-6 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden flex-shrink-0">
         <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"/>
-        <div className="flex items-center gap-3 relative z-10">
-          <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
+        <Link to="/" className="flex items-center gap-3 relative z-10 group" title="Retour à l'accueil">
+          <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30 group-hover:bg-white/30 transition-all">
             <Activity className="w-5 h-5 text-white"/>
           </div>
           <div>
-            <h1 className="font-black text-white text-sm tracking-tight leading-none uppercase">CARNETPLUS</h1>
+            <h1 className="font-black text-white text-sm tracking-tight leading-none uppercase group-hover:text-blue-100 transition-colors">CARNETPLUS</h1>
             <p className="text-blue-100 text-[9px] uppercase font-bold mt-1 tracking-widest opacity-80">{roleLabels[role]}</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Nav Section */}

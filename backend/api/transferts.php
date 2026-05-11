@@ -75,9 +75,15 @@ elseif ($method === 'POST') {
     ]);
     $newId = $db->lastInsertId();
 
-    // Notifier admin
-    $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (1,?,?,?)")
-       ->execute(["Demande de transfert", "Nouvelle demande de transfert de dossier reçue", "info"]);
+    // Notifier l'admin seulement si ce n'est pas lui qui a créé la demande
+    if ($user['id'] != 1) {
+        $db->prepare("INSERT INTO notifications (utilisateur_id, titre, message, type) VALUES (1, ?, ?, ?)")
+           ->execute([
+               "Demande de transfert", 
+               "Une nouvelle demande de transfert a été créée par " . $user['prenom'] . " " . $user['nom'], 
+               "info"
+           ]);
+    }
 
     echo json_encode(['id' => $newId, 'message' => 'Demande de transfert créée']);
 }

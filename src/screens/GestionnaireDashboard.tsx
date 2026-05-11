@@ -125,6 +125,7 @@ export function GestionnaireDashboard() {
                 <motion.div 
                   key={i}
                   whileHover={{ x: 6 }}
+                  onClick={() => navigate('/gestionnaire/transferts')}
                   className="p-5 rounded-[2rem] border-2 border-slate-50 bg-white hover:border-blue-200 transition-all cursor-pointer group flex items-center justify-between shadow-sm"
                 >
                   <div className="flex items-center gap-6">
@@ -140,9 +141,10 @@ export function GestionnaireDashboard() {
                     <div className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm ${
                       t.statut === 'accepte' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                       t.statut === 'refuse' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                      t.statut === 'transfere' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                       'bg-orange-50 text-orange-600 border-orange-100'
                     }`}>
-                      {t.statut?.replace('_', ' ') || 'En attente'}
+                      {t.statut === 'en_attente' ? 'En attente' : (t.statut?.replace('_', ' ') || 'En attente')}
                     </div>
                     <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-blue-600 transition-all" />
                   </div>

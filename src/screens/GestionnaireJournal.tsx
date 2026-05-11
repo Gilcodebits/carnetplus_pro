@@ -26,11 +26,14 @@ export function GestionnaireJournal() {
     }
   };
 
-  const filtered = logs.filter((l) =>
-    l.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.utilisateur.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.action.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = logs.filter((l) => {
+    const s = searchTerm.toLowerCase();
+    return (
+      (l.details || "").toLowerCase().includes(s) ||
+      (l.utilisateur || "").toLowerCase().includes(s) ||
+      (l.action || "").toLowerCase().includes(s)
+    );
+  });
 
   return (
     <div className="min-h-full bg-slate-50/50">

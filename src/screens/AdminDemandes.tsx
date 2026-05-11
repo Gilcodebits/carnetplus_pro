@@ -26,13 +26,20 @@ export function AdminDemandes() {
     }
   };
 
-  const handleUpdateStatus = async (id: number, statut: string) => {
+  const [rejectionModal, setRejectionModal] = useState<{show: boolean, id: number | null}>({show: false, id: null});
+  const [rejectionReason, setRejectionReason] = useState("");
+
+  const handleUpdateStatus = async (id: number, statut: string, reason?: string) => {
     try {
       const res: any = await adhesionsAPI.updateStatus(id, statut);
       setDemandes(demandes.map(d => d.id === id ? { ...d, statut } : d));
       
       if (statut === 'approuve') {
-        alert("Succès ! L'établissement a été créé et le compte gestionnaire a été activé.\n\nSIMULATION EMAIL :\n" + (res.debug_email || "Email de bienvenue envoyé."));
+        alert("Succès ! L'établissement a été approuvé.\n\nSIMULATION EMAIL ENVOYÉ À L'ÉTABLISSEMENT :\nObjet: Bienvenue sur CarnetPlus\nCorps: Votre demande a été approuvée. Vos accès gestionnaire ont été créés.");
+      } else if (statut === 'rejete') {
+        alert(`Demande rejetée.\n\nSIMULATION EMAIL ENVOYÉ À L'ÉTABLISSEMENT :\nObjet: Suite à votre demande d'adhésion\nCorps: Votre demande a été rejetée pour la raison suivante : ${reason || "Dossier incomplet"}`);
+        setRejectionModal({show: false, id: null});
+        setRejectionReason("");
       }
     } catch (err) {
       alert("Erreur lors de la mise à jour");
@@ -198,7 +205,7 @@ export function AdminDemandes() {
                           <CheckCircle2 className="w-4 h-4" /> Approuver
                         </button>
                         <button 
-                          onClick={() => handleUpdateStatus(d.id, 'rejete')}
+                          onClick={() => setRejectionModal({show: true, id: d.id})}
                           className="flex-1 py-3.5 bg-white border-2 border-rose-50 text-rose-500 hover:bg-rose-50 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 active:scale-95"
                         >
                           <XCircle className="w-4 h-4" /> Rejeter
@@ -224,6 +231,46 @@ export function AdminDemandes() {
         </div>
       )}
       </div>
+      
+      {/* Rejection Modal */}
+      {rejectionModal.show && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-fadeIn" onClick={() => setRejectionModal({show: false, id: null})} />
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-scaleIn">
+            <div className="p-8 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+              <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 border-2 border-rose-100">
+                <XCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Motif du Rejet</h2>
+                <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">Expliquez la décision à l'établissement</p>
+              </div>
+            </div>
+            <div className="p-10 space-y-8">
+              <textarea 
+                value={rejectionReason}
+                onChange={e => setRejectionReason(e.target.value)}
+                placeholder="Ex: Dossier incomplet, manque d'informations sur la structure..."
+                className="w-full h-32 p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-rose-500 outline-none font-bold text-sm resize-none"
+              />
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setRejectionModal({show: false, id: null})}
+                  className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black uppercase tracking-widest text-[9px]"
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={() => handleUpdateStatus(rejectionModal.id!, 'rejete', rejectionReason)}
+                  className="flex-[2] py-4 bg-rose-600 text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-rose-200"
+                >
+                  Confirmer le Rejet
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

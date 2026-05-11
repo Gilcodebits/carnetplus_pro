@@ -16,7 +16,7 @@ try {
     if ($method === 'GET') {
         // Correction : La table 'etablissements' n'a pas de colonne 'statut' dans carnetplus.sql
         // On récupère simplement tous les établissements enregistrés
-        $sql = "SELECT e.id, e.nom, e.adresse, e.ville, e.telephone, e.email,
+        $sql = "SELECT e.id, e.nom, e.type, e.adresse, e.ville, e.telephone, e.email,
                 (SELECT COUNT(*) FROM utilisateurs u WHERE u.etablissement_id = e.id) as membres_count
                 FROM etablissements e 
                 ORDER BY e.nom ASC";

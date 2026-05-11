@@ -9,10 +9,6 @@ export function AdminReports() {
           <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Rapports & Statistiques</h1>
           <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Analyse des performances et de l'utilisation globale.</p>
         </div>
-        <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-300 active:scale-95 border-2 border-slate-800">
-          <Download className="w-5 h-5" />
-          <span>Exporter PDF</span>
-        </button>
       </div>
 
       <div className="grid grid-cols-2 gap-6">

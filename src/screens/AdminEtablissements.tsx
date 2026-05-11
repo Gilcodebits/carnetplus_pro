@@ -31,7 +31,7 @@ export default function AdminEtablissements() {
   };
 
   const filtered = etablissements.filter(e => {
-    const matchesSearch = e.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = e.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           e.ville?.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (activeFilter === "Tous") return matchesSearch;
@@ -39,19 +39,22 @@ export default function AdminEtablissements() {
     const typeMap: Record<string, string> = {
       "Hôpitaux": "hopital",
       "Cliniques": "clinique",
-      "Laboratoires": "laboratoire"
+      "Laboratoires": "laboratoire",
+      "Pharmacies": "pharmacie",
+      "Cabinets": "cabinet",
     };
     
-    return matchesSearch && e.type === typeMap[activeFilter];
+    // Case-insensitive comparison
+    return matchesSearch && (e.type || "").toLowerCase() === (typeMap[activeFilter] || activeFilter).toLowerCase();
   });
 
   const stats = {
     total: etablissements.length,
     villes: new Set(etablissements.map(e => e.ville)).size,
     types: {
-      hopital: etablissements.filter(e => e.type === 'hopital').length,
-      clinique: etablissements.filter(e => e.type === 'clinique').length,
-      laboratoire: etablissements.filter(e => e.type === 'laboratoire').length,
+      hopital: etablissements.filter(e => (e.type || "").toLowerCase() === 'hopital').length,
+      clinique: etablissements.filter(e => (e.type || "").toLowerCase() === 'clinique').length,
+      laboratoire: etablissements.filter(e => (e.type || "").toLowerCase() === 'laboratoire').length,
     }
   };
 
@@ -66,9 +69,6 @@ export default function AdminEtablissements() {
             Gestion des structures de santé connectées au carnetplus
           </p>
         </div>
-        <button className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 flex items-center gap-3 active:scale-95">
-          <Plus className="w-4 h-4" /> Ajouter un établissement
-        </button>
       </div>
 
       <div className="px-8 lg:px-12 pb-12 space-y-10">
@@ -117,74 +117,112 @@ export default function AdminEtablissements() {
         </div>
       </div>
 
-      {/* List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {loading ? (
-          [1,2,3,4,5,6].map(i => <div key={i} className="h-48 bg-white rounded-[2rem] border-2 border-slate-100 animate-pulse" />)
-        ) : (
-          filtered.map((e, i) => (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
-              key={e.id} 
-              className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 hover:border-blue-200 transition-all group relative overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:shadow-slate-200/50"
-            >
-              <div className="absolute top-0 right-0 p-4">
-                <button className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
-                  <MoreVertical className="w-5 h-5" />
-                </button>
-              </div>
+      {/* List Grouped by Type */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[1,2,3,4,5,6].map(i => <div key={i} className="h-48 bg-white rounded-[2rem] border-2 border-slate-100 animate-pulse" />)}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="py-24 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-100">
+          <Building2 className="w-16 h-16 text-slate-100 mx-auto mb-6" />
+          <h3 className="text-slate-400 font-black text-xl uppercase tracking-widest">Aucun établissement trouvé</h3>
+        </div>
+      ) : (
+        <div className="space-y-12">
+          {(() => {
+            const typeLabels: Record<string, string> = {
+              hopital: "Hôpitaux",
+              clinique: "Cliniques",
+              laboratoire: "Laboratoires",
+              pharmacie: "Pharmacies",
+              cabinet: "Cabinets Médicaux",
+            };
+            // Collect all types present in data (in preferred order + any extras)
+            // Normalize to lowercase for consistent grouping
+            const orderedTypes = ["hopital", "clinique", "laboratoire", "pharmacie", "cabinet"];
+            const rawTypes = filtered.map(e => (e.type || "").toLowerCase()).filter(Boolean);
+            const allTypes = [...new Set([...orderedTypes, ...rawTypes])];
 
-              <div className="space-y-6">
-                <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center border-2 border-slate-100 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                    <Building2 className="w-8 h-8" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-blue-600 transition-colors">{e.nom}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[7px] font-black uppercase tracking-widest border border-blue-100 mr-2">{e.type}</span>
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <MapPin className="w-3 h-3" />
-                        <span className="text-[9px] font-bold uppercase tracking-tight truncate">{e.ville || "Non précisé"}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            return allTypes.map(type => {
+              // Case-insensitive filtering for the group
+              const typeList = filtered.filter(e => (e.type || "").toLowerCase() === type);
+              if (typeList.length === 0) return null;
 
-                <div className="grid grid-cols-1 gap-2 pt-4 border-t border-slate-50">
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <Mail className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold truncate">{e.email || "Pas d'email"}</span>
+              return (
+                <div key={type} className="space-y-6">
+                  <div className="flex items-center gap-4 px-2">
+                    <div className="w-2 h-8 bg-blue-600 rounded-full" />
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-widest">
+                      {typeLabels[type] || type}
+                      <span className="ml-3 text-sm text-slate-400 font-bold">({typeList.length})</span>
+                    </h2>
                   </div>
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <Phone className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold">{e.telephone || "Pas de téléphone"}</span>
-                  </div>
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {typeList.map((e, i) => (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        key={e.id} 
+                        className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 hover:border-blue-200 transition-all group relative overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:shadow-slate-200/50"
+                      >
+                        <div className="absolute top-0 right-0 p-4">
+                          <button className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
+                            <MoreVertical className="w-5 h-5" />
+                          </button>
+                        </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-slate-300" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    <span className="text-blue-600">{e.membres_count || 0}</span> Membres
-                  </span>
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-5">
+                            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center border-2 border-slate-100 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                              <Building2 className="w-8 h-8" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-blue-600 transition-colors">{e.nom}</h3>
+                              <div className="flex items-center gap-1.5 text-slate-400 mt-1">
+                                <MapPin className="w-3 h-3" />
+                                <span className="text-[9px] font-bold uppercase tracking-tight truncate">{e.ville || "Non précisé"}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2 pt-4 border-t border-slate-50">
+                            <div className="flex items-center gap-3 text-slate-500">
+                              <Mail className="w-3.5 h-3.5" />
+                              <span className="text-[10px] font-bold truncate">{e.email || "Pas d'email"}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-slate-500">
+                              <Phone className="w-3.5 h-3.5" />
+                              <span className="text-[10px] font-bold">{e.telephone || "Pas de téléphone"}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-slate-300" />
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                              <span className="text-blue-600">{e.membres_count || 0}</span> Membres
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-all border-2 border-transparent hover:border-blue-100">
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-all border-2 border-transparent hover:border-rose-100">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-all border-2 border-transparent hover:border-blue-100">
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-all border-2 border-transparent hover:border-rose-100">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))
-        )}
-      </div>
+              );
+            });
+          })()}
+        </div>
+      )}
       </div>
     </div>
   );

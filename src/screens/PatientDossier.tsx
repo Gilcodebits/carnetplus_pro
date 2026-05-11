@@ -115,42 +115,50 @@ export function PatientDossier() {
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { margin: 1cm; size: A4; }
-          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
           
-          /* CRITICAL: Allow parents to expand */
-          html, body, #root, [class*="overflow-hidden"], .flex-1, main { 
-            overflow: visible !important; 
-            height: auto !important; 
-            display: block !important;
-          }
-
-          /* Force hide everything except the booklet */
+          /* Hide EVERYTHING by default */
           body * { visibility: hidden !important; }
+          
+          /* Show the booklet and all its parents so it doesn't get cut off */
           #booklet-pdf, #booklet-pdf * { visibility: visible !important; }
           
-          #booklet-pdf { 
-            display: block !important;
-            position: absolute !important; 
+          /* Ancestor fix: all parents of #booklet-pdf must be visible and not hidden */
+          #booklet-pdf {
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
+            height: auto !important;
+            visibility: visible !important;
+            display: block !important;
             opacity: 1 !important;
+            z-index: 9999999 !important;
             background: white !important;
           }
 
-          /* Force white text on red background */
+          /* Reset potential layout blockers on parents */
+          html, body, #root, [class*="AdminLayout"], main {
+            overflow: visible !important;
+            height: auto !important;
+            width: auto !important;
+            display: block !important;
+          }
+
+          body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            background: white !important;
+          }
+
+          /* Force white text for blood group */
           .blood-group-text {
             color: white !important;
             -webkit-print-color-adjust: exact !important;
           }
-
-          /* Restore complex layouts inside the booklet */
+          
           #booklet-pdf .flex { display: flex !important; }
           #booklet-pdf .grid { display: grid !important; }
           #booklet-pdf .divide-x > * + * { border-left-width: 1px !important; }
-
-          .print-title { font-size: 16px !important; font-weight: 900 !important; }
-          .print-text { font-size: 14px !important; }
         }
       `}} />
 

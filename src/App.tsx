@@ -44,6 +44,8 @@ import { GestionnaireJournal } from "./screens/GestionnaireJournal";
 import { PageTransition } from "./components/PageTransition";
 import { PrescriptionView } from "./screens/PrescriptionView";
 import { Profile } from "./screens/Profile";
+import { Landing } from "./screens/Landing";
+import { PartnerRequest } from "./screens/PartnerRequest";
 
 const ROLE_HOME: Record<string, string> = {
   admin: "/admin", medecin: "/medecin", secretaire: "/secretaire",
@@ -81,10 +83,12 @@ function AppRoutes() {
   );
   return (
     <Routes>
-      <Route path="/" element={<AuthRedirect />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/rejoindre" element={<PartnerRequest />} />
+      <Route path="/login" element={<AuthRedirect />} />
 
       {/* Admin Protected Routes with Layout */}
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route path="/admin" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="etablissements" element={<AdminEtablissements />} />

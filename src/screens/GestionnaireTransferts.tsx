@@ -12,10 +12,10 @@ import { useToast } from "../contexts/ToastContext";
 import { formatDate } from "../utils/format";
 
 const statutConfig: Record<string, { label: string, color: string, icon: any }> = {
-  en_attente: { label: "En attente", color: "bg-orange-100 text-orange-700 border-orange-200", icon: Clock },
-  accepte: { label: "Accepté", color: "bg-blue-100 text-blue-700 border-blue-200", icon: CheckCircle },
-  refuse: { label: "Refusé", color: "bg-red-100 text-red-700 border-red-200", icon: XCircle },
-  transfere: { label: "Transféré", color: "bg-green-100 text-green-700 border-green-200", icon: ArrowLeftRight },
+  en_attente: { label: "En attente", color: "bg-orange-50 text-orange-600 border-orange-100", icon: Clock },
+  accepte: { label: "Accepté", color: "bg-emerald-50 text-emerald-600 border-emerald-100", icon: CheckCircle },
+  refuse: { label: "Refusé", color: "bg-rose-50 text-rose-600 border-rose-100", icon: XCircle },
+  transfere: { label: "Transféré", color: "bg-blue-50 text-blue-600 border-blue-100", icon: ArrowLeftRight },
 };
 
 export function GestionnaireTransferts() {

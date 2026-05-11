@@ -57,34 +57,53 @@ export function BilanSante() {
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { margin: 1cm; size: A4; }
-          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
           
-          /* CRITICAL: Allow parents to expand */
-          html, body, #root, [class*="overflow-hidden"], .flex-1, main { 
-            overflow: visible !important; 
-            height: auto !important; 
-            display: block !important;
-          }
-
-          /* Force hide everything except the bilan */
+          /* Hide EVERYTHING by default */
           body * { visibility: hidden !important; }
+          
+          /* Show the target and parents */
           #bilan-pdf, #bilan-pdf * { visibility: visible !important; }
 
           #bilan-pdf { 
-            display: block !important;
             position: absolute !important; 
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
+            height: auto !important;
+            display: block !important;
+            visibility: visible !important;
             opacity: 1 !important;
+            z-index: 9999999 !important;
             background: white !important;
           }
+          
+          /* Reset layout blockers */
+          html, body, #root, [class*="AdminLayout"], main {
+            overflow: visible !important;
+            height: auto !important;
+            width: auto !important;
+            display: block !important;
+          }
+
+          body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
+
           /* Restore layouts */
           #bilan-pdf .flex { display: flex !important; }
           #bilan-pdf .grid { display: grid !important; }
-          .print-title { font-size: 16px !important; }
-          .print-text { font-size: 14px !important; }
-          .print-text-white { color: white !important; }
+
+          /* Force light theme for dark boxes during print for readability */
+          #bilan-pdf .bg-slate-900 {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0 !important;
+          }
+          #bilan-pdf .bg-slate-900 *, #bilan-pdf .text-white {
+            color: #0f172a !important;
+          }
+          #bilan-pdf .bg-emerald-500 {
+             background: #10b981 !important;
+             color: white !important;
+          }
         }
       `}} />
 
