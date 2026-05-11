@@ -24,13 +24,28 @@ function EcgLine() {
 
 export function Login() {
   const navigate = useNavigate();
-  const { login, error, clearError } = useAuth();
+  const { user, login, error, clearError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
   const [showAdhesion, setShowAdhesion] = useState(false);
+
+  // Redirection automatique si déjà connecté
+  useEffect(() => {
+    if (user) {
+      const routes = {
+        admin: '/admin',
+        medecin: '/medecin',
+        secretaire: '/secretaire',
+        labo: '/labo',
+        patient: '/patient',
+        gestionnaire: '/gestionnaire'
+      };
+      navigate(routes[user.role] || '/');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async () => {
     if (!email || !password) { setLocalError("Veuillez remplir tous les champs."); return; }

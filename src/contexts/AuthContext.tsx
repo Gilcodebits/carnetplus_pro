@@ -42,6 +42,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       setLoading(false);
     }
+
+    // Synchronisation multi-onglets : Déconnexion/Changement si localStorage change
+    const syncSession = (e: StorageEvent) => {
+      if (e.key === 'cp_token') {
+        if (!e.newValue) {
+          // Déconnexion effectuée dans un autre onglet
+          setUser(null);
+        } else {
+          // Changement de compte ou nouvelle connexion
+          window.location.reload();
+        }
+      }
+    };
+
+    window.addEventListener('storage', syncSession);
+    return () => window.removeEventListener('storage', syncSession);
   }, []);
 
   const login = async (email: string, password: string) => {
