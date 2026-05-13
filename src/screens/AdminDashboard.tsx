@@ -17,40 +17,39 @@ export function AdminDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div className="flex h-screen items-center justify-center bg-slate-200">
-      <div className="text-center bg-white p-14 rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50">
-        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6 shadow-lg shadow-blue-200" />
-        <p className="text-slate-900 font-black uppercase tracking-widest text-[10px]">Initialisation des systèmes...</p>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="p-8 animate-fadeIn bg-slate-200 min-h-screen">
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Dashboard Admin</h1>
-          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Vue d'ensemble et état de la plateforme en temps réel.</p>
-        </div>
-        <div className="flex items-center gap-3 px-6 py-3 bg-emerald-50 border-2 border-emerald-100 rounded-2xl shadow-sm">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-          <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Système Opérationnel</span>
+    <div className="animate-fadeIn bg-slate-200 min-h-screen w-full max-w-full overflow-x-hidden">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Dashboard Admin</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Vue d'ensemble et état de la plateforme</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 px-5 py-2.5 bg-emerald-50 border-2 border-emerald-100 rounded-2xl shadow-sm">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Système Opérationnel</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px] space-y-10">
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
         <StatCard title="Médecins Actifs" value={stats.medecins || 0} icon={<Users className="w-6 h-6" />} trend="Total plateforme" color="blue" delay={100} />
         <StatCard title="Patients Total" value={stats.patients || 0} icon={<Activity className="w-6 h-6" />} trend="Dossiers numériques" color="green" delay={200} />
         <StatCard title="Consultations" value={stats.consultations || 0} icon={<TrendingUp className="w-6 h-6" />} trend="Total cumulé" color="purple" delay={300} />
         <StatCard title="Satisfaction" value="94%" icon={<BarChart3 className="w-6 h-6" />} trend="Indice patient" color="orange" delay={400} />
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <Card animated delay={500} className="border-slate-200 shadow-2xl shadow-slate-200/50">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Journal d'Audit</h2>
-            <button onClick={() => navigate('/admin/reports')} className="px-6 py-3 bg-blue-50 border-2 border-blue-100 text-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm active:scale-95">Tout consulter</button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card animated delay={500} className="border-slate-200 shadow-2xl shadow-slate-200/50 p-6 md:p-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Journal d'Audit</h2>
+            <button onClick={() => navigate('/admin/reports')} className="w-full sm:w-auto px-6 py-3 bg-blue-50 border-2 border-blue-100 text-blue-600 rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm active:scale-95">Tout consulter</button>
           </div>
           <div className="space-y-4">
             {stats.logs?.map((log: any, i: number) => (
@@ -61,9 +60,9 @@ export function AdminDashboard() {
                 <div className="flex-1">
                   <div className="flex justify-between items-start mb-1">
                     <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{log.action.replace('_', ' ')}</p>
-                    <p className="text-[10px] text-slate-400 font-black tracking-widest bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">{formatDateTime(log.created_at)}</p>
+                    <p className="text-[10px] text-slate-700 font-black tracking-widest bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">{formatDateTime(log.created_at)}</p>
                   </div>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                  <p className="text-[10px] text-slate-700 font-black uppercase tracking-widest">
                     Utilisateur : <span className="text-blue-600">{log.utilisateur_nom || 'Système'}</span>
                   </p>
                 </div>
@@ -72,14 +71,14 @@ export function AdminDashboard() {
             {(!stats.logs || stats.logs.length === 0) && (
               <div className="text-center py-16 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem]">
                 <Activity className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                <p className="text-slate-400 font-black uppercase tracking-widest text-xs italic">Aucune activité récente enregistrée</p>
+                <p className="text-slate-600 font-black uppercase tracking-widest text-xs italic">Aucune activité récente enregistrée</p>
               </div>
             )}
           </div>
         </Card>
 
-        <Card className="border-slate-200 shadow-2xl shadow-slate-200/50">
-          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Alertes Systèmes</h2>
+        <Card className="border-slate-200 shadow-2xl shadow-slate-200/50 p-6 md:p-8">
+          <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Alertes Systèmes</h2>
           <div className="space-y-4">
             {stats.system?.alerts?.map((alert: any, i: number) => (
               <div key={i} className={`p-5 ${alert.bg} border-2 ${alert.border} rounded-[2rem] flex items-start gap-4 shadow-sm`}>
@@ -104,7 +103,7 @@ export function AdminDashboard() {
             <div className="space-y-6">
               {stats.system?.performance?.map((item: any) => (
                 <div key={item.label} className="group">
-                  <div className="flex justify-between text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2.5">
+                  <div className="flex justify-between text-[10px] text-slate-700 font-black uppercase tracking-widest mb-2.5">
                     <span>{item.label}</span>
                     <span className="text-slate-900">{item.pct}%</span>
                   </div>
@@ -116,6 +115,7 @@ export function AdminDashboard() {
             </div>
           </div>
         </Card>
+      </div>
       </div>
     </div>
   );

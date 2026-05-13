@@ -78,35 +78,29 @@ export function CalendrierRDV() {
   const selectedDoctor = medecins.find(m => m.id.toString() === selectedMedecinId);
 
   return (
-    <div className="flex flex-col relative bg-slate-50 min-h-screen">
-        
-        {/* Modern Glass Header */}
-        <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-slate-200/60 px-8 py-5">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-5">
-              <button onClick={() => navigate(-1)} className="p-3 hover:bg-slate-100 rounded-xl transition-colors">
-                <ArrowLeft className="w-5 h-5 text-slate-600" />
-              </button>
-              <div>
-                <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-                  Prise de Rendez-vous
-                </h1>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                  <Star className="w-3 h-3 text-amber-400 fill-amber-400" /> 
-                  Expertise Clinique Certifiée
-                </p>
-              </div>
-            </div>
-
-            <div className="hidden md:flex items-center gap-3">
-               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">
-                 {medecins.length > 0 ? `${medecins.length} Médecins disponibles` : 'Chargement des médecins...'}
-               </p>
+    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <button onClick={() => navigate(-1)} className="p-3 hover:bg-slate-100 rounded-xl transition-colors">
+              <ArrowLeft className="w-5 h-5 text-slate-600" />
+            </button>
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Rendez-vous</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Expertise Certifiée & Disponibilités</p>
             </div>
           </div>
+          <div className="hidden md:flex items-center gap-3">
+             <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-2">
+               {medecins.length > 0 ? `${medecins.length} Médecins disponibles` : 'Chargement des médecins...'}
+             </p>
+          </div>
         </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto w-full p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="max-w-7xl mx-auto w-full px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px] grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
           
           {/* Main Booking Content */}
           <div className="lg:col-span-8 space-y-10">
@@ -118,8 +112,8 @@ export function CalendrierRDV() {
                    <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">0. Choisir votre médecin</h2>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Spécialistes de votre établissement</p>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">0. Choisir votre médecin</h2>
+                  <p className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">Spécialistes de votre établissement</p>
                 </div>
               </div>
 
@@ -128,18 +122,18 @@ export function CalendrierRDV() {
                   <button
                     key={m.id}
                     onClick={() => setSelectedMedecinId(m.id.toString())}
-                    className={`p-6 rounded-[2rem] border-2 transition-all flex items-center gap-4 text-left ${
+                    className={`p-4 md:p-6 rounded-2xl md:rounded-[2rem] border-2 transition-all flex items-center gap-4 text-left ${
                       selectedMedecinId === m.id.toString()
                         ? "border-emerald-600 bg-white shadow-2xl shadow-emerald-100"
                         : "border-transparent bg-white shadow-sm hover:border-slate-200"
                     }`}
                   >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-white ${selectedMedecinId === m.id.toString() ? 'bg-emerald-600' : 'bg-slate-200 text-slate-400'}`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-white ${selectedMedecinId === m.id.toString() ? 'bg-emerald-600' : 'bg-slate-200 text-slate-600'}`}>
                       {m.prenom[0]}{m.nom[0]}
                     </div>
                     <div>
                       <p className={`font-black text-sm uppercase tracking-tight ${selectedMedecinId === m.id.toString() ? 'text-slate-900' : 'text-slate-500'}`}>Dr. {m.prenom} {m.nom}</p>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Spécialiste</p>
+                      <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Spécialiste</p>
                     </div>
                   </button>
                 ))}
@@ -153,26 +147,26 @@ export function CalendrierRDV() {
                    <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">1. Choisir une date</h2>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Disponibilités en temps réel</p>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">1. Choisir une date</h2>
+                  <p className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">Disponibilités en temps réel</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3 md:gap-4">
                 {datesDisponibles.map((date) => (
                   <motion.button
                     key={date.iso}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setSelectedDate(date.iso); setSelectedTime(null); }}
-                    className={`p-6 rounded-[2rem] border-2 transition-all flex flex-col items-center justify-center gap-1 ${
+                    className={`p-3 md:p-6 rounded-xl md:rounded-[2rem] border-2 transition-all flex flex-col items-center justify-center gap-1 ${
                       selectedDate === date.iso 
                         ? "border-blue-600 bg-white shadow-2xl shadow-blue-100" 
                         : "border-transparent bg-white shadow-sm hover:border-slate-200"
                     }`}
                   >
-                    <span className={`text-sm font-black tracking-tighter ${selectedDate === date.iso ? "text-blue-600" : "text-slate-900"}`}>{date.label}</span>
-                    {selectedDate === date.iso && <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2" />}
+                    <span className={`text-[10px] md:text-sm font-black tracking-tighter text-center ${selectedDate === date.iso ? "text-blue-600" : "text-slate-900"}`}>{date.label}</span>
+                    {selectedDate === date.iso && <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1 md:mt-2" />}
                   </motion.button>
                 ))}
               </div>
@@ -192,14 +186,14 @@ export function CalendrierRDV() {
                        <Clock className="w-5 h-5" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">2. Choisir l'horaire</h2>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Heure locale d'Afrique Centrale</p>
+                      <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">2. Choisir l'horaire</h2>
+                      <p className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">Heure locale d'Afrique Centrale</p>
                     </div>
                   </div>
 
-                  <div className="space-y-8 bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+                  <div className="space-y-8 bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100">
                     <div>
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                      <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                         <span className="w-8 h-px bg-slate-200" /> Matinée
                       </h4>
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
@@ -207,7 +201,7 @@ export function CalendrierRDV() {
                           <button
                             key={heure}
                             onClick={() => setSelectedTime(heure)}
-                            className={`py-4 rounded-2xl border-2 font-black text-xs uppercase tracking-widest transition-all ${
+                            className={`py-3 md:py-4 rounded-xl md:rounded-2xl border-2 font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${
                               selectedTime === heure 
                                 ? "border-blue-600 bg-blue-50 text-blue-600 shadow-md scale-105" 
                                 : "border-slate-50 bg-slate-50 text-slate-500 hover:border-blue-200 hover:bg-white hover:text-blue-600"
@@ -218,7 +212,7 @@ export function CalendrierRDV() {
                     </div>
 
                     <div>
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                      <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                         <span className="w-8 h-px bg-slate-200" /> Après-midi
                       </h4>
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
@@ -226,7 +220,7 @@ export function CalendrierRDV() {
                           <button
                             key={heure}
                             onClick={() => setSelectedTime(heure)}
-                            className={`py-4 rounded-2xl border-2 font-black text-xs uppercase tracking-widest transition-all ${
+                            className={`py-3 md:py-4 rounded-xl md:rounded-2xl border-2 font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${
                               selectedTime === heure 
                                 ? "border-blue-600 bg-blue-50 text-blue-600 shadow-md scale-105" 
                                 : "border-slate-50 bg-slate-50 text-slate-500 hover:border-blue-200 hover:bg-white hover:text-blue-600"
@@ -243,8 +237,8 @@ export function CalendrierRDV() {
 
           {/* Right Sidebar: Recap Card */}
           <div className="lg:col-span-4">
-            <div className="sticky top-28 space-y-6">
-              <Card className="border border-slate-200 shadow-2xl shadow-slate-200/60 p-8 bg-white rounded-[2.5rem] overflow-hidden relative">
+            <div className="lg:sticky lg:top-28 space-y-6">
+              <Card className="border border-slate-200 shadow-2xl shadow-slate-200/60 p-6 md:p-8 bg-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50" />
                 
                 <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-8 relative z-10 flex items-center gap-3">
@@ -254,7 +248,7 @@ export function CalendrierRDV() {
                 
                 <div className="space-y-5 relative z-10">
                   <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2"><User className="w-3 h-3 text-blue-500"/> Praticien</p>
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 flex items-center gap-2"><User className="w-3 h-3 text-blue-500"/> Praticien</p>
                     <p className="font-black text-slate-900 text-sm uppercase tracking-tight">
                       {selectedDoctor ? `Dr. ${selectedDoctor.prenom} ${selectedDoctor.nom}` : "---"}
                     </p>
@@ -263,14 +257,14 @@ export function CalendrierRDV() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2"><Calendar className="w-3 h-3 text-emerald-500"/> Date</p>
-                      <p className={`font-black text-sm uppercase tracking-tight ${selectedDate ? "text-slate-900" : "text-slate-300 italic"}`}>
+                      <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 flex items-center gap-2"><Calendar className="w-3 h-3 text-emerald-500"/> Date</p>
+                      <p className={`font-black text-sm uppercase tracking-tight ${selectedDate ? "text-slate-900" : "text-slate-500 italic"}`}>
                         {selectedDate ? formatDate(selectedDate) : "---"}
                       </p>
                     </div>
                     <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2"><Clock className="w-3 h-3 text-purple-500"/> Heure</p>
-                      <p className={`font-black text-sm uppercase tracking-tight ${selectedTime ? "text-slate-900" : "text-slate-300 italic"}`}>
+                      <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1.5 flex items-center gap-2"><Clock className="w-3 h-3 text-purple-500"/> Heure</p>
+                      <p className={`font-black text-sm uppercase tracking-tight ${selectedTime ? "text-slate-900" : "text-slate-500 italic"}`}>
                         {selectedTime || "---"}
                       </p>
                     </div>
@@ -289,7 +283,7 @@ export function CalendrierRDV() {
                         <option>Renouvellement ordonnance</option>
                         <option>Urgence (Douleur)</option>
                       </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none group-focus-within:rotate-180 transition-transform" />
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 pointer-events-none group-focus-within:rotate-180 transition-transform" />
                     </div>
                   </div>
 
@@ -322,3 +316,4 @@ export function CalendrierRDV() {
       </div>
   );
 }
+

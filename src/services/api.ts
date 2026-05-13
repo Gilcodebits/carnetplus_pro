@@ -106,7 +106,10 @@ export const logsAPI = {
 };
 
 export const etablissementsAPI = {
-  list: () => request<any[]>('/etablissements.php'),
+  list:   () => request<any[]>('/etablissements.php'),
+  create: (data: any) => request<any>('/etablissements.php', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: any) => request<any>(`/etablissements.php?id=${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => request<any>(`/etablissements.php?id=${id}`, { method: 'DELETE' }),
 };
 
 export const utilisateursAPI = {

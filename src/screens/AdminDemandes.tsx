@@ -81,7 +81,7 @@ export function AdminDemandes() {
   };
 
   return (
-    <div className="animate-fadeIn bg-slate-50 min-h-screen relative">
+    <div className="animate-fadeIn bg-slate-50 min-h-screen relative w-full max-w-full overflow-x-hidden">
       {/* Status Toasts */}
       <AnimatePresence>
         {statusMessage && (
@@ -108,44 +108,41 @@ export function AdminDemandes() {
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-slate-50/80 backdrop-blur-xl px-8 lg:px-12 py-6 border-b border-slate-200/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
-        <div>
-          <div className="flex items-center gap-4 mb-2">
-            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-200">
-              <Building2 className="w-6 h-6" />
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Demandes d'Adhésion</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Validation des nouveaux établissements</p>
             </div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Demandes d'Adhésion</h1>
           </div>
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ml-1">
-            <ShieldCheck className="w-3 h-3 text-emerald-500"/>
-            Validation des nouveaux établissements du réseau
-          </p>
+          <button
+            onClick={loadDemandes}
+            className="p-3 bg-white text-slate-400 hover:text-blue-600 rounded-xl transition-all border-2 border-slate-100 hover:border-blue-200 shadow-sm active:scale-90 group"
+          >
+            <RefreshCw className={`w-5 h-5 group-hover:rotate-180 transition-transform duration-700 ${loading ? 'animate-spin' : ''}`} />
+          </button>
         </div>
-        <button 
-          onClick={loadDemandes}
-          className="p-4 bg-white border-4 border-slate-100 rounded-2xl text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm group active:scale-95"
-        >
-          <RefreshCw className={`w-6 h-6 group-hover:rotate-180 transition-transform duration-700 ${loading ? 'animate-spin' : ''}`} />
-        </button>
       </div>
 
-      <div className="px-8 lg:px-12 pb-12 space-y-10">
+      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px] space-y-10">
       {/* Stats Quick View */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {[
           { label: "En Attente", count: stats.en_attente, color: "orange", icon: Clock },
           { label: "Approuvées", count: stats.approuve, color: "emerald", icon: CheckCircle2 },
           { label: "Total Reçues", count: stats.total, color: "blue", icon: Building2 },
         ].map((s, i) => (
-          <div key={i} className="bg-white p-8 rounded-[2.5rem] border-4 border-slate-100 shadow-sm group hover:border-blue-500/20 transition-all">
+          <div key={i} className="bg-white p-3 md:p-8 rounded-[1.2rem] md:rounded-[2.5rem] border-2 md:border-4 border-slate-100 shadow-sm group hover:border-blue-500/20 transition-all">
             <div className="flex items-center justify-between mb-4">
               <div className={`w-12 h-12 bg-${s.color}-50 rounded-2xl flex items-center justify-center text-${s.color}-600 border-2 border-${s.color}-100`}>
                 <s.icon className="w-6 h-6" />
               </div>
-              <span className="text-4xl font-black text-slate-900 tracking-tighter">{s.count}</span>
+              <span className="text-2xl md:text-4xl font-black text-slate-900 tracking-tighter">{s.count}</span>
             </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{s.label}</p>
           </div>
         ))}
       </div>
@@ -160,7 +157,7 @@ export function AdminDemandes() {
               className={`flex-1 lg:px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                 activeFilter === f 
                   ? 'bg-white text-slate-900 shadow-md border-2 border-slate-100 scale-105' 
-                  : 'text-slate-400 hover:text-slate-600'
+                  : 'text-slate-600 hover:text-slate-600'
               }`}
             >
               {f.replace('_', ' ')}
@@ -168,7 +165,7 @@ export function AdminDemandes() {
           ))}
         </div>
         <div className="relative w-full lg:w-96 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 group-focus-within:text-blue-500 transition-colors" />
           <input 
             type="text" 
             value={searchTerm}
@@ -217,7 +214,7 @@ export function AdminDemandes() {
                         <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-blue-600 transition-colors">{d.nom_etablissement}</h3>
                         <div className="flex items-center gap-3 mt-1">
                           <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[7px] font-black uppercase tracking-widest border border-blue-100">{d.type_structure}</span>
-                          <div className="flex items-center gap-1.5 text-slate-400">
+                          <div className="flex items-center gap-1.5 text-slate-600">
                             <MapPin className="w-3 h-3" />
                             <span className="text-[9px] font-bold uppercase tracking-tight">{d.ville}</span>
                           </div>
@@ -227,13 +224,13 @@ export function AdminDemandes() {
 
                     <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-50">
                       <div className="space-y-1">
-                        <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                           <User className="w-2.5 h-2.5"/> Responsable
                         </p>
                         <p className="text-[11px] font-bold text-slate-700 truncate">{d.nom_responsable}</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                           <Mail className="w-2.5 h-2.5"/> Email
                         </p>
                         <p className="text-[11px] font-bold text-slate-700 truncate">{d.email_contact}</p>
@@ -259,7 +256,7 @@ export function AdminDemandes() {
                       </>
                     ) : (
                       <div className="w-full p-3 bg-slate-50 rounded-xl text-center border border-slate-100">
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                        <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">
                           Traitée le {formatDate(d.created_at)}
                         </p>
                       </div>
@@ -270,7 +267,7 @@ export function AdminDemandes() {
             ) : (
               <div className="col-span-full py-20 text-center bg-white rounded-[3rem] border-4 border-dashed border-slate-100">
                 <Clock className="w-16 h-16 text-slate-100 mx-auto mb-6" />
-                <h3 className="text-slate-400 font-black text-xl uppercase tracking-widest">Aucune demande trouvée</h3>
+                <h3 className="text-slate-600 font-black text-xl uppercase tracking-widest">Aucune demande trouvée</h3>
               </div>
             )}
           </AnimatePresence>
@@ -280,16 +277,16 @@ export function AdminDemandes() {
       
       {/* Rejection Modal */}
       {rejectionModal.show && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-fadeIn" onClick={() => setRejectionModal({show: false, id: null})} />
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-scaleIn">
+          <div className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-scaleIn">
             <div className="p-8 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
               <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 border-2 border-rose-100">
                 <XCircle className="w-6 h-6" />
               </div>
               <div>
                 <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Motif du Rejet</h2>
-                <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">Expliquez la décision à l'établissement</p>
+                <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mt-1">Expliquez la décision à l'établissement</p>
               </div>
             </div>
             <div className="p-10 space-y-8">
@@ -299,17 +296,17 @@ export function AdminDemandes() {
                 placeholder="Ex: Dossier incomplet, manque d'informations sur la structure..."
                 className="w-full h-32 p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-rose-500 outline-none font-bold text-sm resize-none"
               />
-              <div className="flex gap-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 md:gap-4">
                 <button 
                   onClick={() => setRejectionModal({show: false, id: null})}
-                  className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black uppercase tracking-widest text-[9px]"
+                  className="w-full sm:flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black uppercase tracking-widest text-[9px]"
                 >
                   Annuler
                 </button>
                 <button 
                   disabled={rejectionReason.trim().length < 5}
                   onClick={() => handleUpdateStatus(rejectionModal.id!, 'rejete', rejectionReason)}
-                  className="flex-[2] py-4 bg-rose-600 text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-rose-200 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95"
+                  className="w-full sm:flex-[2] py-4 bg-rose-600 text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-rose-200 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95"
                 >
                   Confirmer le Rejet
                 </button>
@@ -321,3 +318,4 @@ export function AdminDemandes() {
     </div>
   );
 }
+

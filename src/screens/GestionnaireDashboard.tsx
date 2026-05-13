@@ -40,47 +40,31 @@ export function GestionnaireDashboard() {
       setLoading(false);
     }
   };
-
-  if (loading) return (
-    <div className="flex h-screen bg-slate-50 items-center justify-center">
-      <div className="text-center">
-        <div className="w-16 h-16 bg-blue-600 rounded-[2rem] flex items-center justify-center mb-6 mx-auto shadow-xl shadow-blue-100 animate-pulse">
-           <Activity className="w-8 h-8 text-white" />
-        </div>
-        <p className="text-slate-900 font-black uppercase tracking-[0.2em] text-[10px]">Synchronisation...</p>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="min-h-full bg-slate-50/50 p-6 lg:p-10 space-y-10">
-      
-      {/* Header Premium */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight leading-none mb-2">
-            Tableau de <span className="text-blue-600">Bord</span>
-          </h1>
-          <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            Monitoring des flux hospitaliers en temps réel
-          </p>
-        </div>
-        <div className="flex gap-4">
-          <button onClick={loadData} className="p-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
-            <RefreshCw className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={()=>setShowModal(true)}
-            className="flex items-center gap-4 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:scale-105 transition-all shadow-xl shadow-blue-100 active:scale-95"
-          >
-            <Plus className="w-5 h-5"/> Nouveau Transfert
+    <div className="animate-fadeIn bg-slate-50/50 min-h-screen w-full max-w-full overflow-x-hidden">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Console de Gestion</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
+                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                 Supervision du Réseau
+              </p>
+            </div>
+          </div>
+          <button onClick={() => setShowModal(true)} className="hidden sm:flex items-center justify-center gap-3 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200">
+            <ArrowLeftRight className="w-4 h-4" /> <span>Nouveau Transfert</span>
           </button>
         </div>
       </div>
+
+      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px] space-y-10">
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
           { label: "En attente", val: stats.en_attente || 0, icon: Clock, color: "from-orange-500 to-orange-600" },
           { label: "Validés", val: stats.acceptes || 0, icon: CheckCircle, color: "from-emerald-500 to-emerald-600" },
@@ -92,14 +76,14 @@ export function GestionnaireDashboard() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white p-6 rounded-[2.5rem] shadow-sm border-2 border-slate-50 flex items-center gap-6 group hover:border-blue-100 transition-all"
+            className="bg-white p-3 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border-2 border-slate-50 flex items-center gap-3 md:gap-6 group hover:border-blue-100 transition-all"
           >
             <div className={`w-14 h-14 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 transition-transform`}>
               <stat.icon className="w-6 h-6" />
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-900 leading-none mb-1">{stat.val}</h3>
-              <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest opacity-60">{stat.label}</p>
+              <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest opacity-90">{stat.label}</p>
             </div>
           </motion.div>
         ))}
@@ -110,12 +94,12 @@ export function GestionnaireDashboard() {
         {/* Flux Récents */}
         <div className="xl:col-span-8 space-y-8">
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
                  <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center border-2 border-blue-50 shadow-sm"><ArrowLeftRight className="w-6 h-6"/></div>
                  Flux Récents
               </h2>
-              <button onClick={() => navigate('/gestionnaire/transferts')} className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg">
+              <button onClick={() => navigate('/gestionnaire/transferts')} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg">
                 Détails <ArrowRight className="w-4 h-4"/>
               </button>
             </div>
@@ -126,7 +110,7 @@ export function GestionnaireDashboard() {
                   key={i}
                   whileHover={{ x: 6 }}
                   onClick={() => navigate('/gestionnaire/transferts')}
-                  className="p-5 rounded-[2rem] border-2 border-slate-50 bg-white hover:border-blue-200 transition-all cursor-pointer group flex items-center justify-between shadow-sm"
+                  className="p-5 rounded-[2rem] border-2 border-slate-50 bg-white hover:border-blue-200 transition-all cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
                 >
                   <div className="flex items-center gap-6">
                     <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-white text-slate-900 font-black text-base shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
@@ -137,7 +121,7 @@ export function GestionnaireDashboard() {
                       <p className="text-[9px] text-slate-900 font-black uppercase tracking-[0.2em] mt-2 opacity-50">{t.etab_dest}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
                     <div className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm ${
                       t.statut === 'accepte' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                       t.statut === 'refuse' ? 'bg-rose-50 text-rose-600 border-rose-100' :
@@ -146,7 +130,7 @@ export function GestionnaireDashboard() {
                     }`}>
                       {t.statut === 'en_attente' ? 'En attente' : (t.statut?.replace('_', ' ') || 'En attente')}
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-blue-600 transition-all" />
+                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-all" />
                   </div>
                 </motion.div>
               )) : (
@@ -165,7 +149,7 @@ export function GestionnaireDashboard() {
             )}
           </div>
 
-          <div className="bg-white p-10 rounded-[3rem] border-2 border-slate-100 shadow-sm overflow-hidden relative group">
+          <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border-2 border-slate-100 shadow-sm overflow-hidden relative group hidden sm:block">
             <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] mb-12 flex items-center gap-4">
               <Zap className="w-4 h-4 text-blue-600 animate-pulse" /> Architecture de Circulation des Données
             </h3>
@@ -185,13 +169,13 @@ export function GestionnaireDashboard() {
                 <div key={i} className="flex flex-col items-center gap-4 relative z-10">
                   <motion.div 
                     whileHover={{ scale: 1.15, rotate: 5 }}
-                    className={`w-16 h-16 ${step.color} rounded-[1.5rem] flex items-center justify-center border-4 border-white shadow-lg transition-all`}
+                    className={`w-12 h-12 md:w-16 md:h-16 ${step.color} rounded-[1.2rem] md:rounded-[1.5rem] flex items-center justify-center border-4 border-white shadow-lg transition-all`}
                   >
-                    <step.icon className="w-7 h-7" />
+                    <step.icon className="w-5 h-5 md:w-7 md:h-7" />
                   </motion.div>
                   <div className="text-center">
-                    <p className="text-[11px] font-black text-slate-900 uppercase tracking-tighter leading-none">{step.label}</p>
-                    <p className="text-[8px] text-slate-900 font-black uppercase tracking-widest mt-1 opacity-40">{step.sub}</p>
+                    <p className="text-[10px] md:text-[11px] font-black text-slate-900 uppercase tracking-tighter leading-none">{step.label}</p>
+                    <p className="text-[7px] md:text-[8px] text-slate-900 font-black uppercase tracking-widest mt-1 opacity-80">{step.sub}</p>
                   </div>
                 </div>
               ))}
@@ -211,7 +195,7 @@ export function GestionnaireDashboard() {
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-[12px] font-black text-slate-900 uppercase tracking-tight">{site.name}</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">{site.status}</span>
+                    <span className="text-8px] font-black text-emerald-600 uppercase tracking-widest">{site.status}</span>
                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                   </div>
                 </div>
@@ -228,7 +212,7 @@ export function GestionnaireDashboard() {
               </div>
             )) : (
               <div className="p-10 text-center border-2 border-dashed border-slate-100 rounded-[2.5rem]">
-                <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest opacity-40">Aucun partenaire détecté</p>
+                <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest opacity-80">Aucun partenaire détecté</p>
               </div>
             )}
             {stats.reseau_actif && stats.reseau_actif.length > 3 && (
@@ -261,6 +245,7 @@ export function GestionnaireDashboard() {
       <AnimatePresence>
         {showModal && <NouveauTransfertModal onClose={()=>setShowModal(false)} onSave={()=>{loadData(); setShowModal(false);}}/>}
       </AnimatePresence>
+      </div>
     </div>
   );
 }
@@ -359,7 +344,7 @@ function NouveauTransfertModal({ onClose, onSave }: { onClose: () => void, onSav
                     <button 
                       key={p} 
                       onClick={()=>setForm({...form, priorite: p})}
-                      className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${form.priorite === p ? 'bg-white text-blue-600 shadow-lg border border-slate-200 scale-105' : 'text-slate-900 opacity-40'}`}
+                      className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${form.priorite === p ? 'bg-white text-blue-600 shadow-lg border border-slate-200 scale-105' : 'text-slate-900 opacity-80'}`}
                     >
                       {p === 'normale' ? 'Standard' : 'Critique'}
                     </button>
@@ -373,7 +358,7 @@ function NouveauTransfertModal({ onClose, onSave }: { onClose: () => void, onSav
                     <button 
                       key={t} 
                       onClick={()=>setForm({...form, type: t})}
-                      className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${form.type === t ? 'bg-white text-blue-600 shadow-lg border border-slate-200 scale-105' : 'text-slate-900 opacity-40'}`}
+                      className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${form.type === t ? 'bg-white text-blue-600 shadow-lg border border-slate-200 scale-105' : 'text-slate-900 opacity-80'}`}
                     >
                       {t === 'envoi' ? 'Emission' : 'Réception'}
                     </button>

@@ -5,7 +5,7 @@ import { patientsAPI } from "../services/api";
 import { useSearch } from "../contexts/SearchContext";
 import { Users, Search, Plus, ChevronRight, Activity, UserCircle, Filter, Download, MoreHorizontal, Mail, Phone } from "lucide-react";
 
-const getInitiales = (prenom: string, nom: string) => 
+const getInitiales = (prenom: string, nom: string) =>
   `${prenom?.charAt(0) || ""}${nom?.charAt(0) || ""}`.toUpperCase();
 
 const calculateAge = (date_naissance: string) => {
@@ -56,43 +56,49 @@ export function MedecinPatients() {
   }
 
   return (
-    <div className="p-10 animate-fadeIn h-full flex flex-col bg-slate-200">
-      <div className="sticky top-0 z-40 bg-slate-200/90 backdrop-blur-xl -mx-10 -mt-10 px-10 pb-4 pt-6 border-b border-slate-300/50 mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Gestion des Patients</h1>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-0.5 opacity-80">Consultez et gérez les dossiers médicaux de votre cabinet.</p>
+    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Répertoire Patients</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Dossiers médicaux de votre cabinet</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <Card noPadding className="rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden bg-white flex-1 flex flex-col">
-        <div className="px-8 py-6 border-b-2 border-slate-50 flex justify-between items-center bg-white">
+      <div className="px-4 md:px-10 pb-10 flex-1 flex flex-col pt-[130px] md:pt-[140px]">
+        <Card noPadding className="rounded-[2rem] md:rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden bg-white flex-1 flex flex-col">
+        <div className="px-6 md:px-8 py-6 border-b-2 border-slate-50 flex justify-between items-center bg-white">
           <div className="flex items-center gap-6">
-             <div className="flex items-center gap-3 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
-                <Users className="w-5 h-5 text-blue-600" />
-                <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Répertoire Patient</span>
-                <span className="bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-lg font-black">{filteredPatients.length}</span>
-             </div>
+            <div className="flex items-center gap-3 bg-slate-50 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl border border-slate-100 shadow-sm">
+              <Users className="w-5 h-5 text-blue-600" />
+              <span className="text-[10px] md:text-[11px] font-black text-slate-900 uppercase tracking-widest">Répertoire Patient</span>
+              <span className="bg-blue-600 text-white text-[8px] md:text-[9px] px-2 py-0.5 rounded-lg font-black">{filteredPatients.length}</span>
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto relative px-8 pb-8">
-          <table className="w-full text-left border-separate border-spacing-y-4">
-            <thead className="sticky top-0 z-20 shadow-sm">
-              <tr className="bg-slate-200 shadow-sm">
-                <th className="px-8 py-6 text-[11px] font-black text-slate-800 uppercase tracking-widest bg-slate-200 rounded-l-2xl">Patient</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-800 uppercase tracking-widest bg-slate-200">Identifiant</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-800 uppercase tracking-widest bg-slate-200">Âge / Sexe</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-800 uppercase tracking-widest bg-slate-200">Groupe Sanguin</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-800 uppercase tracking-widest bg-slate-200">Contact</th>
-                <th className="px-8 py-6 text-right text-[11px] font-black text-slate-800 uppercase tracking-widest bg-slate-200 rounded-r-2xl">Actions</th>
+        <div className="flex-1 overflow-auto relative px-4 md:px-8 pb-8">
+          {/* Desktop Table View */}
+          <table className="hidden lg:table w-full text-left border-separate border-spacing-y-4">
+            <thead className="sticky top-0 z-20 shadow-xl">
+              <tr className="bg-slate-900 text-white">
+                <th className="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] rounded-l-2xl">Patient</th>
+                <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">Identifiant</th>
+                <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">Âge / Sexe</th>
+                <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">Groupe Sanguin</th>
+                <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">Contact</th>
+                <th className="px-8 py-6 text-right text-[11px] font-black uppercase tracking-[0.2em] rounded-r-2xl">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredPatients.length > 0 ? (
                 filteredPatients.map((p, index) => (
-                  <tr 
+                  <tr
                     key={p.id}
                     onClick={() => navigate(`/medecin/dossier/${p.id}`)}
                     className={`group hover:scale-[1.01] hover:shadow-2xl hover:shadow-blue-200/50 transition-all cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}
@@ -104,7 +110,7 @@ export function MedecinPatients() {
                         </div>
                         <div>
                           <p className="font-black text-gray-900 text-sm uppercase tracking-tight group-hover:text-blue-700 transition-colors">{p.prenom} {p.nom}</p>
-                          <p className="text-[10px] text-slate-500 font-medium italic">Dernière visite: —</p>
+                          <p className="text-[10px] text-slate-700 font-bold uppercase tracking-widest mt-1 opacity-80">Dernière visite: —</p>
                         </div>
                       </div>
                     </td>
@@ -116,8 +122,8 @@ export function MedecinPatients() {
                     <td className="px-6 py-8 border-y-2 border-slate-200">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-gray-700">{calculateAge(p.date_naissance)} ans</span>
-                        <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                        <span className="text-xs font-bold text-gray-500 uppercase">{p.sexe || '—'}</span>
+                        <span className="w-1 h-1 bg-slate-400 rounded-full" />
+                        <span className="text-xs font-black text-slate-700 uppercase">{p.sexe || '—'}</span>
                       </div>
                     </td>
                     <td className="px-6 py-8 border-y-2 border-slate-200">
@@ -127,16 +133,16 @@ export function MedecinPatients() {
                           <span className="text-xs font-black uppercase">{p.groupe_sanguin}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-300 font-bold">Non défini</span>
+                        <span className="text-xs text-slate-600 font-bold">Non défini</span>
                       )}
                     </td>
                     <td className="px-6 py-8 border-y-2 border-slate-200">
                       <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
-                           <Phone className="w-3 h-3 text-slate-400" /> {p.telephone || '—'}
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-900">
+                          <Phone className="w-3 h-3 text-blue-600" /> {p.telephone || '—'}
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
-                           <Mail className="w-3 h-3 text-slate-400" /> {p.email || '—'}
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-700">
+                          <Mail className="w-3 h-3 text-blue-600" /> {p.email || '—'}
                         </div>
                       </div>
                     </td>
@@ -159,15 +165,53 @@ export function MedecinPatients() {
                       <UserCircle className="w-10 h-10 text-gray-200" />
                     </div>
                     <h3 className="text-gray-900 font-black text-lg uppercase tracking-tight">Aucun résultat</h3>
-                    <p className="text-gray-400 text-sm font-medium italic">Vérifiez vos filtres ou la recherche en haut.</p>
+                    <p className="text-slate-600 text-sm font-medium italic">Vérifiez vos filtres ou la recherche en haut.</p>
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden space-y-4 pt-4">
+            {filteredPatients.length > 0 ? (
+              filteredPatients.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => navigate(`/medecin/dossier/${p.id}`)}
+                  className="bg-white border-2 border-slate-100 p-5 rounded-[1.5rem] shadow-sm active:scale-[0.98] transition-all flex items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-12 h-12 bg-blue-100 rounded-2xl flex-shrink-0 flex items-center justify-center text-blue-600 font-black text-sm">
+                      {getInitiales(p.prenom, p.nom)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight truncate">{p.prenom} {p.nom}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-widest border border-blue-100">{p.numero_dossier}</span>
+                        <span className="text-[10px] font-bold text-slate-600">{calculateAge(p.date_naissance)} ans</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-500">
+                    <ChevronRight className="w-5 h-5" />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-20 text-center">
+                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border-2 border-slate-100">
+                  <UserCircle className="w-8 h-8 text-slate-200" />
+                </div>
+                <h3 className="text-slate-900 font-black text-base uppercase tracking-tight">Aucun résultat</h3>
+              </div>
+            )}
+          </div>
         </div>
-        
-      </Card>
+
+        </Card>
+      </div>
     </div>
   );
 }
+

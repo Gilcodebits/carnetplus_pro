@@ -7,7 +7,7 @@ import { Users, Search, Plus, ChevronRight, Activity, UserCircle, Filter, MoreHo
 import { motion } from "framer-motion";
 import { formatDate } from "../utils/format";
 
-const getInitiales = (prenom: string, nom: string) => 
+const getInitiales = (prenom: string, nom: string) =>
   `${prenom?.charAt(0) || ""}${nom?.charAt(0) || ""}`.toUpperCase();
 
 const calculateAge = (date_naissance: string) => {
@@ -44,161 +44,194 @@ export function SecretairePatients() {
   const filteredPatients = patients.filter(p => {
     const s = (localSearch || searchQuery || "").toLowerCase();
     return (p.nom || "").toLowerCase().includes(s) ||
-           (p.prenom || "").toLowerCase().includes(s) ||
-           (p.numero_dossier || "").toLowerCase().includes(s);
+      (p.prenom || "").toLowerCase().includes(s) ||
+      (p.numero_dossier || "").toLowerCase().includes(s);
   });
 
-  if (loading) {
-    return (
-      <div className="p-8 text-center py-40 bg-slate-200 min-h-screen flex items-center justify-center">
-        <div className="bg-white p-16 rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-8" />
-          <p className="text-slate-900 font-black uppercase tracking-widest text-xs">Chargement de la patientèle...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-10 animate-fadeIn h-full flex flex-col bg-slate-200">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-40 bg-slate-200/90 backdrop-blur-xl -mx-10 -mt-10 px-10 pb-4 pt-6 border-b border-slate-300/50 mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Répertoire Patient</h1>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-0.5 opacity-80">Liste complète des patients inscrits dans l'établissement.</p>
+    <div className="animate-fadeIn h-full flex flex-col bg-slate-50 w-full max-w-full overflow-x-hidden min-h-screen">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Répertoire Patient</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Base de données des patients inscrits</p>
+            </div>
           </div>
           <button
             onClick={() => navigate("/secretaire/nouveau-patient")}
-            className="px-8 py-4 bg-emerald-600 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 flex items-center gap-3 active:scale-95 border-2 border-emerald-500/50"
+            className="hidden md:flex px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 items-center justify-center gap-2 active:scale-95"
           >
             <Plus className="w-4 h-4" /> Nouveau Patient
           </button>
         </div>
       </div>
 
-      <Card noPadding className="rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden bg-white flex-1 flex flex-col">
+      <div className="px-4 md:px-10 pb-10 flex-1 flex flex-col pt-[130px] md:pt-[140px]">
+        <Card noPadding className="rounded-[2rem] md:rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden bg-white flex-1 flex flex-col">
         {/* Table Controls */}
-        <div className="px-8 py-6 border-b-2 border-slate-50 flex justify-between items-center bg-white">
-          <div className="flex items-center gap-6">
-             <div className="flex items-center gap-3 bg-slate-50 px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
-                <Users className="w-5 h-5 text-blue-600" />
-                <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Total Patients</span>
-                <span className="bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-lg font-black">{filteredPatients.length}</span>
-             </div>
+        <div className="px-4 md:px-8 py-4 md:py-6 border-b-2 border-slate-50 flex flex-col md:flex-row justify-between items-stretch md:items-center bg-white gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 shadow-sm">
+              <Users className="w-4 h-4 text-blue-600" />
+              <span className="text-[9px] md:text-[11px] font-black text-slate-900 uppercase tracking-widest">Total</span>
+              <span className="bg-blue-600 text-white text-[8px] px-2 py-0.5 rounded-lg font-black">{filteredPatients.length}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-6 flex-1 max-w-xl">
-             <div className="relative flex-1">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input 
-                  type="text"
-                  value={localSearch}
-                  onChange={(e) => setLocalSearch(e.target.value)}
-                  placeholder="Rechercher un patient (Nom, Prénom, N° Dossier)..."
-                  className="w-full pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-600 focus:bg-white outline-none text-[11px] font-bold transition-all shadow-inner"
-                />
-             </div>
-             <button className="p-3 bg-slate-900 text-white rounded-xl hover:scale-105 transition-all shadow-lg active:scale-95">
-                <Filter className="w-4 h-4" />
-             </button>
+          <div className="flex items-center gap-3 md:gap-6 flex-1 max-w-xl">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+              <input
+                type="text"
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                placeholder="Rechercher (Nom, N° Dossier)..."
+                className="w-full pl-10 md:pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-2xl focus:border-blue-600 focus:bg-white outline-none text-[10px] md:text-[11px] font-bold transition-all shadow-inner"
+              />
+            </div>
+            <button className="p-3 bg-slate-900 text-white rounded-xl hover:scale-105 transition-all shadow-lg active:scale-95">
+              <Filter className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        {/* Patients Table */}
-        <div className="flex-1 overflow-auto relative px-8 pb-8 scrollbar-hide">
-          <table className="w-full text-left border-separate border-spacing-y-4">
-            <thead className="sticky top-0 z-20">
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-widest rounded-l-2xl">Identité Patient</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-400 uppercase tracking-widest">N° Dossier</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-400 uppercase tracking-widest">Âge / Sexe</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
-                <th className="px-6 py-6 text-[11px] font-black text-slate-400 uppercase tracking-widest">Dernière visite</th>
-                <th className="px-8 py-6 text-right text-[11px] font-black text-slate-400 uppercase tracking-widest rounded-r-2xl">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.length > 0 ? (
-                filteredPatients.map((p, index) => (
-                  <tr 
+        {/* Patients Table / List */}
+        <div className="flex-1 overflow-auto relative px-4 md:px-8 pb-4 md:pb-8 scrollbar-hide">
+          {loading ? (
+            <div className="py-20 text-center">
+              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-slate-600 font-black uppercase tracking-widest text-[9px]">Chargement des patients...</p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop View */}
+              <div className="hidden lg:block">
+                <table className="w-full text-left border-separate border-spacing-y-4">
+                  <thead className="sticky top-0 z-20">
+                    <tr className="bg-slate-900 text-white shadow-xl">
+                      <th className="px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] rounded-l-2xl">Identité Patient</th>
+                      <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">N° Dossier</th>
+                      <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">Âge / Sexe</th>
+                      <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">Contact</th>
+                      <th className="px-6 py-6 text-[11px] font-black uppercase tracking-[0.2em]">Dernière visite</th>
+                      <th className="px-8 py-6 text-right text-[11px] font-black uppercase tracking-[0.2em] rounded-r-2xl">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPatients.map((p, index) => (
+                      <tr
+                        key={p.id}
+                        onClick={() => navigate(`/secretaire/patients/${p.id}`)}
+                        className="group hover:scale-[1.01] hover:shadow-xl hover:shadow-blue-200/50 transition-all cursor-pointer bg-white"
+                      >
+                        <td className="px-8 py-6 border-y-2 border-l-2 border-slate-100 rounded-l-[2.5rem]">
+                          <div className="flex items-center gap-5">
+                            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg border-2 border-white group-hover:scale-110 transition-transform">
+                              {getInitiales(p.prenom, p.nom)}
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight group-hover:text-blue-600 transition-colors">
+                                {p.prenom} {p.nom}
+                              </h4>
+                              <p className="text-[10px] text-slate-800 font-black opacity-90 uppercase tracking-widest mt-1">Né(e) le {formatDate(p.date_naissance)}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-6 border-y-2 border-slate-100">
+                          <span className="px-4 py-1.5 bg-slate-50 text-slate-900 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-200">
+                            {p.numero_dossier}
+                          </span>
+                        </td>
+                        <td className="px-6 py-6 border-y-2 border-slate-100">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[11px] font-black text-slate-900 uppercase">{calculateAge(p.date_naissance)} Ans</span>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{p.sexe === 'M' ? 'Masculin' : 'Féminin'}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-6 border-y-2 border-slate-100">
+                          <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <Phone className="w-3.5 h-3.5 text-emerald-500" />
+                              <span className="text-[11px] font-bold">{p.telephone || "—"}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span className="text-[10px] font-bold uppercase tracking-tight truncate max-w-[120px]">{p.adresse || "—"}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-6 border-y-2 border-slate-100">
+                          <p className="text-[11px] font-black text-slate-900 uppercase">12 Mai 2024</p>
+                          <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Dr. Martin</p>
+                        </td>
+                        <td className="px-8 py-6 border-y-2 border-r-2 border-slate-100 rounded-r-[2.5rem] text-right">
+                          <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); navigate(`/secretaire/modifier-patient/${p.id}`); }}
+                              className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100">
+                              <Printer className="w-4 h-4" />
+                            </button>
+                            <button className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:scale-110 transition-all shadow-lg">
+                              <ChevronRight className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden space-y-4 pt-4">
+                {filteredPatients.map((p) => (
+                  <div
                     key={p.id}
                     onClick={() => navigate(`/secretaire/patients/${p.id}`)}
-                    className="group hover:scale-[1.01] hover:shadow-xl hover:shadow-blue-200/50 transition-all cursor-pointer bg-white"
+                    className="p-5 bg-white rounded-2xl border-2 border-slate-100 active:scale-[0.98] transition-all shadow-sm flex flex-col gap-4"
                   >
-                    <td className="px-8 py-6 border-y-2 border-l-2 border-slate-100 rounded-l-[2.5rem]">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg border-2 border-white group-hover:scale-110 transition-transform">
-                          {getInitiales(p.prenom, p.nom)}
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight group-hover:text-blue-600 transition-colors">
-                            {p.prenom} {p.nom}
-                          </h4>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Né(e) le {formatDate(p.date_naissance)}</p>
-                        </div>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-lg border-2 border-white">
+                        {getInitiales(p.prenom, p.nom)}
                       </div>
-                    </td>
-                    <td className="px-6 py-6 border-y-2 border-slate-100">
-                      <span className="px-4 py-1.5 bg-slate-50 text-slate-900 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-200">
-                        {p.numero_dossier}
-                      </span>
-                    </td>
-                    <td className="px-6 py-6 border-y-2 border-slate-100">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[11px] font-black text-slate-900 uppercase">{calculateAge(p.date_naissance)} Ans</span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{p.sexe === 'M' ? 'Masculin' : 'Féminin'}</span>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate">{p.prenom} {p.nom}</h4>
+                        <p className="text-[8px] text-blue-600 font-black uppercase tracking-widest mt-0.5">{p.numero_dossier}</p>
                       </div>
-                    </td>
-                    <td className="px-6 py-6 border-y-2 border-slate-100">
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2 text-slate-600">
-                          <Phone className="w-3.5 h-3.5 text-emerald-500" />
-                          <span className="text-[11px] font-bold">{p.telephone || "—"}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-slate-400">
-                          <MapPin className="w-3.5 h-3.5" />
-                          <span className="text-[10px] font-bold uppercase tracking-tight truncate max-w-[120px]">{p.adresse || "—"}</span>
-                        </div>
+                      <ChevronRight className="w-4 h-4 text-slate-500" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-50">
+                      <div className="flex flex-col">
+                        <span className="text-[7px] font-black text-slate-600 uppercase tracking-widest mb-0.5">Contact</span>
+                        <span className="text-[9px] font-bold text-slate-900">{p.telephone || "—"}</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-6 border-y-2 border-slate-100">
-                       <p className="text-[11px] font-black text-slate-900 uppercase">12 Mai 2024</p>
-                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dr. Martin</p>
-                    </td>
-                    <td className="px-8 py-6 border-y-2 border-r-2 border-slate-100 rounded-r-[2.5rem] text-right">
-                      <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); navigate(`/secretaire/modifier-patient/${p.id}`); }}
-                          className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button 
-                          className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100"
-                        >
-                          <Printer className="w-4 h-4" />
-                        </button>
-                        <button 
-                          className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:scale-110 transition-all shadow-lg"
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
+                      <div className="flex flex-col text-right">
+                        <span className="text-[7px] font-black text-slate-600 uppercase tracking-widest mb-0.5">Âge / Sexe</span>
+                        <span className="text-[9px] font-bold text-slate-900">{calculateAge(p.date_naissance)} Ans · {p.sexe}</span>
                       </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="py-24 text-center">
-                     <Users className="w-16 h-16 text-slate-100 mx-auto mb-6" />
-                     <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Aucun patient trouvé</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {filteredPatients.length === 0 && !loading && (
+            <div className="py-24 text-center">
+              <Users className="w-16 h-16 text-slate-100 mx-auto mb-6" />
+              <p className="text-slate-600 font-black uppercase tracking-[0.3em] text-[10px]">Aucun patient trouvé</p>
+            </div>
+          )}
         </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
+

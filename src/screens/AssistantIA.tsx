@@ -157,54 +157,39 @@ export function AssistantIA() {
   };
 
   return (
-    <div className="flex flex-col relative pt-6 px-10 pb-10 bg-slate-50 min-h-screen">
-        
-        {/* Advanced AI Header */}
-        <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl -mx-10 px-10 py-6 border-b border-slate-200/60 mb-8">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-6">
-              <div className="relative">
-                <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center shadow-2xl border border-white/20 relative z-10">
-                  <Bot className={`w-8 h-8 text-blue-500 ${isThinking ? 'animate-bounce' : 'animate-pulse'}`}/>
-                </div>
-                <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
-                  Assistant Santé <span className="text-blue-600">Pro-IA</span>
-                </h1>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest opacity-80">Connecté au Cloud Clinique • Temps Réel</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-               {isLoadingData ? (
-                 <div className="flex items-center gap-2 text-[9px] font-black text-blue-600 uppercase tracking-widest">
-                   <Loader2 className="w-4 h-4 animate-spin" /> Synchronisation...
-                 </div>
-               ) : (
-                 <div className="px-5 py-2.5 bg-slate-900 text-white rounded-2xl flex items-center gap-3 shadow-xl border border-white/10">
-                    <Activity className="w-4 h-4 text-blue-400" />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Dossier de {patientData.me?.nom} synchronisé</span>
-                 </div>
-               )}
+    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Assistant <span className="text-blue-600">Pro-IA</span></h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Connecté au Cloud Clinique • Temps Réel</p>
             </div>
           </div>
+          <div className="hidden md:flex items-center gap-4">
+             {isLoadingData ? (
+               <div className="flex items-center gap-2 text-[9px] font-black text-blue-600 uppercase tracking-widest">
+                 <Loader2 className="w-4 h-4 animate-spin" /> Synchronisation...
+               </div>
+             ) : (
+               <div className="px-5 py-2.5 bg-slate-900 text-white rounded-2xl flex items-center gap-3 shadow-xl border border-white/10">
+                  <Activity className="w-4 h-4 text-blue-400" />
+                  <span className="text-[9px] font-black uppercase tracking-widest">Dossier synchronisé</span>
+               </div>
+             )}
+          </div>
         </div>
+      </div>
 
-        <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
+      <div className="max-w-6xl mx-auto w-full px-4 md:px-10 pb-10 pt-[130px] md:pt-[140px] grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
           
           {/* Chat Container */}
-          <div className="lg:col-span-8 flex flex-col relative h-[70vh]">
-            <Card noPadding className="flex-1 border border-slate-200 shadow-2xl rounded-[2.5rem] bg-white flex flex-col overflow-hidden relative">
+          <div className="lg:col-span-8 flex flex-col relative min-h-[60vh] lg:h-[70vh]">
+            <Card noPadding className="flex-1 border border-slate-200 shadow-2xl rounded-[2rem] md:rounded-[2.5rem] bg-white flex flex-col overflow-hidden relative">
               
-              <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-10 scrollbar-hide">
+              <div className="flex-1 overflow-y-auto p-4 md:p-12 space-y-6 md:space-y-10 scrollbar-hide">
                 <AnimatePresence initial={false}>
                   {conversation.map((msg, i) => (
                     <motion.div 
@@ -227,7 +212,7 @@ export function AssistantIA() {
                         <p className={`text-sm font-bold leading-relaxed tracking-tight ${msg.role === "assistant" ? "font-medium" : ""}`}>
                           {msg.text}
                         </p>
-                        <div className={`text-[8px] mt-3 font-black uppercase tracking-widest opacity-40 ${msg.role === 'user' ? 'text-white' : 'text-slate-400'}`}>
+                        <div className={`text-[8px] mt-3 font-black uppercase tracking-widest opacity-80 ${msg.role === 'user' ? 'text-white' : 'text-slate-600'}`}>
                           {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
@@ -266,11 +251,11 @@ export function AssistantIA() {
               </div>
 
               {/* Advanced Input Area */}
-              <div className="p-8 bg-slate-50 border-t border-slate-100">
-                <div className="relative flex gap-4 p-4 bg-white border-2 border-transparent rounded-[2rem] items-center pr-4 transition-all shadow-sm">
+              <div className="p-4 md:p-8 bg-slate-50 border-t border-slate-100">
+                <div className="relative flex gap-3 md:gap-4 p-2 md:p-4 bg-white border-2 border-transparent rounded-[1.5rem] md:rounded-[2rem] items-center pr-2 md:pr-4 transition-all shadow-sm">
                   
-                  <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
-                     <Bot className="w-6 h-6 text-blue-500" />
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-slate-900 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
+                     <Bot className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                   </div>
 
                   <input
@@ -285,9 +270,9 @@ export function AssistantIA() {
                   <button
                     onClick={handleSend}
                     disabled={!message.trim() || isThinking || isLoadingData}
-                    className="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-20 shadow-xl shadow-blue-100"
+                    className="w-10 h-10 md:w-14 md:h-14 bg-blue-600 text-white rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-20 shadow-xl shadow-blue-100"
                   >
-                    <Send className="w-6 h-6" />
+                    <Send className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                 </div>
               </div>
@@ -296,41 +281,41 @@ export function AssistantIA() {
 
           {/* Smart Sidebar */}
           <div className="lg:col-span-4 space-y-6">
-            <Card className="rounded-[2.5rem] border border-slate-200 shadow-xl p-8 bg-white relative overflow-hidden">
+            <Card className="rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 shadow-xl p-6 md:p-8 bg-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-12 -mt-12 opacity-50" />
-              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-8 flex items-center gap-4 relative z-10">
+              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-6 md:mb-8 flex items-center gap-4 relative z-10">
                  <Sparkles className="w-6 h-6 text-blue-600"/>
                  Analyses Suggérées
               </h3>
-              <div className="space-y-4 relative z-10">
+              <div className="space-y-3 md:space-y-4 relative z-10">
                 {suggestions.map((suggestion, i) => (
                   <button
                     key={i}
                     onClick={() => setMessage(suggestion)}
-                    className="w-full p-6 bg-slate-50 rounded-2xl text-left hover:bg-white hover:border-blue-300 border-2 border-transparent transition-all group"
+                    className="w-full p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl text-left hover:bg-white hover:border-blue-300 border-2 border-transparent transition-all group"
                   >
                     <div className="flex items-center justify-between">
-                       <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-relaxed group-hover:text-blue-600 transition-colors">{suggestion}</span>
-                       <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                       <span className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest leading-relaxed group-hover:text-blue-600 transition-colors">{suggestion}</span>
+                       <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                     </div>
                   </button>
                 ))}
               </div>
             </Card>
 
-            <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+            <div className="p-6 md:p-8 bg-slate-900 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent opacity-50" />
                <div className="relative z-10">
-                 <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-8 border border-white/20">
-                   <ShieldCheck className="w-6 h-6 text-blue-400"/>
+                 <div className="w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center mb-6 md:mb-8 border border-white/20">
+                   <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-blue-400"/>
                  </div>
-                 <h4 className="text-xl font-black uppercase tracking-tight mb-3">Diagnostic Sécurisé</h4>
-                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed mb-8">
+                 <h4 className="text-lg md:text-xl font-black uppercase tracking-tight mb-3">Diagnostic Sécurisé</h4>
+                 <p className="text-[11px] md:text-[12px] text-slate-300 font-medium leading-relaxed mb-6 md:mb-8">
                    Toutes vos interactions sont chiffrées de bout en bout et validées par nos protocoles médicaux.
                  </p>
-                 <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
-                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
-                    <p className="text-[8px] font-black uppercase tracking-widest leading-tight text-slate-400">En cas d'urgence vitale, contactez immédiatement le SAMU (15).</p>
+                 <div className="flex items-center gap-3 md:gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                    <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-amber-500 shrink-0" />
+                    <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest leading-tight text-slate-200">En cas d'urgence vitale, contactez immédiatement le SAMU (15).</p>
                  </div>
                </div>
             </div>
@@ -340,3 +325,4 @@ export function AssistantIA() {
       </div>
   );
 }
+

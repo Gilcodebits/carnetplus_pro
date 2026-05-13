@@ -29,33 +29,40 @@ export function Notifications() {
   );
 
   return (
-    <div className="pt-6 px-10 pb-10 animate-fadeIn">
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Centre de Notifications</h1>
-          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1 opacity-80">Gérez vos alertes et l'activité du système CarnetPlus.</p>
-        </div>
-        <div className="flex gap-4">
-          <button 
-            onClick={markAllAsRead}
-            disabled={unreadCount === 0}
-            className="flex items-center gap-3 px-6 py-4 text-slate-600 bg-white border-2 border-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xl shadow-slate-200/50 active:scale-95 disabled:opacity-30 disabled:scale-100"
-          >
-            <CheckCircle2 className="w-5 h-5 text-blue-600" />
-            Tout marquer comme lu
-          </button>
-          <button 
-            onClick={deleteAll}
-            disabled={notifications.length === 0}
-            className="flex items-center gap-3 px-6 py-4 text-rose-600 bg-white border-2 border-rose-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-50 hover:border-rose-300 transition-all shadow-xl shadow-slate-200/50 active:scale-95 disabled:opacity-30 disabled:scale-100"
-          >
-            <Trash2 className="w-5 h-5" />
-            Vider le centre
-          </button>
+    <div className="animate-fadeIn h-full flex flex-col bg-slate-50 w-full max-w-full overflow-x-hidden min-h-screen">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Centre de Notifications</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Gérez vos alertes et l'activité du système</p>
+            </div>
+          </div>
+          <div className="hidden md:flex flex-row gap-4">
+            <button 
+              onClick={markAllAsRead}
+              disabled={unreadCount === 0}
+              className="flex items-center gap-3 px-5 py-2.5 text-slate-600 bg-white border-2 border-slate-100 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm disabled:opacity-30 active:scale-95"
+            >
+              <CheckCircle2 className="w-4 h-4 text-blue-600" />
+              Tout marquer lu
+            </button>
+            <button 
+              onClick={deleteAll}
+              disabled={notifications.length === 0}
+              className="flex items-center gap-3 px-5 py-2.5 text-rose-600 bg-white border-2 border-rose-100 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:border-rose-300 transition-all shadow-sm disabled:opacity-30 active:scale-95"
+            >
+              <Trash2 className="w-4 h-4" />
+              Vider
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-8">
+      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px]">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="col-span-1">
           <Card className="border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-8 bg-white">
             <div className="flex items-center gap-3 mb-8 text-slate-900 border-b-2 border-slate-50 pb-4">
@@ -112,15 +119,15 @@ export function Notifications() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start mb-2 pr-20">
+                  <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-2 pr-0 sm:pr-20">
                     <h4 className="font-black text-slate-900 text-lg leading-tight uppercase tracking-tight">{n.titre}</h4>
-                    <span className="text-xs text-slate-400 font-black uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                    <span className="text-xs text-slate-600 font-black uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
                       {new Date(n.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                     </span>
                   </div>
                   <p className="text-slate-600 text-sm font-medium leading-relaxed max-w-3xl">{n.message}</p>
                   
-                  <div className="mt-6 flex gap-8 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0">
+                  <div className="mt-6 flex flex-wrap gap-4 md:gap-8 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0">
                     {!n.lu && (
                       <button 
                         onClick={() => markAsRead(n.id)}
@@ -147,11 +154,13 @@ export function Notifications() {
                 <Bell className="w-12 h-12 text-slate-200" />
               </div>
               <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-3">Centre à jour</h3>
-              <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Vous n'avez aucune nouvelle alerte pour le moment.</p>
+              <p className="text-slate-600 font-bold uppercase tracking-widest text-[10px]">Vous n'avez aucune nouvelle alerte pour le moment.</p>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
   );
 }
+

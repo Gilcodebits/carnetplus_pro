@@ -134,7 +134,7 @@ export function PartnerRequest() {
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Type de Structure</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Type de Structure</label>
                   <select 
                     value={form.type_structure}
                     onChange={e => setForm({...form, type_structure: e.target.value})}
@@ -148,7 +148,7 @@ export function PartnerRequest() {
                   </select>
                 </div>
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Nom de l'Établissement</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Nom de l'Établissement</label>
                   <input 
                     required
                     type="text"
@@ -159,9 +159,9 @@ export function PartnerRequest() {
                   />
                 </div>
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Ville / Pays</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Ville / Pays</label>
                   <div className="relative">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input 
                       required
                       type="text"
@@ -173,7 +173,7 @@ export function PartnerRequest() {
                   </div>
                 </div>
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Nom du Responsable</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Nom du Responsable</label>
                   <input 
                     required
                     type="text"
@@ -184,9 +184,9 @@ export function PartnerRequest() {
                   />
                 </div>
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Email Pro</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Email Pro</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input 
                       required
                       type="email"
@@ -198,9 +198,9 @@ export function PartnerRequest() {
                   </div>
                 </div>
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Téléphone</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Téléphone</label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input 
                       required
                       type="tel"
@@ -212,7 +212,7 @@ export function PartnerRequest() {
                   </div>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Adresse Physique</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Adresse Physique</label>
                   <input 
                     required
                     type="text"
@@ -223,7 +223,7 @@ export function PartnerRequest() {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Informations Complémentaires & Besoins</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3">Informations Complémentaires & Besoins</label>
                   <textarea 
                     required
                     value={form.motif}
@@ -267,3 +267,4 @@ export function PartnerRequest() {
     </div>
   );
 }
+

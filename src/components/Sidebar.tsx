@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2, ShieldCheck } from "lucide-react";
+import { Home, Calendar, Users, FileText, TestTube, MessageSquare, Bell, Settings, LogOut, Activity, Stethoscope, Pill, Bot, ArrowLeftRight, Send, Inbox, BarChart3, ChevronRight, Building2, ShieldCheck, X } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useMessages } from "../contexts/MessageContext";
@@ -7,7 +7,12 @@ import { ConfirmModal } from "./ConfirmModal";
 
 type Role = "admin" | "medecin" | "secretaire" | "labo" | "patient" | "gestionnaire";
 
-interface SidebarProps { role: Role; activePath: string; }
+interface SidebarProps { 
+  role: Role; 
+  activePath: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+}
 
 const menuItems: Record<Role, {icon:any;label:string;path:string}[]> = {
   admin: [
@@ -58,7 +63,7 @@ const roleLabels: Record<Role,string> = {
   labo:"Laboratoire", patient:"Patient", gestionnaire:"Gestionnaire"
 };
 
-export function Sidebar({ role, activePath }: SidebarProps) {
+export function Sidebar({ role, activePath, isOpen, onClose }: SidebarProps) {
   const { logout } = useAuth();
   const { unreadMessagesCount } = useMessages();
   const navigate = useNavigate();
@@ -89,11 +94,24 @@ export function Sidebar({ role, activePath }: SidebarProps) {
   const items    = menuItems[role];
 
   return (
-    <div className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col flex-shrink-0 relative z-20 no-print">
-      {/* Sidebar Header - Blue Gradient */}
-      <div className="p-6 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden flex-shrink-0">
+    <div className={`
+      fixed lg:relative top-0 left-0 bottom-0 w-72 lg:w-64 bg-white border-r border-slate-200 h-screen flex flex-col flex-shrink-0 z-50 lg:z-20 no-print transition-transform duration-300 ease-in-out
+      ${isOpen ? "translate-x-0 shadow-2xl shadow-slate-900/40" : "-translate-x-full lg:translate-x-0"}
+    `}>
+      {/* Mobile Close Button - Only show when open */}
+      {isOpen && (
+        <button 
+          onClick={onClose}
+          className="lg:hidden absolute -right-12 top-4 p-2 bg-white rounded-xl shadow-lg border border-slate-100 animate-fadeIn"
+        >
+          <X className="w-6 h-6 text-slate-600" />
+        </button>
+      )}
+
+      {/* Sidebar Header - Blue Gradient - FIXED HEIGHT TO MATCH MAIN HEADER */}
+      <div className="h-[88px] px-6 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden flex-shrink-0 flex items-center">
         <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"/>
-        <Link to="/" className="flex items-center gap-3 relative z-10 group" title="Retour à l'accueil">
+        <Link to="/" className="flex items-center gap-3 relative z-10 group" title="Retour à l'accueil" onClick={onClose}>
           <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30 group-hover:bg-white/30 transition-all">
             <Activity className="w-5 h-5 text-white"/>
           </div>
@@ -116,6 +134,7 @@ export function Sidebar({ role, activePath }: SidebarProps) {
           
           return (
             <Link key={item.path + item.label} to={item.path}
+              onClick={onClose}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive
                   ? `bg-blue-600 text-white shadow-md shadow-blue-100`
@@ -150,10 +169,10 @@ export function Sidebar({ role, activePath }: SidebarProps) {
       <div className="p-4 border-t border-slate-50">
         <button 
           onClick={() => setShowLogoutConfirm(true)}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-all group"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all group"
         >
           <LogOut className="w-4 h-4 transition-all"/>
-          <span className="text-xs font-bold">Déconnexion</span>
+          <span className="text-xs font-bold uppercase tracking-widest">Déconnexion</span>
         </button>
       </div>
 

@@ -34,7 +34,7 @@ export function ConfirmModal({
   const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-6">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -49,7 +49,7 @@ export function ConfirmModal({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-white/20"
+            className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl overflow-hidden border border-white/20"
           >
             <div className="p-10 flex flex-col items-center text-center">
               <div className="w-full flex justify-end absolute top-6 right-6">
@@ -70,20 +70,20 @@ export function ConfirmModal({
               <h3 className="text-2xl font-black text-slate-900 mb-3 uppercase tracking-tight leading-none">
                 {title}
               </h3>
-              <p className="text-slate-500 font-medium leading-relaxed px-4">
+              <p className="text-slate-500 font-medium leading-relaxed px-2 md:px-4 text-sm md:text-base">
                 {message}
               </p>
 
-              <div className="flex gap-4 mt-10 w-full">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 md:gap-4 mt-8 md:mt-10 w-full">
                 <button
                   onClick={onClose}
-                  className="flex-1 px-8 py-5 rounded-[1.5rem] bg-slate-100 text-slate-600 font-black text-[11px] uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
+                  className="w-full sm:flex-1 px-8 py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] bg-slate-100 text-slate-600 font-black text-[11px] uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
                 >
                   {cancelText}
                 </button>
                 <button
                   onClick={() => { onConfirm(); onClose(); }}
-                  className={`flex-1 px-8 py-5 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest shadow-xl transition-all active:scale-95 ${colors[type]}`}
+                  className={`w-full sm:flex-1 px-8 py-4 md:py-5 rounded-2xl md:rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest shadow-xl transition-all active:scale-95 ${colors[type]}`}
                 >
                   {confirmText}
                 </button>

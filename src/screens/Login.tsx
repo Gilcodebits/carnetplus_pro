@@ -182,63 +182,63 @@ export function Login() {
       </div>
 
       {/* ── Right Panel (Professional Form) ── */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-slate-50 overflow-auto">
+      <div className="flex-1 flex items-center justify-center p-4 md:p-8 bg-slate-50 overflow-auto">
         <div className="w-full max-w-[440px] animate-fadeInUp">
-          <div className="bg-white rounded-[32px] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100">
-            <div className="flex flex-col items-center mb-10 text-center">
-              <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6 ring-8 ring-blue-50/50">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg shadow-blue-200">
-                  <User className="w-7 h-7 text-white" />
+          <div className="bg-white rounded-[2rem] md:rounded-[32px] p-6 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100">
+            <div className="flex flex-col items-center mb-8 md:mb-10 text-center">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 md:mb-6 ring-4 md:ring-8 ring-blue-50/50">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg shadow-blue-200">
+                  <User className="w-6 h-6 md:w-7 md:h-7 text-white" />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Connexion</h2>
-              <p className="text-slate-400 mt-2 text-sm max-w-[280px]">Connectez-vous pour accéder à vos services CarnetPlus.</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Connexion</h2>
+              <p className="text-slate-600 mt-2 text-xs md:text-sm max-w-[280px]">Connectez-vous pour accéder à vos services CarnetPlus.</p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4 md:space-y-5">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Adresse Email</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Adresse Email</label>
                 <div className="group relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 group-focus-within:text-blue-600 transition-colors" />
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white transition-all text-slate-900"
+                    className="w-full pl-12 pr-4 py-3.5 md:py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white transition-all text-slate-900 text-sm md:text-base"
                     placeholder="votre@email.com"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Mot de passe</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Mot de passe</label>
                 <div className="group relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 group-focus-within:text-blue-600 transition-colors" />
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                    className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white transition-all text-slate-900"
+                    className="w-full pl-12 pr-12 py-3.5 md:py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white transition-all text-slate-900 text-sm md:text-base"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-600 transition-colors focus:outline-none"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 <div className="flex justify-end mt-2 mr-1">
-                  <button onClick={() => navigate('/forgot-password')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors focus:outline-none">Mot de passe oublié ?</button>
+                  <button onClick={() => navigate('/forgot-password')} className="text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors focus:outline-none uppercase tracking-widest">Mot de passe oublié ?</button>
                 </div>
               </div>
 
               <button
                 onClick={handleLogin}
                 disabled={loading}
-                className="w-full mt-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 group"
+                className="w-full mt-4 py-3.5 md:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 group text-sm md:text-base"
               >
                 {loading ? (
                   <svg className="w-5 h-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
@@ -255,20 +255,20 @@ export function Login() {
               
               <div className="relative flex items-center justify-center mt-6 mb-4">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
-                <div className="relative px-4 bg-white text-[10px] font-black uppercase tracking-widest text-slate-400">Ou</div>
+                <div className="relative px-4 bg-white text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-600">Ou</div>
               </div>
               
               <button
                 type="button"
                 onClick={() => setShowAdhesion(true)}
-                className="w-full py-4 bg-slate-50 border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-2xl font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 group"
+                className="w-full py-3.5 md:py-4 bg-slate-50 border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-2xl font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2 group text-sm md:text-base"
               >
                 <Building2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span>Rejoindre le réseau CarnetPlus</span>
+                <span>Rejoindre le réseau</span>
               </button>
             </div>
           </div>
-          <p className="text-center text-[10px] text-slate-400 mt-8 font-bold uppercase tracking-widest opacity-50">
+          <p className="text-center text-[9px] md:text-[10px] text-slate-600 mt-8 font-bold uppercase tracking-widest opacity-50">
             CarnetPlus Shield · Plateforme Sécurisée
           </p>
         </div>
@@ -306,51 +306,51 @@ function AdhesionModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
         onClick={onClose}
       />
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] flex flex-col"
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        className="relative w-full max-w-2xl bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] flex flex-col"
       >
-        <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
+        <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Rejoindre CarnetPlus</h2>
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Formulaire de demande d'adhésion</p>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Rejoindre CarnetPlus</h2>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Demande d'adhésion partenaire</p>
           </div>
-          <button onClick={onClose} className="p-3 bg-white rounded-xl border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors">
+          <button onClick={onClose} className="p-2 md:p-3 bg-white rounded-xl border border-slate-200 text-slate-600 hover:text-slate-600 hover:bg-slate-50 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-8 overflow-y-auto">
+        <div className="p-6 md:p-8 overflow-y-auto">
           {success ? (
             <div className="text-center py-10">
-              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Shield className="w-10 h-10 text-emerald-500" />
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Shield className="w-8 h-8 md:w-10 md:h-10" />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 mb-2">Demande Envoyée !</h3>
-              <p className="text-slate-500 max-w-md mx-auto">Votre demande d'adhésion a été transmise à notre équipe. Nous vous contacterons très prochainement pour finaliser votre intégration au réseau CarnetPlus.</p>
-              <button onClick={onClose} className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors">
-                Retour à l'accueil
+              <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-2 uppercase">Demande Envoyée !</h3>
+              <p className="text-slate-500 text-sm md:text-base max-w-md mx-auto font-medium">Votre demande a été transmise. Notre équipe vous contactera pour finaliser l'adhésion.</p>
+              <button onClick={onClose} className="mt-8 w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-colors shadow-lg shadow-slate-200">
+                Fermer
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Type d'établissement</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Type d'établissement</label>
                   <select
                     value={form.type_structure}
                     onChange={e => setForm({...form, type_structure: e.target.value})}
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-slate-700 appearance-none"
                   >
                     <option value="hopital">Hôpital</option>
                     <option value="clinique">Clinique</option>
@@ -359,57 +359,57 @@ function AdhesionModal({ onClose }: { onClose: () => void }) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nom de la structure</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Nom de la structure</label>
                   <input
                     required
                     type="text"
                     value={form.nom_etablissement}
                     onChange={e => setForm({...form, nom_etablissement: e.target.value})}
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold placeholder:font-medium"
                     placeholder="Ex: Clinique Saint-Jean"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ville</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Ville</label>
                   <input
                     required
                     type="text"
                     value={form.ville}
                     onChange={e => setForm({...form, ville: e.target.value})}
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold placeholder:font-medium"
                     placeholder="Ex: Cotonou"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nom du responsable</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Nom du responsable</label>
                   <input
                     required
                     type="text"
                     value={form.nom_responsable}
                     onChange={e => setForm({...form, nom_responsable: e.target.value})}
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold placeholder:font-medium"
                     placeholder="Ex: Dr. Martin"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Contact</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Email Contact</label>
                   <input
                     required
                     type="email"
                     value={form.email_contact}
                     onChange={e => setForm({...form, email_contact: e.target.value})}
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold placeholder:font-medium"
                     placeholder="contact@clinique.bj"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Téléphone</label>
+                  <label className="block text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2 ml-1">Téléphone</label>
                   <input
                     required
                     type="tel"
                     value={form.telephone}
                     onChange={e => setForm({...form, telephone: e.target.value})}
-                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold placeholder:font-medium"
                     placeholder="Ex: 90 00 00 00"
                   />
                 </div>
@@ -417,7 +417,7 @@ function AdhesionModal({ onClose }: { onClose: () => void }) {
               <button
                 disabled={loading}
                 type="submit"
-                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-200 active:scale-[0.98] disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-blue-200 active:scale-[0.98] disabled:opacity-50 mt-4 flex items-center justify-center gap-3"
               >
                 {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/> : <><Send className="w-4 h-4"/> Soumettre la demande</>}
               </button>
@@ -428,3 +428,4 @@ function AdhesionModal({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+

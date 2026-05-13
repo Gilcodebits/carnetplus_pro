@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { 
-  User, Mail, Phone, Shield, Key, Camera, 
+import {
+  User, Mail, Phone, Shield, Key, Camera,
   MapPin, Calendar, Heart, Droplets, CheckCircle2,
   Lock, ArrowRight, Save, LogOut, Eye, EyeOff
 } from "lucide-react";
@@ -83,285 +83,252 @@ export function Profile() {
   };
 
   return (
-    <div className="p-6 lg:p-10 max-w-6xl mx-auto space-y-8">
-      {/* Header Section - Compact */}
-      <div className="flex flex-col md:flex-row items-center gap-8 bg-white p-6 md:p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        
-        <div className="relative group">
-          <div className="w-24 h-24 md:w-28 md:h-28 rounded-[2rem] bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-blue-100 group-hover:scale-105 transition-transform duration-500">
-            {user?.prenom?.[0]}{user?.nom?.[0]}
+    <div className="animate-fadeIn h-full flex flex-col bg-slate-50 w-full max-w-full overflow-x-hidden min-h-screen">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-6 md:px-10 py-5 mb-8 flex flex-row justify-between items-center gap-4 shadow-sm shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0" />
+          <div>
+            <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Mon Profil</h1>
+            <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">{user?.prenom} {user?.nom} · {({'admin':'Administrateur','medecin':'Médecin','secretaire':'Secrétaire','labo':'Laboratoire','patient':'Patient','gestionnaire':'Gestionnaire'} as any)[user?.role || ''] || user?.role}</p>
           </div>
-          {isEditing && (
-            <button className="absolute bottom-1 right-1 p-2 bg-white rounded-xl shadow-lg border-2 border-white text-blue-600 hover:scale-110 transition-all">
-              <Camera className="w-4 h-4" />
-            </button>
-          )}
         </div>
-
-        <div className="text-center md:text-left flex-1">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
-            <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-100">
-              {user?.role}
-            </span>
-            {user?.role === 'patient' && (
-              <span className="px-4 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-rose-100 flex items-center gap-1.5">
-                <Droplets className="w-3 h-3" /> {user?.groupe_sanguin || "A+"}
-              </span>
-            )}
-            <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3 h-3" /> Vérifié
-            </span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight mb-1 leading-none">
-            {user?.prenom} {user?.nom}
-          </h1>
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center md:justify-start gap-2">
-             ID: {user?.id?.toString().padStart(6, '0')} · {user?.email}
-          </p>
-        </div>
-
-        <button 
-          onClick={() => setShowLogoutConfirm(true)}
-          className="flex md:hidden items-center gap-3 px-8 py-5 bg-rose-50 text-rose-600 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] hover:bg-rose-600 hover:text-white transition-all shadow-xl shadow-rose-100 active:scale-95 group"
-        >
-          <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          Déconnexion
-        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* Navigation Tabs */}
-        <div className="lg:col-span-3 space-y-4">
-           {[
-             { id: 'info', label: 'Informations', icon: User },
-             { id: 'security', label: 'Sécurité', icon: Shield },
-           ].map((tab) => (
-             <button
-               key={tab.id}
-               onClick={() => setActiveTab(tab.id as any)}
-               className={`w-full flex items-center gap-4 px-6 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest transition-all ${
-                 activeTab === tab.id 
-                 ? 'bg-slate-900 text-white shadow-xl shadow-slate-200' 
-                 : 'bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 border border-slate-100'
-               }`}
-             >
-               <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-blue-400' : ''}`} />
-               {tab.label}
-             </button>
-           ))}
-        </div>
+      <div className="flex-1 overflow-y-auto p-4 md:p-10 scrollbar-hide">
+        <div className="max-w-6xl mx-auto">
 
-        {/* Content Area */}
-        <div className="lg:col-span-9">
-          <AnimatePresence mode="wait">
-            {activeTab === 'info' ? (
-              <motion.div
-                key="info"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="space-y-8"
-              >
-                <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-50 space-y-10">
-                  <div className="flex items-center justify-between gap-4 mb-2">
-                    <div className="flex items-center gap-4">
-                      <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
-                      <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Détails Personnels</h2>
-                    </div>
-                    {!isEditing && (
-                      <button 
-                        onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                      >
-                        Modifier le profil
-                      </button>
-                    )}
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
+            {/* Navigation Tabs */}
+            <div className="lg:col-span-3 flex flex-row lg:flex-col gap-2 md:gap-4 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide">
+              {[
+                { id: 'info', label: 'Informations', icon: User },
+                { id: 'security', label: 'Sécurité', icon: Shield },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex-1 lg:w-full flex items-center justify-center lg:justify-start gap-2 md:gap-3 px-3 md:px-5 py-1 md:py-1.5 rounded-xl font-black text-[8px] md:text-[9px] uppercase tracking-widest transition-all whitespace-nowrap border ${activeTab === tab.id
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-[1.01]'
+                      : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-600 border-slate-100'
+                    }`}
+                >
+                  <tab.icon className={`w-3.5 h-3.5 md:w-4 md:h-4 ${activeTab === tab.id ? 'text-white' : 'text-slate-500'}`} />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Prénom</label>
-                      <div className="relative">
-                        <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input 
-                          type="text" 
-                          value={formData.prenom}
-                          disabled={!isEditing}
-                          onChange={(e) => setFormData({...formData, prenom: e.target.value})}
-                          className={`w-full border-2 rounded-2xl py-4 pl-14 pr-6 font-bold transition-all outline-none ${
-                            isEditing 
-                            ? 'bg-white border-blue-500 text-slate-900' 
-                            : 'bg-slate-50 border-slate-100 text-slate-900 cursor-not-allowed opacity-80'
-                          }`}
-                        />
+            {/* Content Area */}
+            <div className="lg:col-span-9">
+              <AnimatePresence mode="wait">
+                {activeTab === 'info' ? (
+                  <motion.div
+                    key="info"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="space-y-8"
+                  >
+                    <div className="bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-slate-50 space-y-6 md:space-y-8">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
+                        <div className="flex items-center gap-4">
+                          <div className="w-1.5 h-6 md:h-8 bg-blue-600 rounded-full" />
+                          <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Détails</h2>
+                        </div>
+                        {!isEditing && (
+                          <button
+                            onClick={() => setIsEditing(true)}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg font-black text-[8px] md:text-[9px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                          >
+                            Modifier
+                          </button>
+                        )}
                       </div>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nom</label>
-                      <div className="relative">
-                        <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input 
-                          type="text" 
-                          value={formData.nom}
-                          disabled={!isEditing}
-                          onChange={(e) => setFormData({...formData, nom: e.target.value})}
-                          className={`w-full border-2 rounded-2xl py-4 pl-14 pr-6 font-bold transition-all outline-none ${
-                            isEditing 
-                            ? 'bg-white border-blue-500 text-slate-900' 
-                            : 'bg-slate-50 border-slate-100 text-slate-900 cursor-not-allowed opacity-80'
-                          }`}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                      <div className="relative">
-                        <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input 
-                          type="email" 
-                          value={formData.email}
-                          disabled
-                          className="w-full bg-slate-100 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-6 font-bold text-slate-400 cursor-not-allowed outline-none"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Téléphone</label>
-                      <div className="relative">
-                        <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input 
-                          type="text" 
-                          value={formData.telephone}
-                          disabled={!isEditing}
-                          onChange={(e) => setFormData({...formData, telephone: e.target.value})}
-                          className={`w-full border-2 rounded-2xl py-4 pl-14 pr-6 font-bold transition-all outline-none ${
-                            isEditing 
-                            ? 'bg-white border-blue-500 text-slate-900' 
-                            : 'bg-slate-50 border-slate-100 text-slate-900 cursor-not-allowed opacity-80'
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  </div>
 
-                  {isEditing && (
-                    <div className="pt-6 flex justify-end gap-4">
-                      <button 
-                        onClick={() => setIsEditing(false)}
-                        className="px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-200 transition-all"
-                      >
-                        Annuler
-                      </button>
-                      <button 
-                        onClick={handleSave}
-                        className="flex items-center gap-3 px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-blue-200 hover:scale-105 active:scale-95 transition-all"
-                      >
-                        <Save className="w-5 h-5" />
-                        Enregistrer les modifications
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="security"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="space-y-8"
-              >
-                <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-50 space-y-10">
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
-                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Mot de Passe</h2>
-                  </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-2 md:space-y-3">
+                          <label className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Prénom</label>
+                          <div className="relative">
+                            <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-500" />
+                            <input
+                              type="text"
+                              value={formData.prenom}
+                              disabled={!isEditing}
+                              onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
+                              className={`w-full border-2 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-12 md:pl-14 pr-6 font-bold transition-all outline-none text-xs md:text-sm ${isEditing
+                                  ? 'bg-white border-blue-500 text-slate-900'
+                                  : 'bg-slate-50 border-slate-100 text-slate-900 cursor-not-allowed opacity-80'
+                                }`}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Nom</label>
+                          <div className="relative">
+                            <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                            <input
+                              type="text"
+                              value={formData.nom}
+                              disabled={!isEditing}
+                              onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                              className={`w-full border-2 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-14 pr-6 font-bold transition-all outline-none text-xs md:text-sm ${isEditing
+                                  ? 'bg-white border-blue-500 text-slate-900'
+                                  : 'bg-slate-50 border-slate-100 text-slate-900 cursor-not-allowed opacity-80'
+                                }`}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Email</label>
+                          <div className="relative">
+                            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                            <input
+                              type="email"
+                              value={formData.email}
+                              disabled
+                              className="w-full bg-slate-100 border-2 border-slate-100 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-14 pr-6 font-bold text-slate-600 cursor-not-allowed outline-none text-xs md:text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Téléphone</label>
+                          <div className="relative">
+                            <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                            <input
+                              type="text"
+                              value={formData.telephone}
+                              disabled={!isEditing}
+                              onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
+                              className={`w-full border-2 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-14 pr-6 font-bold transition-all outline-none text-xs md:text-sm ${isEditing
+                                  ? 'bg-white border-blue-500 text-slate-900'
+                                  : 'bg-slate-50 border-slate-100 text-slate-900 cursor-not-allowed opacity-80'
+                                }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
 
-                  <div className="space-y-8">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mot de passe actuel</label>
-                      <div className="relative">
-                        <Key className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input 
-                          type={showCurrent ? "text" : "password"} 
-                          placeholder="••••••••"
-                          value={passwords.current}
-                          onChange={(e) => setPasswords({...passwords, current: e.target.value})}
-                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
-                        />
-                        <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
-                          {showCurrent ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {isEditing && (
+                        <div className="pt-4 md:pt-6 flex flex-col sm:flex-row justify-end gap-3 md:gap-4">
+                          <button
+                            onClick={() => setIsEditing(false)}
+                            className="w-full sm:w-auto px-6 py-2 md:py-2.5 bg-slate-100 text-slate-600 rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
+                          >
+                            Annuler
+                          </button>
+                          <button
+                            onClick={handleSave}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 md:px-8 py-2 md:py-2.5 bg-blue-600 text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all"
+                          >
+                            <Save className="w-3.5 h-3.5" />
+                            Enregistrer
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="security"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="space-y-8"
+                  >
+                    <div className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-slate-50 space-y-6 md:space-y-8">
+                      <div className="flex items-center gap-4 mb-2">
+                        <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
+                        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Mot de Passe</h2>
+                      </div>
+
+                      <div className="space-y-8">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Mot de passe actuel</label>
+                          <div className="relative">
+                            <Key className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                            <input
+                              type={showCurrent ? "text" : "password"}
+                              placeholder="••••••••"
+                              value={passwords.current}
+                              onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+                              className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none text-xs md:text-sm"
+                            />
+                            <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-blue-600 transition-colors">
+                              {showCurrent ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Nouveau mot de passe</label>
+                            <div className="relative">
+                              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                              <input
+                                type={showNew ? "text" : "password"}
+                                placeholder="••••••••"
+                                value={passwords.new}
+                                onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none text-xs md:text-sm"
+                              />
+                              <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-blue-600 transition-colors">
+                                {showNew ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Confirmer</label>
+                            <div className="relative">
+                              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                              <input
+                                type={showConfirm ? "text" : "password"}
+                                placeholder="••••••••"
+                                value={passwords.confirm}
+                                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none text-xs md:text-sm"
+                              />
+                              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-blue-600 transition-colors">
+                                {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-6 flex justify-end">
+                        <button
+                          onClick={handleUpdatePassword}
+                          disabled={loadingPassword}
+                          className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-md shadow-slate-200 hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {loadingPassword ? (
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          )}
+                          Mettre à jour la sécurité
                         </button>
                       </div>
                     </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nouveau mot de passe</label>
-                        <div className="relative">
-                          <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                          <input 
-                            type={showNew ? "text" : "password"} 
-                            placeholder="••••••••"
-                            value={passwords.new}
-                            onChange={(e) => setPasswords({...passwords, new: e.target.value})}
-                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
-                          />
-                          <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
-                            {showNew ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirmer</label>
-                        <div className="relative">
-                          <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                          <input 
-                            type={showConfirm ? "text" : "password"} 
-                            placeholder="••••••••"
-                            value={passwords.confirm}
-                            onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
-                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-12 font-bold text-slate-900 focus:border-blue-600 focus:bg-white transition-all outline-none"
-                          />
-                          <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
-                            {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-6 flex justify-end">
-                    <button 
-                      onClick={handleUpdatePassword}
-                      disabled={loadingPassword}
-                      className="flex items-center gap-3 px-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-slate-200 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loadingPassword ? (
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <ArrowRight className="w-5 h-5" />
-                      )}
-                      Mettre à jour la sécurité
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <ConfirmModal
+            isOpen={showLogoutConfirm}
+            onClose={() => setShowLogoutConfirm(false)}
+            onConfirm={handleLogout}
+            title="Fin de session"
+            message="Voulez-vous vraiment vous déconnecter ? Pour des raisons de sécurité, votre accès sera verrouillé jusqu'à votre prochaine connexion."
+            confirmText="Déconnexion sécurisée"
+            type="danger"
+          />
         </div>
       </div>
-
-      <ConfirmModal
-        isOpen={showLogoutConfirm}
-        onClose={() => setShowLogoutConfirm(false)}
-        onConfirm={handleLogout}
-        title="Fin de session"
-        message="Voulez-vous vraiment vous déconnecter ? Pour des raisons de sécurité, votre accès sera verrouillé jusqu'à votre prochaine connexion."
-        confirmText="Déconnexion sécurisée"
-        type="danger"
-      />
     </div>
   );
 }
+

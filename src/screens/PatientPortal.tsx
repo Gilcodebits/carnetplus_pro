@@ -8,11 +8,13 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "../utils/format";
+import { useAuth } from "../contexts/AuthContext";
 
 
 
 export function PatientPortal() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [stats, setStats]     = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
@@ -37,19 +39,10 @@ export function PatientPortal() {
     return () => { mounted = false; };
   }, []);
 
-  if (loading) return (
-    <div className="flex h-screen bg-slate-50 items-center justify-center">
-      <div className="text-center animate-pulse">
-        <div className="w-20 h-20 bg-blue-600 rounded-[2.5rem] flex items-center justify-center mb-8 mx-auto shadow-2xl shadow-blue-200">
-           <Heart className="w-10 h-10 text-white animate-bounce" />
-        </div>
-        <p className="text-slate-900 font-black uppercase tracking-[0.3em] text-[10px]">Chargement de votre univers santé...</p>
-      </div>
-    </div>
-  );
 
   // Dynamiser le score de santé depuis le dernier bilan enregistré localement
-  const savedReport = localStorage.getItem("last_bilan_sante");
+  // Key is namespaced per user to prevent cross-patient contamination
+  const savedReport = localStorage.getItem(`last_bilan_sante_${user?.id ?? 'anonymous'}`);
   const localHealthScore = savedReport ? JSON.parse(savedReport).score : null;
 
   const currentStats = stats ? {
@@ -72,13 +65,18 @@ export function PatientPortal() {
     ...(currentStats.examens || []).map((e: any) => ({ id: e.id, type: e.type_examen, date: e.date_demande, medecin: e.medecin_nom, icon: <FlaskConical className="w-5 h-5 text-purple-500"/>, color: "bg-purple-50" }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3);
   return (
-    <div className="overflow-auto scrollbar-hide flex flex-col relative">
+    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
 
-      {/* Content Area */}
-      <div className="p-8 lg:p-12 space-y-10">
+
+      <div className="flex-1 px-4 md:px-10 pb-12 pt-2 md:pt-4 space-y-4">
+        <div className="flex justify-end items-center">
+          <button onClick={()=>navigate("/patient/calendrier-rdv")} className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 flex items-center gap-2">
+            <Calendar className="w-4 h-4" /> <span>Prendre RDV</span>
+          </button>
+        </div>
         
         {/* Key Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {[
             { label: "Prochain RDV", val: currentStats.prochain_rdv ? formatDate(currentStats.prochain_rdv.date_rdv) : "Aucun", icon: Calendar, color: "from-blue-500 to-blue-600", path: "/patient/calendrier-rdv" },
             { label: "Assistant IA", val: "Actif", icon: Bot, color: "from-purple-500 to-purple-600", path: "/patient/assistant-ia" },
@@ -89,14 +87,14 @@ export function PatientPortal() {
               key={i}
               whileHover={{ y: -5 }}
               onClick={() => stat.path && navigate(stat.path)}
-              className="bg-white p-6 rounded-[2rem] shadow-lg shadow-slate-200/50 border border-slate-100 hover:border-blue-200 transition-all cursor-pointer flex flex-col justify-between group"
+              className="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-lg shadow-slate-200/50 border border-slate-100 hover:border-blue-200 transition-all cursor-pointer flex flex-col justify-between group"
             >
-              <div className={`w-10 h-10 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-white mb-4 shadow-md group-hover:scale-110 transition-transform`}>
-                <stat.icon className="w-5 h-5" />
+              <div className={`w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br ${stat.color} rounded-lg md:rounded-xl flex items-center justify-center text-white mb-3 md:mb-4 shadow-md group-hover:scale-110 transition-transform`}>
+                <stat.icon className="w-4 h-4 md:w-5 md:h-5" />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-slate-900 mb-0.5 tracking-tighter">{stat.val}</h3>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                <h3 className="text-base md:text-2xl font-black text-slate-900 mb-0.5 tracking-tighter truncate">{stat.val}</h3>
+                <p className="text-[8px] md:text-[9px] font-black text-slate-600 uppercase tracking-widest">{stat.label}</p>
               </div>
             </motion.div>
           ))}
@@ -104,18 +102,18 @@ export function PatientPortal() {
 
         {/* Health Tips Section - WOW Animation Carousel */}
         <div className="pt-4">
-           <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-                 <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center border-2 border-emerald-100 shadow-sm"><Sparkles className="w-7 h-7"/></div>
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-8 gap-4">
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                 <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-50 text-emerald-600 rounded-xl md:rounded-2xl flex items-center justify-center border-2 border-emerald-100 shadow-sm"><Sparkles className="w-6 h-6 md:w-7 md:h-7"/></div>
                  Conseils Santé du Jour
               </h2>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">IA en action</span>
               </div>
            </div>
 
-           <div className="relative h-40">
+           <div className="relative h-64 sm:h-40">
               <AnimatePresence mode="wait">
                 <motion.div 
                   key={currentTipIndex}
@@ -125,23 +123,23 @@ export function PatientPortal() {
                   transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
                   className="absolute inset-0"
                 >
-                  <div className="h-full flex items-center gap-10 bg-white p-10 rounded-[3rem] border-2 border-slate-50 shadow-2xl shadow-slate-200/50 relative overflow-hidden group">
+                  <div className="h-full flex flex-col sm:flex-row items-center gap-6 md:gap-10 bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border-2 border-slate-50 shadow-2xl shadow-slate-200/50 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/5 to-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                     
-                    <div className={`w-20 h-20 bg-gradient-to-br ${healthTips[currentTipIndex].color} rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-blue-200 shrink-0`}>
+                    <div className={`w-14 h-14 md:w-20 md:h-20 bg-gradient-to-br ${healthTips[currentTipIndex].color} rounded-[1.2rem] md:rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-blue-200 shrink-0`}>
                        {healthTips[currentTipIndex].icon}
                     </div>
                     
-                    <div className="flex-1">
-                      <p className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-3">
+                    <div className="flex-1 text-center sm:text-left">
+                      <p className="text-lg md:text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-2 md:mb-3">
                          {healthTips[currentTipIndex].text.split(":")[0]}
                       </p>
-                      <p className="text-base font-bold text-slate-600 leading-relaxed">
+                      <p className="text-sm md:text-base font-bold text-slate-600 leading-relaxed line-clamp-3 sm:line-clamp-none">
                          {healthTips[currentTipIndex].text.split(":")[1]}
                       </p>
                     </div>
 
-                    <div className="hidden md:flex gap-1">
+                    <div className="hidden lg:flex gap-1">
                       {healthTips.map((_, i) => (
                         <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === currentTipIndex ? 'w-6 bg-emerald-500' : 'bg-slate-200'}`} />
                       ))}
@@ -152,31 +150,31 @@ export function PatientPortal() {
            </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 md:gap-12">
           
           {/* Planning Médical */}
           <div className="xl:col-span-7">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border-2 border-blue-100 shadow-sm"><Calendar className="w-7 h-7"/></div>
-                 Calendrier Médical
+            <div className="flex items-center justify-between mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                 <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 text-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center border-2 border-blue-100 shadow-sm"><Calendar className="w-6 h-6 md:w-7 md:h-7"/></div>
+                 Calendrier
               </h2>
-              <button onClick={()=>navigate("/patient/calendrier-rdv")} className="px-6 py-3 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-blue-500 hover:text-blue-600 transition-all active:scale-95 shadow-sm">Tout voir</button>
+              <button onClick={()=>navigate("/patient/calendrier-rdv")} className="px-4 md:px-6 py-2 md:py-3 bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-blue-500 hover:text-blue-600 transition-all active:scale-95 shadow-sm">Tout voir</button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {prochainRdv.length > 0 ? prochainRdv.map((rdv: any, i: number) => (
-                <div key={rdv.id || i} className="p-8 rounded-[3rem] border-2 border-slate-100 bg-white hover:bg-blue-600 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-200/50 transition-all group cursor-pointer relative overflow-hidden">
-                  <div className="flex items-center justify-between relative z-10">
-                    <div className="flex items-center gap-8">
-                      <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-slate-100 text-slate-900 group-hover:bg-white group-hover:text-blue-600 transition-all shadow-inner group-hover:border-white">
-                         <span className="text-[10px] font-black uppercase opacity-60 mb-1 tracking-widest">Heure</span>
-                         <span className="text-2xl font-black">{rdv.heure_rdv?.substring(0,5)}</span>
+                <div key={rdv.id || i} className="p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border-2 border-slate-100 bg-white hover:bg-blue-600 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-200/50 transition-all group cursor-pointer relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
+                    <div className="flex items-center gap-6 md:gap-8">
+                      <div className="w-16 h-16 md:w-24 md:h-24 bg-slate-50 rounded-[1.5rem] md:rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-slate-100 text-slate-900 group-hover:bg-white group-hover:text-blue-600 transition-all shadow-inner group-hover:border-white shrink-0">
+                         <span className="text-[8px] md:text-[10px] font-black uppercase opacity-90 mb-1 tracking-widest">Heure</span>
+                         <span className="text-lg md:text-2xl font-black">{rdv.heure_rdv?.substring(0,5)}</span>
                       </div>
                       <div>
-                        <div className="flex items-center gap-2 mb-2">
-                           <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest group-hover:bg-white/20 group-hover:text-white transition-all">Consultation</span>
-                           <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                           <span className="px-2 md:px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest group-hover:bg-white/20 group-hover:text-white transition-all">Consultation</span>
+                           <span className={`px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all ${
                              rdv.statut === 'confirme' ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-400/20 group-hover:text-emerald-100' : 
                              rdv.statut === 'en_attente' ? 'bg-orange-50 text-orange-600 group-hover:bg-orange-400/20 group-hover:text-orange-100' :
                              'bg-blue-50 text-blue-600 group-hover:bg-white/20 group-hover:text-white'
@@ -184,64 +182,65 @@ export function PatientPortal() {
                              {rdv.statut === 'en_attente' ? 'En attente' : rdv.statut === 'confirme' ? 'Confirmé' : 'Planifié'}
                            </span>
                         </div>
-                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight group-hover:text-white transition-colors">Dr. {rdv.medecin_nom}</h3>
-                        <div className="flex items-center gap-4 mt-2">
-                           <p className="text-[11px] text-blue-600 font-black uppercase tracking-widest flex items-center gap-2 group-hover:text-white transition-all">
+                        <h3 className="text-lg md:text-2xl font-black text-slate-900 uppercase tracking-tight group-hover:text-white transition-colors">Dr. {rdv.medecin_nom}</h3>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
+                           <p className="text-[10px] md:text-[11px] text-blue-600 font-black uppercase tracking-widest flex items-center gap-2 group-hover:text-white transition-all">
                              <Calendar className="w-3.5 h-3.5" />
                              {formatDate(rdv.date_rdv)}
                            </p>
-                           <p className="text-[11px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2 group-hover:text-blue-100 transition-all">
+                           <p className="text-[10px] md:text-[11px] text-slate-600 font-black uppercase tracking-widest flex items-center gap-2 group-hover:text-blue-100 transition-all">
                              <MapPin className="w-3.5 h-3.5 text-rose-500 group-hover:text-white" /> 
                              Secteur A
                            </p>
                         </div>
                       </div>
                     </div>
-                    <ChevronRight className="w-8 h-8 text-slate-200 group-hover:text-white transition-all group-hover:translate-x-2" />
+                    <ChevronRight className="hidden sm:block w-8 h-8 text-slate-200 group-hover:text-white transition-all group-hover:translate-x-2" />
                   </div>
                 </div>
               )) : (
-                <div className="py-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white">
-                  <Calendar className="w-16 h-16 text-slate-100 mx-auto mb-6" />
-                  <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">Aucun rendez-vous planifié</p>
+                <div className="py-16 md:py-20 text-center border-2 border-dashed border-slate-200 rounded-[2rem] md:rounded-[3rem] bg-white shadow-inner">
+                  <Calendar className="w-12 h-12 md:w-16 md:h-16 text-slate-100 mx-auto mb-6" />
+                  <p className="text-slate-600 font-black uppercase tracking-[0.2em] text-[10px]">Aucun rendez-vous planifié</p>
                   <button onClick={()=>navigate("/patient/calendrier-rdv")} className="mt-8 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-200 hover:scale-105 transition-all">Prendre RDV</button>
                 </div>
               )}
             </div>
           </div>
 
+          {/* Historique Médical */}
           <div className="xl:col-span-5">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
-                 <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center border-2 border-orange-100 shadow-sm"><FileText className="w-7 h-7"/></div>
-                 Historique Récent
+            <div className="flex items-center justify-between mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                 <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-50 text-orange-600 rounded-xl md:rounded-2xl flex items-center justify-center border-2 border-orange-100 shadow-sm"><FileText className="w-6 h-6 md:w-7 md:h-7"/></div>
+                 Historique
               </h2>
-              <button onClick={()=>navigate("/patient/dossier")} className="px-5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm">Voir plus</button>
+              <button onClick={()=>navigate("/patient/dossier")} className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[9px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm">Voir plus</button>
             </div>
             <div className="space-y-4">
               {documentsRecents.length > 0 ? documentsRecents.map((doc, i) => (
                 <div key={i} 
                   onClick={() => doc.type === "Ordonnance" && navigate(`/patient/dossier`)} 
-                  className="p-6 rounded-[2.5rem] border-2 border-slate-50 bg-white hover:border-blue-600 hover:shadow-xl hover:shadow-blue-200/30 transition-all cursor-pointer group flex items-center justify-between"
+                  className="p-5 md:p-6 rounded-[2rem] md:rounded-[2.5rem] border-2 border-slate-50 bg-white hover:border-blue-600 hover:shadow-xl hover:shadow-blue-200/30 transition-all cursor-pointer group flex items-center justify-between gap-4"
                 >
-                  <div className="flex items-center gap-6">
-                    <div className={`w-14 h-14 ${doc.color || 'bg-slate-50'} rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
+                  <div className="flex items-center gap-4 md:gap-6">
+                    <div className={`w-12 h-12 md:w-14 md:h-14 ${doc.color || 'bg-slate-50'} rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform shrink-0`}>
                       {doc.icon}
                     </div>
                     <div>
-                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{doc.type}</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Émis par Dr. {doc.medecin}</p>
+                      <p className="font-black text-slate-900 text-xs md:text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{doc.type}</p>
+                      <p className="text-[8px] md:text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Dr. {doc.medecin}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                     <span className="text-[9px] font-black text-slate-300 uppercase hidden sm:block">{formatDate(doc.date)}</span>
-                     <ArrowUpRight className="w-5 h-5 text-slate-200 group-hover:text-blue-600 transition-all"/>
+                  <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                     <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase hidden md:block">{formatDate(doc.date)}</span>
+                     <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-slate-200 group-hover:text-blue-600 transition-all"/>
                   </div>
                 </div>
               )) : (
-                 <div className="py-16 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-[3rem]">
-                    <FileText className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Votre dossier est encore vierge</p>
+                 <div className="py-12 md:py-16 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] md:rounded-[3rem]">
+                    <FileText className="w-10 h-10 md:w-12 md:h-12 text-slate-200 mx-auto mb-4" />
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Votre dossier est encore vierge</p>
                  </div>
               )}
             </div>
@@ -263,3 +262,4 @@ const healthTips = [
   { icon: <Sparkles className="w-8 h-8"/>, text: "Soleil : Exposez-vous 15 min par jour pour synthétiser la Vitamine D.", color: "from-yellow-500 to-orange-500" },
   { icon: <Heart className="w-8 h-8"/>, text: "Dents : Le brossage du soir est le plus important pour prévenir les caries.", color: "from-blue-400 to-cyan-500" },
 ];
+

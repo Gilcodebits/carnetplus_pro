@@ -1,21 +1,24 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 import { Card } from "../components/Card";
 import { 
   Activity, Heart, Brain, 
   TrendingUp, CheckCircle, Sparkles, 
   ShieldCheck, ArrowRight, Zap, Info, Clock, Pill, FlaskConical,
-  BarChart3, Scale, Droplets
+  BarChart3, Scale, Droplets, Printer
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "../utils/format";
 
 export function BilanSante() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
-  // Check for previous report on mount
-  const savedReport = localStorage.getItem("last_bilan_sante");
+  // Namespace the key per user to prevent cross-patient data leaks
+  const storageKey = `last_bilan_sante_${user?.id ?? 'anonymous'}`;
+  const savedReport = localStorage.getItem(storageKey);
   const initialStep = savedReport ? "resultats" : "questionnaire";
   const initialReponses = savedReport ? JSON.parse(savedReport).reponses : { sommeil: "", activite: "", alimentation: "", stress: "" };
 
@@ -42,8 +45,8 @@ export function BilanSante() {
   const handleSubmit = () => {
     // Simulation d'une analyse intensive par l'IA
     setTimeout(() => {
-      // Save to localStorage for persistence
-      localStorage.setItem("last_bilan_sante", JSON.stringify({
+      // Save to localStorage namespaced per user to prevent cross-patient leaks
+      localStorage.setItem(storageKey, JSON.stringify({
         score: stats.global,
         reponses: reponses,
         date: new Date().toISOString()
@@ -112,11 +115,11 @@ export function BilanSante() {
         <div className="p-8 border-b-2 border-slate-900 flex justify-between items-center bg-slate-50/30">
           <div>
             <h1 className="text-2xl font-black uppercase tracking-tighter italic print-title">Carnet<span className="text-blue-600">Plus</span></h1>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">Analyse de Santé Prédictive IA</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 mt-1">Analyse de Santé Prédictive IA</p>
           </div>
           <div className="text-right">
             <h2 className="text-lg font-black uppercase tracking-tight print-title">Rapport de Bilan de Santé</h2>
-            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Généré le {formatDate(new Date())}</p>
+            <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest mt-1">Généré le {formatDate(new Date())}</p>
           </div>
         </div>
 
@@ -144,7 +147,7 @@ export function BilanSante() {
              ].map((s, i) => (
                <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
                   <div className="flex justify-between items-center mb-2">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
+                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{s.label}</p>
                      <p className="text-sm font-black text-slate-900">{s.val}%</p>
                   </div>
                   <div className="w-full h-1.5 bg-slate-200 rounded-full mb-3 overflow-hidden">
@@ -172,44 +175,39 @@ export function BilanSante() {
               <div className="w-24 h-24 border-4 border-emerald-600 rounded-full flex items-center justify-center -rotate-12 opacity-80 mx-auto mb-2">
                  <p className="text-[7px] font-black text-emerald-600 uppercase tracking-tighter text-center">ANALYSÉ<br/>PAR IA<br/>CERTIFIÉ</p>
               </div>
-              <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">CarnetPlus Health Systems</p>
+              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">CarnetPlus Health Systems</p>
            </div>
         </div>
       </div>
         
-      <div className="flex flex-col relative pt-6 px-10 pb-10 bg-slate-50 min-h-screen no-print">
-        {/* Advanced Header */}
-        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-2xl -mx-10 px-10 py-6 border-b border-slate-200/50 mb-10 no-print">
-        <div className="max-w-6xl mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center shadow-2xl border border-white/20">
-              <Activity className="w-8 h-8 text-emerald-500 animate-pulse"/>
-            </div>
+    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden no-print">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
             <div>
-              <div className="flex items-center gap-3">
-                 <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Bilan Santé <span className="text-emerald-600">Bio-IA</span></h1>
-              </div>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 opacity-80">Analyse de biomarqueurs & habitudes de vie • v2.0</p>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Bilan Santé <span className="text-emerald-600">Bio-IA</span></h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Analyse de biomarqueurs & habitudes de vie</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-             {step === 'resultats' && (
-               <button 
-                 onClick={() => window.print()}
-                 className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200"
-               >
-                 <ShieldCheck className="w-4 h-4 text-emerald-400" /> Télécharger mon Bilan
-               </button>
-             )}
-             <div className="px-5 py-2.5 bg-emerald-50 border-2 border-emerald-100 rounded-2xl flex items-center gap-3 shadow-sm">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Données Chiffrées AES-256</span>
-             </div>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            {step === 'resultats' && (
+              <button 
+                onClick={() => window.print()}
+                className="flex-1 md:flex-none flex items-center justify-center gap-3 px-4 md:px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Télécharger
+              </button>
+            )}
+            <div className="hidden md:flex items-center justify-center gap-3">
+               {/* Removed badge */}
+            </div>
           </div>
         </div>
       </div>
 
-        <div className="max-w-6xl mx-auto w-full flex-1">
+      <div className="max-w-6xl mx-auto w-full flex-1 pt-[130px] md:pt-[140px]">
           <AnimatePresence mode="wait">
             {step === "questionnaire" ? (
               <motion.div 
@@ -217,25 +215,25 @@ export function BilanSante() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="space-y-6"
+                className="space-y-6 px-4 md:px-10"
               >
-                <Card className="border border-slate-200 shadow-2xl p-10 bg-white rounded-[2.5rem] relative overflow-hidden group">
+                <Card className="border border-slate-200 shadow-2xl p-6 md:p-10 bg-white rounded-[2rem] md:rounded-[2.5rem] relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full -mr-32 -mt-32 transition-all group-hover:scale-110 opacity-50 pointer-events-none" />
                   
-                  <div className="flex items-center justify-between mb-12 relative z-10">
-                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 md:mb-12 relative z-10 gap-4">
+                    <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4">
                       <Sparkles className="w-6 h-6 text-emerald-500" /> 
                       Analyse de Style de Vie
                     </h2>
-                    <div className="flex items-center gap-2">
-                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progression</span>
-                       <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <motion.div 
-                            className="h-full bg-emerald-500"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Object.values(reponses).filter(v => v !== "").length * 25}%` }}
-                          />
-                       </div>
+                    <div className="flex items-center gap-2 w-full md:w-auto">
+                      <span className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest">Progression</span>
+                      <div className="flex-1 md:w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div 
+                          className="h-full bg-emerald-500"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Object.values(reponses).filter(v => v !== "").length * 25}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -246,33 +244,32 @@ export function BilanSante() {
                       { key: "alimentation", label: "Apport Nutritionnel", desc: "Équilibre vitamines et macronutriments", icon: Droplets, options: ["Excellent", "Bon", "Moyen", "Mauvais"], accent: "emerald" },
                       { key: "stress", label: "Charge Mentale", desc: "Niveau de cortisol et gestion émotionnelle", icon: Brain, options: ["Faible", "Modéré", "Élevé", "Critique"], accent: "emerald" },
                     ].map((q) => (
-                      <div key={q.key} className="p-8 bg-slate-50/50 border border-slate-100 rounded-[2rem] transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-200/50">
-                        <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
-                           <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg border border-slate-100">
-                              <q.icon className="w-7 h-7 text-emerald-600" />
-                           </div>
-                           <div>
-                             <h3 className="text-lg font-black text-slate-900 tracking-tight leading-tight uppercase">{q.label}</h3>
-                             <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">{q.desc}</p>
-                           </div>
+                      <div key={q.key} className="p-4 md:p-8 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] md:rounded-[2rem] transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-200/50">
+                        <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
+                          <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg border border-slate-100 shrink-0">
+                            <q.icon className="w-6 h-6 md:w-7 md:h-7 text-emerald-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-base md:text-lg font-black text-slate-900 tracking-tight leading-tight uppercase">{q.label}</h3>
+                            <p className="text-[9px] md:text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1">{q.desc}</p>
+                          </div>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           {q.options.map((opt, i) => {
                             const isSelected = (reponses as any)[q.key] === opt;
                             
-                            // Dynamic color logic based on index (0:Best -> 3:Worst)
                             const getColors = () => {
-                              if (i === 0) return isSelected ? "bg-emerald-600 border-emerald-600 text-white shadow-emerald-200" : "bg-white border-slate-100 text-slate-400 hover:border-emerald-200 hover:bg-emerald-50";
-                              if (i === 1) return isSelected ? "bg-blue-600 border-blue-600 text-white shadow-blue-200" : "bg-white border-slate-100 text-slate-400 hover:border-blue-200 hover:bg-blue-50";
-                              if (i === 2) return isSelected ? "bg-amber-500 border-amber-500 text-white shadow-amber-200" : "bg-white border-slate-100 text-slate-400 hover:border-amber-200 hover:bg-amber-50";
-                              return isSelected ? "bg-rose-600 border-rose-600 text-white shadow-rose-200" : "bg-white border-slate-100 text-slate-400 hover:border-rose-200 hover:bg-rose-50";
+                              if (i === 0) return isSelected ? "bg-emerald-600 border-emerald-600 text-white shadow-emerald-200" : "bg-white border-slate-100 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50";
+                              if (i === 1) return isSelected ? "bg-blue-600 border-blue-600 text-white shadow-blue-200" : "bg-white border-slate-100 text-slate-600 hover:border-blue-200 hover:bg-blue-50";
+                              if (i === 2) return isSelected ? "bg-amber-500 border-amber-500 text-white shadow-amber-200" : "bg-white border-slate-100 text-slate-600 hover:border-amber-200 hover:bg-amber-50";
+                              return isSelected ? "bg-rose-600 border-rose-600 text-white shadow-rose-200" : "bg-white border-slate-100 text-slate-600 hover:border-rose-200 hover:bg-rose-50";
                             };
 
                             return (
                               <button
                                 key={opt}
                                 onClick={() => setReponses({ ...reponses, [q.key]: opt })}
-                                className={`py-6 px-4 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-sm ${getColors()}`}
+                                className={`py-4 md:py-6 px-2 md:px-4 rounded-xl md:rounded-2xl border-2 font-black text-[8px] md:text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-sm ${getColors()}`}
                               >
                                 {opt}
                               </button>
@@ -285,11 +282,11 @@ export function BilanSante() {
                     <button
                       onClick={handleSubmit}
                       disabled={!reponses.sommeil || !reponses.activite || !reponses.alimentation || !reponses.stress}
-                      className="w-full py-7 bg-slate-900 text-white rounded-[2rem] font-black text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-slate-300 hover:bg-emerald-600 transition-all disabled:opacity-20 active:scale-95 mt-6 flex items-center justify-center gap-4 group"
+                      className="w-full py-5 md:py-7 bg-slate-900 text-white rounded-[1.5rem] md:rounded-[2rem] font-black text-[9px] md:text-[11px] uppercase tracking-[0.25em] shadow-2xl shadow-slate-300 hover:bg-emerald-600 transition-all disabled:opacity-20 active:scale-95 mt-6 flex items-center justify-center gap-3 md:gap-4 group"
                     >
-                      <Zap className="w-5 h-5 text-emerald-400 group-hover:animate-pulse" />
-                      LANCER L'ANALYSE PRÉDICTIVE
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                      <Zap className="w-4 h-4 md:w-5 md:h-5 text-emerald-400 group-hover:animate-pulse" />
+                      LANCER L'ANALYSE
+                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform" />
                     </button>
                   </div>
                 </Card>
@@ -299,10 +296,10 @@ export function BilanSante() {
                 key="r"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="space-y-10"
+                className="space-y-10 px-4 md:px-10"
               >
                 {/* Result Hero Card */}
-                <Card className="border border-slate-200 shadow-2xl p-10 lg:p-16 bg-white rounded-[3rem] relative overflow-hidden">
+                <Card className="border border-slate-200 shadow-2xl p-6 md:p-10 lg:p-16 bg-white rounded-[2rem] md:rounded-[3rem] relative overflow-hidden">
                    {/* Animated Background SVG */}
                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -315,9 +312,9 @@ export function BilanSante() {
                       </svg>
                    </div>
 
-                   <div className="relative z-10 flex flex-col lg:flex-row items-center gap-16">
+                   <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 md:gap-16">
                      {/* Global Score Circle */}
-                     <div className="relative w-64 h-64 shrink-0">
+                     <div className="relative w-48 h-48 md:w-64 md:h-64 shrink-0">
                         <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
                            <circle cx="50" cy="50" r="45" stroke="#f1f5f9" strokeWidth="8" fill="none" />
                            <motion.circle 
@@ -330,10 +327,10 @@ export function BilanSante() {
                            />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                           <motion.span 
-                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                             className="text-6xl font-black text-slate-900 tracking-tighter"
-                           >{stats.global}</motion.span>
+                            <motion.span 
+                              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                              className="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter"
+                            >{stats.global}</motion.span>
                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Score Vital</span>
                         </div>
                      </div>
@@ -343,13 +340,13 @@ export function BilanSante() {
                            <div className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 flex items-center gap-2">
                               <Sparkles className="w-4 h-4" /> Rapport IA Généré
                            </div>
-                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">ID: CP-{Math.floor(Math.random()*90000)}</span>
+                           <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">ID: CP-{Math.floor(Math.random()*90000)}</span>
                         </div>
-                        <h2 className="text-5xl lg:text-6xl font-black text-slate-900 uppercase tracking-tight leading-[0.9] mb-6">
+                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 uppercase tracking-tight leading-[0.9] mb-4 md:mb-6">
                            {stats.global > 80 ? "Performance" : stats.global > 60 ? "Équilibre" : "Attention"} <br/>
                            <span className="text-emerald-600">{stats.global > 80 ? "Optimale" : stats.global > 60 ? "Stable" : "Requise"}</span>
                         </h2>
-                        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest leading-relaxed max-w-xl opacity-70">
+                        <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest leading-relaxed max-w-xl opacity-70">
                            Votre profil biométrique indique une {stats.global > 80 ? "excellente résilience" : "vigueur modérée"}. L'IA a détecté des opportunités d'optimisation sur vos cycles de {stats.sommeil < 80 ? "sommeil" : "nutrition"}.
                         </p>
                      </div>
@@ -363,12 +360,12 @@ export function BilanSante() {
                         { label: "Nutrition", score: stats.alimentation, icon: Droplets, color: "text-emerald-500" },
                         { label: "Mental", score: stats.stress, icon: Brain, color: "text-purple-500" },
                       ].map((s, i) => (
-                        <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-xl transition-all">
-                           <div className="flex items-center justify-between mb-4">
-                              <s.icon className={`w-6 h-6 ${s.color}`} />
-                              <span className="text-xl font-black text-slate-900 tracking-tighter">{s.score}%</span>
+                        <div key={i} className="p-4 md:p-6 bg-slate-50 rounded-[1.5rem] md:rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-xl transition-all">
+                           <div className="flex items-center justify-between mb-3 md:mb-4">
+                              <s.icon className={`w-5 h-5 md:w-6 md:h-6 ${s.color}`} />
+                              <span className="text-lg md:text-xl font-black text-slate-900 tracking-tighter">{s.score}%</span>
                            </div>
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
+                           <p className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest">{s.label}</p>
                            <div className="w-full h-1.5 bg-slate-200 rounded-full mt-3 overflow-hidden">
                               <motion.div 
                                 className={`h-full ${s.color.replace('text-', 'bg-')}`}
@@ -383,17 +380,15 @@ export function BilanSante() {
                 </Card>
 
                 {/* IA Insights & Trends */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                   <Card className="lg:col-span-8 border border-slate-200 shadow-xl p-10 bg-white rounded-[2.5rem]">
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-10 flex items-center gap-4">
-                         <BarChart3 className="w-6 h-6 text-emerald-600" />
+                <div className="max-w-6xl mx-auto w-full pb-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+                   <Card className="lg:col-span-8 border border-slate-200 shadow-xl p-6 md:p-10 bg-white rounded-[2rem] md:rounded-[2.5rem]">
+                      <h3 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight mb-8 md:mb-10 flex items-center gap-4">
+                         <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
                          Tendances Vitales
                       </h3>
                       <div className="h-64 w-full flex items-end gap-4 px-4 bg-slate-50/50 rounded-3xl p-6 border border-slate-100/50">
                          {[60, 45, 80, 55, 90, 75, 88].map((h, i) => {
                            const today = new Date().getDay();
-                           // getDay(): Sun=0, Mon=1...
-                           // index: Lun=0, Mar=1, ..., Sam=5, Dim=6
                            const todayIndex = today === 0 ? 6 : today - 1;
                            const isToday = i === todayIndex;
 
@@ -415,7 +410,7 @@ export function BilanSante() {
                                     </div>
                                   </motion.div>
                                 </div>
-                                <span className={`text-[9px] font-black uppercase tracking-widest ${isToday ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                <span className={`text-[9px] font-black uppercase tracking-widest ${isToday ? 'text-emerald-600' : 'text-slate-600'}`}>
                                   {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'][i]}
                                 </span>
                              </div>
@@ -432,15 +427,15 @@ export function BilanSante() {
                       </div>
                    </Card>
 
-                    <Card className="lg:col-span-4 bg-slate-900 text-white p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col justify-between group">
+                    <Card className="lg:col-span-4 bg-slate-900 text-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col justify-between group">
                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-600/30 rounded-full blur-[80px] group-hover:scale-150 transition-all duration-1000" />
                        
                        <div className="relative z-10">
-                         <div className="flex items-center justify-between mb-10">
-                            <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-900/50">
-                               <Sparkles className="w-7 h-7 text-white animate-pulse"/>
+                         <div className="flex items-center justify-between mb-8 md:mb-10">
+                            <div className="w-12 h-12 md:w-14 md:h-14 bg-emerald-500 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-900/50">
+                               <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-white animate-pulse"/>
                             </div>
-                            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20">Analyse IA</span>
+                            <span className="text-[9px] md:text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] bg-emerald-500/10 px-3 md:px-4 py-2 rounded-full border border-emerald-500/20">Analyse IA</span>
                          </div>
 
                          <h4 className="text-3xl font-black uppercase tracking-tighter mb-8 leading-none">Focus <br/><span className="text-emerald-400">Intelligence</span></h4>
@@ -474,9 +469,9 @@ export function BilanSante() {
                     </Card>
                 </div>
 
-                <div className="flex justify-center gap-6 pt-10">
-                   <button onClick={() => setStep("questionnaire")} className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-emerald-600 hover:text-emerald-600 transition-all active:scale-95">REFAIRE L'ANALYSE</button>
-                   <button onClick={() => navigate("/patient")} className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all active:scale-95 shadow-xl">RETOUR AU PORTAIL</button>
+                <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-6 pt-10">
+                   <button onClick={()=>navigate('/patient')} className="px-12 py-5 bg-white text-slate-900 border-2 border-slate-200 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-50 transition-all active:scale-95">Retour au Portail</button>
+                   <button onClick={()=>window.print()} className="px-12 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:shadow-2xl hover:shadow-slate-300 transition-all active:scale-95 flex items-center justify-center gap-4 border-2 border-slate-700"><Printer className="w-5 h-5 text-blue-400"/> <span>Télécharger Mon Bilan</span></button>
                 </div>
               </motion.div>
             )}
@@ -486,3 +481,4 @@ export function BilanSante() {
     </>
   );
 }
+

@@ -37,56 +37,52 @@ export function Labo() {
         { day: 'J', value: 0 }, { day: 'V', value: 0 }, { day: 'S', value: 0 }, { day: 'D', value: 0 }
       ];
 
-  if (loading) return (
-    <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-screen">
-      <div className="text-center animate-pulse">
-        <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-        <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Synchronisation...</p>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-slate-50/50 overflow-x-hidden scrollbar-hide">
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 px-12 py-8 flex justify-between items-center shadow-sm">
-        <div>
-           <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-             <Activity className="w-6 h-6 text-teal-600" /> Monitoring Labo
-           </h2>
+    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden">
+      {/* Modern FIXED Header - Premium White */}
+      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
+        <div className="px-6 md:px-12 flex flex-row justify-between items-center w-full gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-1.5 h-10 bg-teal-600 rounded-full shrink-0 shadow-sm shadow-teal-200" />
+            <div>
+              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Centre d'Analyses</h1>
+              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Plateau technique & résultats</p>
+            </div>
+          </div>
+          <Link to="/labo/analyses" className="px-6 py-2.5 bg-teal-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-teal-700 transition-all shadow-lg shadow-teal-200 flex items-center justify-center gap-2 active:scale-95">
+            <Zap className="w-4 h-4" /> <span>Gérer les Analyses</span>
+          </Link>
         </div>
-        <Link to="/labo/analyses" className="px-8 py-4 bg-teal-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-teal-500/20 hover:shadow-2xl transition-all flex items-center gap-3">
-          <Zap className="w-4 h-4" /> Gérer les Analyses
-        </Link>
       </div>
 
-      <div className="p-12 space-y-12">
+      <div className="p-4 md:p-12 space-y-8 md:space-y-12 w-full max-w-full overflow-x-hidden pt-[130px] md:pt-[140px]">
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
         <StatCard title="En cours" value={stats.en_cours || 0} icon={<Clock/>} color="orange" delay={100} />
         <StatCard title="Terminés" value={stats.termines || 0} icon={<CheckCircle/>} color="emerald" delay={200} />
         <StatCard title="Urgences" value={stats.urgents || 0} icon={<AlertCircle/>} color="rose" delay={300} />
-        <StatCard title="Total Patients" value={stats.patients_total || 0} icon={<Users/>} color="teal" delay={400} />
+        <StatCard title="Patients" value={stats.patients_total || 0} icon={<Users/>} color="teal" delay={400} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 md:gap-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="xl:col-span-2 bg-white p-12 rounded-[4rem] border-2 border-slate-100 shadow-xl shadow-slate-200/20 relative overflow-hidden group"
+          className="xl:col-span-2 bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] border-2 border-slate-200 shadow-xl shadow-slate-200/20 relative overflow-hidden group"
         >
-          <div className="flex items-center justify-between mb-16 relative z-10">
-            <div>
-              <h3 className="text-2xl font-black text-slate-900 uppercase flex items-center gap-3">
-                <TrendingUp className="text-teal-600 w-8 h-8"/> Flux de Travail
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 md:mb-16 relative z-10 gap-4">
+            <div className="min-w-0">
+              <h3 className="text-lg md:text-2xl font-black text-slate-900 uppercase flex items-center gap-2 md:gap-3 truncate">
+                <TrendingUp className="text-teal-600 w-5 h-5 md:w-8 md:h-8 shrink-0"/> Flux de Travail
               </h3>
-              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Analyse de la charge hebdomadaire réelle</p>
+              <p className="text-[8px] md:text-[10px] text-slate-600 font-black uppercase tracking-widest mt-1 truncate">Charge hebdomadaire réelle</p>
             </div>
-            <div className="px-6 py-3 bg-teal-50 rounded-2xl text-[10px] font-black text-teal-600 uppercase tracking-widest">
-              Données en temps réel
+            <div className="px-4 py-2 bg-teal-50 rounded-xl text-[8px] md:text-[10px] font-black text-teal-600 uppercase tracking-widest w-max">
+              Temps réel
             </div>
           </div>
 
-          <div className="relative h-64 w-full">
+          <div className="relative h-48 md:h-64 w-full">
             <svg className="w-full h-full" viewBox="0 0 700 200" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -127,10 +123,10 @@ export function Labo() {
               ))}
             </svg>
             
-            <div className="flex justify-between mt-12 px-2">
+            <div className="flex justify-between mt-8 md:mt-12 px-2">
               {activityData.map((item: any, i: number) => (
                 <div key={i} className="text-center">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.day}</p>
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{item.day}</p>
                 </div>
               ))}
             </div>
@@ -140,36 +136,36 @@ export function Labo() {
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-slate-900 p-12 rounded-[4rem] text-white shadow-2xl relative"
+          className="bg-slate-900 p-6 md:p-12 rounded-[2rem] md:rounded-[4rem] text-white shadow-2xl relative"
         >
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-12">
-              <h3 className="text-2xl font-black uppercase tracking-tight">Priorités</h3>
-              <AlertCircle className="text-rose-500 w-8 h-8 relative z-10"/>
+            <div className="flex items-center justify-between mb-6 md:mb-12">
+              <h3 className="text-base md:text-2xl font-black uppercase tracking-tight">Priorités</h3>
+              <AlertCircle className="text-rose-500 w-5 h-5 md:w-8 md:h-8 relative z-10"/>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {recentExams.filter(e => e.urgence).map((e, i) => (
-                <div key={i} className="group p-6 bg-white/5 rounded-[2rem] border border-white/10 hover:bg-white/10 transition-all cursor-pointer flex items-center justify-between">
-                  <div className="flex items-center gap-5">
-                    <div className="w-12 h-12 bg-rose-500/20 text-rose-500 rounded-2xl flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-all">
-                      <Activity className="w-6 h-6"/>
+                <div key={i} className="group p-4 md:p-6 bg-white/5 rounded-xl md:rounded-[2rem] border border-white/10 hover:bg-white/10 transition-all cursor-pointer flex items-center justify-between">
+                  <div className="flex items-center gap-3 md:gap-5">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-rose-500/20 text-rose-500 rounded-lg md:rounded-2xl flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-all">
+                      <Activity className="w-4 h-4 md:w-6 md:h-6"/>
                     </div>
                     <div>
-                      <p className="text-sm font-black uppercase tracking-tight">{e.patient_nom}</p>
-                      <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1 group-hover:text-slate-300">{e.type_examen}</p>
+                      <p className="text-[11px] md:text-sm font-black uppercase tracking-tight">{e.patient_nom}</p>
+                      <p className="text-[8px] md:text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1 group-hover:text-slate-500">{e.type_examen}</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-5 h-5 text-white/10 group-hover:text-white transition-all"/>
+                  <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white/10 group-hover:text-white transition-all"/>
                 </div>
               ))}
               {recentExams.filter(e => e.urgence).length === 0 && (
-                <div className="text-center py-20 opacity-20">
-                  <Activity className="w-16 h-16 mx-auto mb-6"/>
+                <div className="text-center py-12 md:py-20 opacity-20">
+                  <Activity className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6"/>
                   <p className="text-[10px] font-black uppercase">Service Fluide</p>
                 </div>
               )}
             </div>
-            <Link to="/labo/analyses" className="block w-full mt-12 py-5 bg-teal-600 hover:bg-teal-500 text-white text-center rounded-[1.5rem] font-black text-[10px] uppercase shadow-xl shadow-teal-500/20 transition-all">
+            <Link to="/labo/analyses" className="block w-full mt-8 md:mt-12 py-4 md:py-5 bg-teal-600 hover:bg-teal-500 text-white text-center rounded-xl md:rounded-[1.5rem] font-black text-[9px] md:text-[10px] uppercase shadow-xl shadow-teal-500/20 transition-all">
               Planning Complet
             </Link>
           </div>
@@ -179,3 +175,4 @@ export function Labo() {
   </div>
 );
 }
+
