@@ -6,7 +6,7 @@ interface User {
   nom: string;
   prenom: string;
   email: string;
-  role: 'admin' | 'medecin' | 'secretaire' | 'labo' | 'patient' | 'gestionnaire';
+  role: 'admin' | 'medecin' | 'secretaire' | 'labo' | 'patient' | 'gestionnaire' | 'agent_sante';
   etablissement_id: number;
   etablissement_nom: string;
   photo?: string;

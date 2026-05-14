@@ -124,7 +124,7 @@ export function Header({ onMenuClick, title, subtitle, actions }: HeaderProps) {
 
         {actions && <div className="hidden sm:flex items-center ml-4">{actions}</div>}
 
-        {!title && user?.role !== 'patient' && user?.role !== 'secretaire' && user?.role !== 'medecin' && (
+        {!title && user?.role !== 'patient' && user?.role !== 'secretaire' && user?.role !== 'medecin' && user?.role !== 'agent_sante' && (
           <div className="flex-1 max-w-xl hidden md:block">
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -207,7 +207,11 @@ export function Header({ onMenuClick, title, subtitle, actions }: HeaderProps) {
                   )}
                 </div>
                 <button
-                  onClick={() => { setShowNotifications(false); navigate(`/${user?.role}/notifications`); }}
+                  onClick={() => { 
+                    setShowNotifications(false); 
+                    const pathRole = user?.role?.replace('_', '-');
+                    navigate(`/${pathRole}/notifications`); 
+                  }}
                   className="w-full p-3 text-[10px] font-bold text-blue-600 hover:bg-slate-50 transition-all text-center border-t border-slate-100 uppercase tracking-widest"
                 >
                   Voir tout
@@ -221,7 +225,10 @@ export function Header({ onMenuClick, title, subtitle, actions }: HeaderProps) {
 
         {/* User Profile */}
         <button
-          onClick={() => navigate(`/${user?.role}/profil`)}
+          onClick={() => {
+            const pathRole = user?.role?.replace('_', '-');
+            navigate(`/${pathRole}/profil`);
+          }}
           className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-all group"
         >
           <div className="hidden md:block text-right">

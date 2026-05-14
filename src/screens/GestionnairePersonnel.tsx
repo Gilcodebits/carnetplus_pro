@@ -3,7 +3,7 @@ import { Card } from "../components/Card";
 import {
   Users, UserPlus, Search,
   Stethoscope, Clock,
-  FlaskConical, CheckCircle2, XCircle, Trash2, Edit, X, Save, ArrowRight, Mail, Phone, Shield, MoreHorizontal, ChevronRight, AlertTriangle
+  FlaskConical, CheckCircle2, XCircle, Trash2, Edit, X, Save, ArrowRight, Mail, Phone, Shield, MoreHorizontal, ChevronRight, AlertTriangle, Activity
 } from "lucide-react";
 import { utilisateursAPI } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -14,12 +14,14 @@ const roleIcons: Record<string, any> = {
   medecin: Stethoscope,
   secretaire: Clock,
   labo: FlaskConical,
+  agent_sante: Activity,
 };
 
 const roleColors: Record<string, string> = {
   medecin: "bg-blue-50 text-blue-600 border-blue-100",
   secretaire: "bg-orange-50 text-orange-600 border-orange-100",
   labo: "bg-emerald-50 text-emerald-600 border-emerald-100",
+  agent_sante: "bg-purple-50 text-purple-600 border-purple-100",
 };
 
 export function GestionnairePersonnel() {
@@ -49,12 +51,12 @@ export function GestionnairePersonnel() {
       const data = await utilisateursAPI.list();
       const filteredData = data.filter((u: any) =>
         Number(u.etablissement_id) === Number(currentUser?.etablissement_id) &&
-        ['medecin', 'secretaire', 'labo'].includes(u.role)
+        ['medecin', 'secretaire', 'labo', 'agent_sante'].includes(u.role)
       );
       const sortedData = filteredData.sort((a: any, b: any) => a.id - b.id);
       setUsers(sortedData);
     } catch (err) {
-      showToast("Erreur", "error");
+      showToast("Erreur lors du chargement des données", "error");
     } finally {
       setLoading(false);
     }
@@ -143,10 +145,19 @@ export function GestionnairePersonnel() {
                 className={`flex-1 lg:px-6 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab ? 'bg-white text-blue-600 shadow-sm border border-slate-200' : 'text-slate-900'}`}>{tab}</button>
             ))}
           </div>
-          <div className="relative w-full lg:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-900" />
-            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Rechercher..."
-              className="w-full pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 font-bold text-slate-900 text-xs transition-all" />
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <div className="relative w-full lg:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-900" />
+              <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Rechercher..."
+                className="w-full pl-11 pr-6 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:bg-white focus:border-blue-500 font-bold text-slate-900 text-xs transition-all" />
+            </div>
+            <button
+              onClick={() => { setEditingUser(null); setFormData({ prenom: "", nom: "", email: "", role: "medecin", telephone: "" }); setShowModal(true); }}
+              className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 whitespace-nowrap shrink-0"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span className="hidden sm:inline">Ajouter</span>
+            </button>
           </div>
         </div>
 
@@ -178,7 +189,7 @@ export function GestionnairePersonnel() {
                       </td>
                       <td className="px-8 py-4">
                         <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[9px] font-black uppercase tracking-widest ${roleColors[u.role]}`}>
-                          {u.role}
+                          {u.role === 'agent_sante' ? 'AGENT DE SANTÉ' : u.role}
                         </div>
                       </td>
                       <td className="px-8 py-4">
@@ -246,6 +257,7 @@ export function GestionnairePersonnel() {
                         <option value="medecin">MÉDECIN</option>
                         <option value="secretaire">SECRÉTAIRE</option>
                         <option value="labo">LABORATOIRE</option>
+                        <option value="agent_sante">AGENT DE SANTÉ</option>
                       </select>
                     </div>
                     <div className="space-y-1.5">

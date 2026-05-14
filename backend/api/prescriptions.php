@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/auth.php';
 
-$user   = requireRole(['medecin','admin','patient']);
+$user   = requireRole(['medecin','admin','patient','agent_sante']);
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 $input  = json_decode(file_get_contents('php://input'), true) ?? [];

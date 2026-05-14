@@ -42,6 +42,9 @@ import { GestionnaireEtablissements } from "./screens/GestionnaireEtablissements
 import { GestionnairePersonnel } from "./screens/GestionnairePersonnel";
 import { GestionnaireTransferts } from "./screens/GestionnaireTransferts";
 import { GestionnaireJournal } from "./screens/GestionnaireJournal";
+import { AgentSanteLayout } from "./components/AgentSanteLayout";
+import { AgentSanteDashboard } from "./screens/AgentSanteDashboard";
+import { AgentSantePatients } from "./screens/AgentSantePatients";
 import { PageTransition } from "./components/PageTransition";
 import { PrescriptionView } from "./screens/PrescriptionView";
 import { Profile } from "./screens/Profile";
@@ -51,7 +54,7 @@ import { ForgotPassword } from "./screens/ForgotPassword";
 
 const ROLE_HOME: Record<string, string> = {
   admin: "/admin", medecin: "/medecin", secretaire: "/secretaire",
-  labo: "/labo", patient: "/patient", gestionnaire: "/gestionnaire"
+  labo: "/labo", patient: "/patient", gestionnaire: "/gestionnaire", agent_sante: "/agent-sante"
 };
 
 function AuthRedirect() {
@@ -153,6 +156,17 @@ function AppRoutes() {
         <Route path="etablissements" element={<GestionnaireEtablissements />} />
         <Route path="personnel" element={<GestionnairePersonnel />} />
         <Route path="journal" element={<GestionnaireJournal />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="messagerie" element={<Messagerie />} />
+        <Route path="profil" element={<Profile />} />
+      </Route>
+      <Route path="/agent-sante" element={<ProtectedRoute role="agent_sante"><AgentSanteLayout /></ProtectedRoute>}>
+        <Route index element={<AgentSanteDashboard />} />
+        <Route path="patients" element={<AgentSantePatients />} />
+        <Route path="dossier/:id" element={<PatientDossier />} />
+        <Route path="consultation/:id" element={<Consultation />} />
+        <Route path="prescription/:id" element={<Prescription />} />
+        <Route path="examen/:id" element={<DemandeExamen />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="messagerie" element={<Messagerie />} />
         <Route path="profil" element={<Profile />} />

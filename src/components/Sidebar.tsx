@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useMessages } from "../contexts/MessageContext";
 import { ConfirmModal } from "./ConfirmModal";
 
-type Role = "admin" | "medecin" | "secretaire" | "labo" | "patient" | "gestionnaire";
+type Role = "admin" | "medecin" | "secretaire" | "labo" | "patient" | "gestionnaire" | "agent_sante";
 
 interface SidebarProps { 
   role: Role; 
@@ -57,11 +57,17 @@ const menuItems: Record<Role, {icon:any;label:string;path:string}[]> = {
     {icon:MessageSquare,label:"Messagerie",path:"/gestionnaire/messagerie"},
     {icon:ShieldCheck,label:"Journal Conformité",path:"/gestionnaire/journal"},
   ],
+  agent_sante: [
+    {icon:Home,label:"Dashboard",path:"/agent-sante"},
+    {icon:Users,label:"Patients",path:"/agent-sante/patients"},
+    {icon:MessageSquare,label:"Messagerie",path:"/agent-sante/messagerie"},
+  ],
 };
 
 const roleLabels: Record<Role,string> = {
   admin:"Administrateur", medecin:"Médecin", secretaire:"Secrétaire",
-  labo:"Laboratoire", patient:"Patient", gestionnaire:"Gestionnaire"
+  labo:"Laboratoire", patient:"Patient", gestionnaire:"Gestionnaire",
+  agent_sante: "Agent de Santé"
 };
 
 export function Sidebar({ role, activePath, isOpen, onClose }: SidebarProps) {
@@ -128,10 +134,12 @@ export function Sidebar({ role, activePath, isOpen, onClose }: SidebarProps) {
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-3 mt-2">Menu</p>
         {items.map((item) => {
           const Icon    = item.icon;
-          const isRoot = item.path === "/admin" || item.path === "/medecin" || item.path === "/secretaire" || item.path === "/labo" || item.path === "/patient" || item.path === "/gestionnaire";
+          const isRoot = item.path === "/admin" || item.path === "/medecin" || item.path === "/secretaire" || item.path === "/labo" || item.path === "/patient" || item.path === "/gestionnaire" || item.path === "/agent-sante";
+          const normalizedPath = location.pathname.replace(/\/$/, "");
+          const normalizedItemPath = item.path.replace(/\/$/, "");
           const isActive = isRoot 
-            ? location.pathname === item.path 
-            : location.pathname.startsWith(item.path);
+            ? normalizedPath === normalizedItemPath 
+            : normalizedPath.startsWith(normalizedItemPath);
           
           return (
             <Link key={item.path + item.label} to={item.path}

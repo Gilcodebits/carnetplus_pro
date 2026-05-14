@@ -44,7 +44,7 @@ if ($method === 'GET') {
 }
 
 elseif ($method === 'POST') {
-    requireRole(['medecin','admin']);
+    requireRole(['medecin','admin','agent_sante']);
     if (empty($input['type_examen']) || empty($input['patient_id'])) {
         http_response_code(400);
         die(json_encode(['error' => 'Type d\'examen et patient requis']));

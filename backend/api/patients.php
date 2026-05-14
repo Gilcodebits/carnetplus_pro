@@ -3,7 +3,7 @@ require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/auth.php';
 
 // Autoriser le patient à voir son propre dossier
-$user   = requireRole(['admin','medecin','secretaire','gestionnaire','patient']);
+$user   = requireRole(['admin','medecin','secretaire','gestionnaire','patient','agent_sante']);
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 $input  = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -58,7 +58,7 @@ if ($method === 'GET' && !$id) {
         }
         
         // 2. Sécurité pour le personnel médical (Isoler par établissement SAUF si transfert en cours)
-        if (in_array($user['role'], ['medecin', 'secretaire', 'gestionnaire'])) {
+        if (in_array($user['role'], ['medecin', 'secretaire', 'gestionnaire', 'agent_sante'])) {
             $etabId = intval($user['etablissement_id']);
             
             // Vérifier si le patient appartient à l'établissement

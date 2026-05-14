@@ -148,6 +148,24 @@ elseif ($user['role'] === 'gestionnaire') {
     }
     $stats['reseau_actif'] = $reseau;
 }
+elseif ($user['role'] === 'agent_sante') {
+    $etabId = intval($user['etablissement_id']);
+    $stats['patients_total'] = (int)$db->query("SELECT COUNT(*) FROM patients WHERE etablissement_id=$etabId")->fetchColumn();
+    $stats['consultations_total'] = (int)$db->query("SELECT COUNT(*) FROM consultations c JOIN patients p ON c.patient_id=p.id WHERE p.etablissement_id=$etabId")->fetchColumn();
+    $stats['prescriptions_actives'] = (int)$db->query("SELECT COUNT(*) FROM prescriptions pr JOIN patients p ON pr.patient_id=p.id WHERE p.etablissement_id=$etabId AND pr.statut='active'")->fetchColumn();
+    
+    // Derniers suivis
+    $stmt = $db->prepare("
+        SELECT c.*, p.nom as patient_nom, p.prenom as patient_prenom
+        FROM consultations c
+        JOIN patients p ON c.patient_id = p.id
+        WHERE p.etablissement_id = ?
+        ORDER BY c.date_consultation DESC
+        LIMIT 5
+    ");
+    $stmt->execute([$etabId]);
+    $stats['derniers_suivis'] = $stmt->fetchAll() ?: [];
+}
 elseif ($user['role'] === 'patient') {
     $uid = $user['id'];
     $stmt = $db->prepare("SELECT * FROM patients WHERE utilisateur_id = ?");

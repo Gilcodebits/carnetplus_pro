@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Card } from "../components/Card";
 import { patientsAPI } from "../services/api";
+import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
 import {
   Calendar, FileText, Pill, Activity,
@@ -32,10 +33,13 @@ const calculateAge = (date_naissance: string) => {
 export function PatientDossier() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const { id } = useParams();
   const isPatient = user?.role === 'patient';
   const isMedecin = user?.role === 'medecin';
   const isSecretaire = user?.role === 'secretaire';
+  const isAgentSante = user?.role === 'agent_sante';
+  const rolePrefix = isMedecin ? '/medecin' : isAgentSante ? '/agent-sante' : '';
 
   const [patient, setPatient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -317,20 +321,37 @@ export function PatientDossier() {
                 {isMedecin && (
                   <>
                     <button
-                      onClick={() => navigate(`/medecin/consultation/${patient.id}`)}
+                      onClick={() => navigate(`${rolePrefix}/consultation/${patient.id}`)}
                       className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 group"
                     >
                       <Stethoscope className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                       <span>Consultation</span>
                     </button>
                     <button
-                      onClick={() => navigate(`/medecin/prescription/${patient.id}`)}
+                      onClick={() => navigate(`${rolePrefix}/prescription/${patient.id}`)}
                       className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-blue-200 transition-all active:scale-95 shadow-sm group"
                     >
                       <Pill className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
                       <span>Prescription</span>
                     </button>
                   </>
+                )}
+                {isAgentSante && (
+                  <button
+                    onClick={() => {
+                      // Ouvrir le dernier diagnostic/traitement pour modification
+                      const lastCons = patient.consultations?.[0];
+                      if (lastCons) {
+                         navigate(`${rolePrefix}/consultation/${patient.id}?edit=${lastCons.id}`);
+                      } else {
+                         showToast("Aucun traitement en cours à modifier. Le médecin doit initier le premier traitement.", "info");
+                      }
+                    }}
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-purple-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-700 transition-all shadow-lg shadow-purple-200 active:scale-95 group"
+                  >
+                    <Activity className="w-4 h-4 group-hover:animate-pulse transition-transform" />
+                    <span>Modifier Traitement</span>
+                  </button>
                 )}
                 {isSecretaire && (
                   <button
