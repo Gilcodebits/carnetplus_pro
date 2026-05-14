@@ -84,18 +84,7 @@ export function Profile() {
 
   return (
     <div className="animate-fadeIn h-full flex flex-col bg-slate-50 w-full max-w-full overflow-x-hidden min-h-screen">
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-6 md:px-10 py-5 mb-8 flex flex-row justify-between items-center gap-4 shadow-sm shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0" />
-          <div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Mon Profil</h1>
-            <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">{user?.prenom} {user?.nom} · {({'admin':'Administrateur','medecin':'Médecin','secretaire':'Secrétaire','labo':'Laboratoire','patient':'Patient','gestionnaire':'Gestionnaire'} as any)[user?.role || ''] || user?.role}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 md:p-10 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto p-4 md:p-10 pt-6 scrollbar-hide">
         <div className="max-w-6xl mx-auto">
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">

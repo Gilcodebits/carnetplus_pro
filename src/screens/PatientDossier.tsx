@@ -298,93 +298,60 @@ export function PatientDossier() {
         </div>
       </div>
 
-      <div className="no-print bg-slate-50 min-h-full">
-        {/* Modern FIXED Header - Premium White */}
-        <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center no-print">
-          <div className="px-6 md:px-10 flex items-center justify-between w-full gap-4">
-            <div className="flex items-center gap-4 md:gap-8">
-              {/* Vertical Accent */}
-              <div className="w-1.5 h-12 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-              
-              <div className="flex items-center gap-4 md:gap-6">
-                {/* Patient Avatar Container */}
-                <div className="relative shrink-0">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-lg md:text-2xl font-black shadow-lg border-2 border-white/10 uppercase">
-                    {getInitiales(patient.prenom, patient.nom)}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 px-2 py-0.5 bg-rose-600 border-2 border-white rounded-lg flex items-center justify-center shadow-lg">
-                     <span className="text-[8px] font-black text-white uppercase tracking-tighter">{patient.groupe_sanguin || "—"}</span>
-                  </div>
+      <div className="no-print bg-slate-50 min-h-full pt-6">
+        <div id="dossier-content" className="max-w-7xl mx-auto w-full px-4 md:px-10 pb-12">
+          <div className="bg-white p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-sm">
+            {/* Header Actions Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 pb-12 border-b-2 border-slate-50">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg">
+                  {getInitiales(patient.prenom, patient.nom)}
                 </div>
-
-                {/* Patient Info Group */}
-                <div className="min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h1 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none truncate max-w-[150px] md:max-w-md">
-                      {patient.prenom} {patient.nom}
-                    </h1>
-                    <span className="shrink-0 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">
-                      N° {patient.numero_dossier}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-slate-500 text-[8px] md:text-[10px] font-bold uppercase tracking-widest">
-                    <span className="flex items-center gap-1.5">
-                      <User className="w-3 h-3 text-blue-500" /> {calculateAge(patient.date_naissance)} ans
-                    </span>
-                    <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                    <span>{patient.sexe === "F" ? "Femme" : "Homme"}</span>
-                    <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3 text-indigo-500" /> {patient.date_naissance ? formatDate(patient.date_naissance) : "—"}
-                    </span>
-                  </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">{patient.prenom} {patient.nom}</h1>
+                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Dossier N° {patient.numero_dossier} · {patient.groupe_sanguin || "--"}</p>
                 </div>
               </div>
+
+              <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                {isMedecin && (
+                  <>
+                    <button
+                      onClick={() => navigate(`/medecin/consultation/${patient.id}`)}
+                      className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 group"
+                    >
+                      <Stethoscope className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                      <span>Consultation</span>
+                    </button>
+                    <button
+                      onClick={() => navigate(`/medecin/prescription/${patient.id}`)}
+                      className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-blue-200 transition-all active:scale-95 shadow-sm group"
+                    >
+                      <Pill className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                      <span>Prescription</span>
+                    </button>
+                  </>
+                )}
+                {isSecretaire && (
+                  <button
+                    onClick={() => navigate(`/secretaire?patientId=${patient.id}`)}
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-lg shadow-emerald-200 group"
+                  >
+                    <Calendar className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span>Prendre RDV</span>
+                  </button>
+                )}
+                {!isMedecin && (
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 active:scale-95 group"
+                  >
+                    <Printer className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                    <span>Imprimer</span>
+                  </button>
+                )}
+              </div>
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3 md:gap-4 shrink-0">
-              {isMedecin && (
-                <>
-                  <button 
-                    onClick={() => navigate(`/medecin/consultation/${patient.id}`)}
-                    className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200 group"
-                  >
-                    <Stethoscope className="w-4 h-4 group-hover:rotate-12 transition-transform"/> 
-                    <span className="hidden sm:inline">Consultation</span>
-                  </button>
-                  <button 
-                    onClick={() => navigate(`/medecin/prescription/${patient.id}`)}
-                    className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-blue-200 transition-all active:scale-95 shadow-sm group"
-                  >
-                    <Pill className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform"/> 
-                    <span className="hidden sm:inline">Prescription</span>
-                  </button>
-                  <button 
-                    onClick={() => navigate(`/medecin/examen/${patient.id}`)}
-                    className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-blue-200 transition-all active:scale-95 shadow-sm group"
-                  >
-                    <FlaskConical className="w-4 h-4 text-purple-600 group-hover:scale-110 transition-transform"/> 
-                    <span className="hidden sm:inline">Examen Labo</span>
-                  </button>
-                </>
-              )}
-
-              {isSecretaire && (
-                <button 
-                  onClick={() => window.print()}
-                  className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-blue-200 transition-all active:scale-95 shadow-sm group"
-                >
-                  <Printer className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform"/> 
-                  <span className="hidden md:inline">Imprimer</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div id="dossier-content" className="max-w-7xl mx-auto w-full px-4 md:px-10 pb-12 pt-[130px] md:pt-[140px]">
-          <div className="bg-white p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-sm">
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 

@@ -181,33 +181,7 @@ export function BilanSante() {
       </div>
         
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden no-print">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Bilan Santé <span className="text-emerald-600">Bio-IA</span></h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Analyse de biomarqueurs & habitudes de vie</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            {step === 'resultats' && (
-              <button 
-                onClick={() => window.print()}
-                className="flex-1 md:flex-none flex items-center justify-center gap-3 px-4 md:px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200"
-              >
-                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Télécharger
-              </button>
-            )}
-            <div className="hidden md:flex items-center justify-center gap-3">
-               {/* Removed badge */}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto w-full flex-1 pt-[130px] md:pt-[140px]">
+      <div className="max-w-6xl mx-auto w-full flex-1 pt-6">
           <AnimatePresence mode="wait">
             {step === "questionnaire" ? (
               <motion.div 

@@ -83,10 +83,9 @@ export function NouveauPatient() {
         setSaved(true);
       }
     } catch (err: any) {
-      if (err.message.includes("409") || err.message.toLowerCase().includes("doublon")) {
+      setApiError(err.message || "Une erreur est survenue lors de l'enregistrement");
+      if (err.message.includes("409") || err.message.toLowerCase().includes("existe déjà") || err.message.toLowerCase().includes("utilisée") || err.message.toLowerCase().includes("associé")) {
         setDoublon(true);
-      } else {
-        setApiError(err.message || "Une erreur est survenue lors de l'enregistrement");
       }
     } finally {
       setLoading(false);
@@ -123,55 +122,48 @@ export function NouveauPatient() {
 
   return (
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">
-                {isEdit ? 'Modifier Patient' : 'Nouveau Patient'}
-              </h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">
-                {isEdit ? `Mise à jour du dossier ${dossierNum}` : 'Renseignez les informations du patient'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
+      <div className="flex-1 px-4 md:px-10 pb-12 pt-[32px]">
+        <div className="max-w-6xl mx-auto flex justify-between items-center mb-8">
             <button
               onClick={() => navigate(returnPath)}
-              className="p-3 bg-white text-slate-400 hover:text-blue-600 rounded-xl transition-all border-2 border-slate-100 hover:border-blue-200 shadow-sm active:scale-90"
-              title="Retour"
+              className="p-3 bg-white text-slate-400 hover:text-blue-600 rounded-xl transition-all border-2 border-slate-100 hover:border-blue-200 shadow-sm active:scale-90 flex items-center gap-2 font-black text-[9px] uppercase tracking-widest"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" /> Retour
             </button>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="flex items-center justify-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200 disabled:opacity-50"
+              className="flex items-center justify-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200 disabled:opacity-50"
             >
               {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save className="w-4 h-4" /> <span>Enregistrer</span></>}
             </button>
-          </div>
         </div>
-      </div>
-
-      <div className="flex-1 px-4 md:px-10 pb-12 pt-[130px] md:pt-[140px]">
         <div className="max-w-6xl mx-auto">
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
             <div className="lg:col-span-3 space-y-8">
               {/* Alerts */}
               {doublon && (
-                <div className="p-6 md:p-8 bg-orange-50 border-2 border-orange-200 rounded-[2rem] md:rounded-[2.5rem] flex items-start gap-4 md:gap-6 animate-slideDown shadow-xl shadow-orange-100/50">
-                  <div className="w-12 h-12 md:w-14 md:h-14 bg-white border-2 border-orange-200 rounded-xl md:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <AlertCircle className="w-6 h-6 md:w-7 md:h-7 text-orange-500" />
+                <div className="p-6 md:p-8 bg-rose-50 border-2 border-rose-200 rounded-[2rem] md:rounded-[2.5rem] flex items-start gap-4 md:gap-6 animate-slideDown shadow-xl shadow-rose-100/50 mb-8">
+                  <div className="w-12 h-12 md:w-14 md:h-14 bg-white border-2 border-rose-200 rounded-xl md:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <AlertCircle className="w-6 h-6 md:w-7 md:h-7 text-rose-500" />
                   </div>
-                  <div>
-                    <p className="font-black text-orange-900 text-xs md:text-sm uppercase tracking-widest mb-1 md:mb-2">⚠️ Patient déjà existant ?</p>
-                    <p className="text-orange-700 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Vérifiez les dossiers avant de valider.</p>
-                    <button onClick={() => setDoublon(false)} className="text-orange-600 text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-3 hover:underline">Ignorer l'alerte</button>
+                  <div className="flex-1">
+                    <p className="font-black text-rose-900 text-xs md:text-sm uppercase tracking-tight mb-1 md:mb-2">⚠️ Conflit de données détecté</p>
+                    <p className="text-rose-700 text-[10px] md:text-[11px] font-bold uppercase tracking-widest mt-1 leading-relaxed">{apiError}</p>
+                    <div className="flex gap-4 mt-4">
+                      <button onClick={() => setDoublon(false)} className="text-slate-600 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:text-slate-900 transition-colors">Corriger les infos</button>
+                      <button onClick={() => setSaved(false)} className="text-rose-600 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:underline">Vérifier le répertoire</button>
+                    </div>
                   </div>
+                </div>
+              )}
+
+              {apiError && !doublon && (
+                <div className="p-6 bg-rose-600 text-white rounded-[2rem] flex items-center gap-4 mb-8 shadow-lg shadow-rose-200 animate-shake">
+                  <AlertCircle className="w-6 h-6 shrink-0" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">{apiError}</p>
+                  <button onClick={() => setApiError("")} className="ml-auto text-[9px] font-black uppercase tracking-widest opacity-70 hover:opacity-100">Fermer</button>
                 </div>
               )}
 

@@ -50,6 +50,7 @@ const menuItems: Record<Role, {icon:any;label:string;path:string}[]> = {
   ],
   gestionnaire: [
     {icon:Home,label:"Dashboard",path:"/gestionnaire"},
+    {icon:Users,label:"Patients",path:"/gestionnaire/patients"},
     {icon:ArrowLeftRight,label:"Transferts & Flux",path:"/gestionnaire/transferts"},
     {icon:Building2,label:"Réseau Médical",path:"/gestionnaire/etablissements"},
     {icon:Users,label:"Personnel",path:"/gestionnaire/personnel"},
@@ -181,7 +182,7 @@ export function Sidebar({ role, activePath, isOpen, onClose }: SidebarProps) {
         onClose={() => setShowLogoutConfirm(false)}
         onConfirm={() => {
           logout();
-          navigate("/");
+          navigate("/login");
         }}
         title="Déconnexion"
         message="Voulez-vous vraiment quitter la session ?"

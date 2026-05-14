@@ -18,25 +18,8 @@ export function AdminDashboard() {
   }, []);
 
   return (
-    <div className="animate-fadeIn bg-slate-200 min-h-screen w-full max-w-full overflow-x-hidden">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Dashboard Admin</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Vue d'ensemble et état de la plateforme</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 px-5 py-2.5 bg-emerald-50 border-2 border-emerald-100 rounded-2xl shadow-sm">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Système Opérationnel</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px] space-y-10">
+    <div className="animate-fadeIn bg-slate-200 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
+      <div className="px-6 md:px-10 pb-12 pt-6 space-y-10">
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
         <StatCard title="Médecins Actifs" value={stats.medecins || 0} icon={<Users className="w-6 h-6" />} trend="Total plateforme" color="blue" delay={100} />

@@ -116,25 +116,7 @@ export function GestionnairePersonnel() {
   const tabs = ["Tous", "Medecin", "Secretaire", "Labo"];
   return (
     <div className="animate-fadeIn bg-slate-50/50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Équipe Médicale</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">{users.length} membres enregistrés</p>
-            </div>
-          </div>
-          <button onClick={() => { setEditingUser(null); setFormData({ prenom: "", nom: "", email: "", role: "medecin", telephone: "" }); setShowModal(true); }}
-            className="flex items-center justify-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
-          >
-            <UserPlus className="w-4 h-4" /> <span>Ajouter un membre</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 pt-[130px] md:pt-[140px] flex flex-col gap-6 md:gap-8 no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 pt-6 flex flex-col gap-6 md:gap-8 no-scrollbar">
 
         {/* Grid of Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 shrink-0">

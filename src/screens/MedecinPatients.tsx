@@ -17,7 +17,7 @@ const calculateAge = (date_naissance: string) => {
 };
 
 export function MedecinPatients() {
-  const { searchQuery } = useSearch();
+  const { searchQuery, setSearchQuery } = useSearch();
   const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,27 +57,26 @@ export function MedecinPatients() {
 
   return (
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Répertoire Patients</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Dossiers médicaux de votre cabinet</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-4 md:px-10 pb-10 flex-1 flex flex-col pt-[130px] md:pt-[140px]">
+      <div className="px-4 md:px-10 pb-10 flex-1 flex flex-col pt-6">
         <Card noPadding className="rounded-[2rem] md:rounded-[3rem] border-2 border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden bg-white flex-1 flex flex-col">
-        <div className="px-6 md:px-8 py-6 border-b-2 border-slate-50 flex justify-between items-center bg-white">
+        <div className="px-6 md:px-8 py-6 border-b-2 border-slate-50 flex flex-col md:flex-row justify-between items-center bg-white gap-4">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3 bg-slate-50 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl border border-slate-100 shadow-sm">
               <Users className="w-5 h-5 text-blue-600" />
               <span className="text-[10px] md:text-[11px] font-black text-slate-900 uppercase tracking-widest">Répertoire Patient</span>
               <span className="bg-blue-600 text-white text-[8px] md:text-[9px] px-2 py-0.5 rounded-lg font-black">{filteredPatients.length}</span>
+            </div>
+          </div>
+
+          <div className="flex-1 max-w-md w-full">
+            <div className="relative group">
+              <Search className={`w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${searchQuery ? 'text-blue-600' : 'text-slate-400'}`} />
+              <input 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="RECHERCHER UN PATIENT (NOM, N° DOSSIER...)"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all shadow-inner"
+              />
             </div>
           </div>
         </div>

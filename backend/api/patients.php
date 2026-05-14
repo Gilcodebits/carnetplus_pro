@@ -131,12 +131,32 @@ elseif ($method === 'POST') {
     $num      = str_pad($stmt->fetchColumn(), 3, '0', STR_PAD_LEFT);
     $numeroDossier = "DOS-{$annee}-{$num}";
 
-    // Vérifier doublon
+    // Vérifier doublon par identité (Nom + Prénom + Naissance)
     $stmt = $db->prepare("SELECT id FROM patients WHERE nom=? AND prenom=? AND date_naissance=?");
     $stmt->execute([$input['nom']??'', $input['prenom']??'', $input['date_naissance']??'']);
     if ($stmt->fetch()) {
         http_response_code(409);
-        die(json_encode(['error'=>'Patient déjà enregistré (doublon détecté)']));
+        die(json_encode(['error'=>'Un patient avec ce nom, prénom et date de naissance existe déjà.']));
+    }
+
+    // Vérifier doublon par email
+    if (!empty($input['email'])) {
+        $stmt = $db->prepare("SELECT id FROM utilisateurs WHERE email=?");
+        $stmt->execute([$input['email']]);
+        if ($stmt->fetch()) {
+            http_response_code(409);
+            die(json_encode(['error'=>'Cette adresse email est déjà utilisée par un autre compte utilisateur.']));
+        }
+    }
+
+    // Vérifier doublon par téléphone
+    if (!empty($input['telephone'])) {
+        $stmt = $db->prepare("SELECT id FROM patients WHERE telephone=?");
+        $stmt->execute([$input['telephone']]);
+        if ($stmt->fetch()) {
+            http_response_code(409);
+            die(json_encode(['error'=>'Ce numéro de téléphone est déjà associé à un autre dossier patient.']));
+        }
     }
 
     $db->beginTransaction();

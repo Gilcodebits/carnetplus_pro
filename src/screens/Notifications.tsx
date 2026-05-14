@@ -30,38 +30,25 @@ export function Notifications() {
 
   return (
     <div className="animate-fadeIn h-full flex flex-col bg-slate-50 w-full max-w-full overflow-x-hidden min-h-screen">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Centre de Notifications</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Gérez vos alertes et l'activité du système</p>
-            </div>
-          </div>
-          <div className="hidden md:flex flex-row gap-4">
-            <button 
-              onClick={markAllAsRead}
-              disabled={unreadCount === 0}
-              className="flex items-center gap-3 px-5 py-2.5 text-slate-600 bg-white border-2 border-slate-100 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm disabled:opacity-30 active:scale-95"
-            >
-              <CheckCircle2 className="w-4 h-4 text-blue-600" />
-              Tout marquer lu
-            </button>
-            <button 
-              onClick={deleteAll}
-              disabled={notifications.length === 0}
-              className="flex items-center gap-3 px-5 py-2.5 text-rose-600 bg-white border-2 border-rose-100 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:border-rose-300 transition-all shadow-sm disabled:opacity-30 active:scale-95"
-            >
-              <Trash2 className="w-4 h-4" />
-              Vider
-            </button>
-          </div>
+      <div className="px-6 md:px-10 pb-12 pt-6">
+        <div className="flex justify-end gap-4 mb-8">
+          <button 
+            onClick={markAllAsRead}
+            disabled={unreadCount === 0}
+            className="flex items-center gap-3 px-5 py-2.5 text-slate-600 bg-white border-2 border-slate-100 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm disabled:opacity-30 active:scale-95"
+          >
+            <CheckCircle2 className="w-4 h-4 text-blue-600" />
+            Tout marquer lu
+          </button>
+          <button 
+            onClick={deleteAll}
+            disabled={notifications.length === 0}
+            className="flex items-center gap-3 px-5 py-2.5 text-rose-600 bg-white border-2 border-rose-100 rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-rose-50 hover:border-rose-300 transition-all shadow-sm disabled:opacity-30 active:scale-95"
+          >
+            <Trash2 className="w-4 h-4" />
+            Vider
+          </button>
         </div>
-      </div>
-
-      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px]">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="col-span-1">
           <Card className="border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-8 bg-white">

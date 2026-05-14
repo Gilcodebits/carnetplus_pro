@@ -68,7 +68,7 @@ export function PatientPortal() {
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
 
 
-      <div className="flex-1 px-4 md:px-10 pb-12 pt-2 md:pt-4 space-y-4">
+      <div className="flex-1 px-4 md:px-10 pb-12 pt-1 md:pt-2 space-y-4">
         <div className="flex justify-end items-center">
           <button onClick={()=>navigate("/patient/calendrier-rdv")} className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 flex items-center gap-2">
             <Calendar className="w-4 h-4" /> <span>Prendre RDV</span>

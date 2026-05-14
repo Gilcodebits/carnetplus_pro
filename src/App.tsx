@@ -35,6 +35,7 @@ import { AssistantIA } from "./screens/AssistantIA";
 import { BilanSante } from "./screens/BilanSante";
 import { Messagerie } from "./screens/Messagerie";
 import { SecretairePatients } from "./screens/SecretairePatients";
+import { GestionnairePatients } from "./screens/GestionnairePatients";
 import { GestionnaireDashboard } from "./screens/GestionnaireDashboard";
 import { GestionnaireLayout } from "./components/GestionnaireLayout";
 import { GestionnaireEtablissements } from "./screens/GestionnaireEtablissements";
@@ -147,6 +148,7 @@ function AppRoutes() {
       </Route>
       <Route path="/gestionnaire" element={<ProtectedRoute role="gestionnaire"><GestionnaireLayout /></ProtectedRoute>}>
         <Route index element={<GestionnaireDashboard />} />
+        <Route path="patients" element={<GestionnairePatients />} />
         <Route path="transferts" element={<GestionnaireTransferts />} />
         <Route path="etablissements" element={<GestionnaireEtablissements />} />
         <Route path="personnel" element={<GestionnairePersonnel />} />

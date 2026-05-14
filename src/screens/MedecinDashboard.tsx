@@ -34,7 +34,7 @@ const statutRdvLabel: Record<string,string> = {
 
 export function MedecinDashboard() {
   const { user } = useAuth();
-  const { searchQuery } = useSearch();
+  const { searchQuery, setSearchQuery } = useSearch();
   const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
   const [rdvs, setRdvs] = useState<any[]>([]);
@@ -182,8 +182,16 @@ export function MedecinDashboard() {
                 <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Dossiers Patients</h2>
                 <p className="text-[10px] text-slate-700 font-black uppercase tracking-widest mt-1">Accès rapide aux historiques cliniques</p>
               </div>
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center border-2 border-slate-100 shadow-sm">
-                <Search className={`w-5 h-5 md:w-6 md:h-6 ${searchQuery ? 'text-blue-600' : 'text-slate-500'}`} />
+              <div className="max-w-md w-full">
+                <div className="relative group">
+                  <Search className={`w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${searchQuery ? 'text-blue-600' : 'text-slate-400'}`} />
+                  <input 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="CHERCHER UN PATIENT..."
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all shadow-inner"
+                  />
+                </div>
               </div>
             </div>
 

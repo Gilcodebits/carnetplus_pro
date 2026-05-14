@@ -18,12 +18,17 @@ const calculateAge = (date_naissance: string) => {
   return Math.abs(age.getUTCFullYear() - 1970);
 };
 
-export function SecretairePatients() {
+import { useAuth } from "../contexts/AuthContext";
+
+export function GestionnairePatients() {
   const { searchQuery } = useSearch();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [localSearch, setLocalSearch] = useState("");
+
+  const roleBase = user?.role === 'secretaire' ? '/secretaire' : '/gestionnaire';
 
   useEffect(() => {
     loadData();
@@ -104,7 +109,7 @@ export function SecretairePatients() {
                       {filteredPatients.map((p, index) => (
                         <tr
                           key={p.id}
-                          onClick={() => navigate(`/secretaire/patients/${p.id}`)}
+                          onClick={() => navigate(`${roleBase}/patients/${p.id}`)}
                           className="group hover:scale-[1.01] hover:shadow-xl hover:shadow-blue-200/50 transition-all cursor-pointer bg-white"
                         >
                           <td className="px-8 py-6 border-y-2 border-l-2 border-slate-100 rounded-l-[2.5rem]">
@@ -150,14 +155,14 @@ export function SecretairePatients() {
                           <td className="px-8 py-6 border-y-2 border-r-2 border-slate-100 rounded-r-[2.5rem] text-right">
                             <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
-                                onClick={(e) => { e.stopPropagation(); navigate(`/secretaire?patientId=${p.id}`); }}
+                                onClick={(e) => { e.stopPropagation(); navigate(`${roleBase}?patientId=${p.id}`); }}
                                 className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100"
                                 title="Planifier RDV"
                               >
                                 <Calendar className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={(e) => { e.stopPropagation(); navigate(`/secretaire/modifier-patient/${p.id}`); }}
+                                onClick={(e) => { e.stopPropagation(); navigate(`${roleBase}/modifier-patient/${p.id}`); }}
                                 className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100"
                               >
                                 <Edit className="w-4 h-4" />
@@ -181,7 +186,7 @@ export function SecretairePatients() {
                   {filteredPatients.map((p) => (
                     <div
                       key={p.id}
-                      onClick={() => navigate(`/secretaire/patients/${p.id}`)}
+                      onClick={() => navigate(`${roleBase}/patients/${p.id}`)}
                       className="p-5 bg-white rounded-2xl border-2 border-slate-100 active:scale-[0.98] transition-all shadow-sm flex flex-col gap-4"
                     >
                       <div className="flex items-center gap-4">

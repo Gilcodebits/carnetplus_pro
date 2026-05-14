@@ -8,8 +8,22 @@ import { Menu } from "lucide-react";
 export function LaboLayout() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const isHome = location.pathname === '/labo' || location.pathname === '/labo/';
-  
+  const getHeaderConfig = () => {
+    const path = location.pathname;
+    if (path === '/labo' || path === '/labo/') {
+      return { title: "Tableau de Bord", subtitle: "Centre de Biologie Médicale" };
+    }
+    if (path === '/labo/analyses') {
+      return { title: "Analyses", subtitle: "Suivi et traitement des prélèvements" };
+    }
+    if (path === '/labo/messagerie') {
+      return { title: "Messagerie", subtitle: "Échanges sécurisés" };
+    }
+    return { title: undefined, subtitle: undefined };
+  };
+
+  const { title, subtitle } = getHeaderConfig();
+
   return (
     <SearchProvider>
       <div className="flex h-screen bg-slate-50 overflow-hidden relative">
@@ -29,7 +43,11 @@ export function LaboLayout() {
         />
         
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-          {isHome && <Header onMenuClick={() => setIsSidebarOpen(true)} />}
+          <Header 
+            onMenuClick={() => setIsSidebarOpen(true)} 
+            title={title}
+            subtitle={subtitle}
+          />
           
           <main className="flex-1 overflow-y-auto bg-slate-50 scrollbar-hide">
             <Outlet />

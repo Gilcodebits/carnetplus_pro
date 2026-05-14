@@ -42,26 +42,12 @@ export function GestionnaireDashboard() {
   };
   return (
     <div className="animate-fadeIn bg-slate-50/50 min-h-screen w-full max-w-full overflow-x-hidden">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Console de Gestion</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
-                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                 Supervision du Réseau
-              </p>
-            </div>
-          </div>
-          <button onClick={() => setShowModal(true)} className="hidden sm:flex items-center justify-center gap-3 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200">
+      <div className="px-6 md:px-10 pb-12 pt-6 space-y-10">
+        <div className="flex justify-end mb-4">
+           <button onClick={() => setShowModal(true)} className="flex items-center justify-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200">
             <ArrowLeftRight className="w-4 h-4" /> <span>Nouveau Transfert</span>
           </button>
         </div>
-      </div>
-
-      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px] space-y-10">
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">

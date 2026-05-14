@@ -8,8 +8,25 @@ import { Menu } from "lucide-react";
 export function PatientLayout() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const isHome = location.pathname === '/patient' || location.pathname === '/patient/';
-  
+  const getHeaderConfig = () => {
+    const path = location.pathname;
+    if (path === '/patient' || path === '/patient/') {
+      return { title: "Mon Espace Santé", subtitle: "Suivi médical personnel" };
+    }
+    if (path === '/patient/dossier') {
+      return { title: "Dossier Médical", subtitle: "Historique et résultats" };
+    }
+    if (path === '/patient/calendrier-rdv') {
+      return { title: "Rendez-vous", subtitle: "Gestion de mes consultations" };
+    }
+    if (path === '/patient/messagerie') {
+      return { title: "Messagerie", subtitle: "Échanges avec les praticiens" };
+    }
+    return { title: undefined, subtitle: undefined };
+  };
+
+  const { title, subtitle } = getHeaderConfig();
+
   return (
     <SearchProvider>
       <div className="flex h-screen bg-slate-50 overflow-hidden relative">
@@ -29,7 +46,11 @@ export function PatientLayout() {
         />
         
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-          {isHome && <Header onMenuClick={() => setIsSidebarOpen(true)} />}
+          <Header 
+            onMenuClick={() => setIsSidebarOpen(true)} 
+            title={title}
+            subtitle={subtitle}
+          />
           
           <main className="flex-1 overflow-y-auto bg-slate-50 scrollbar-hide">
             <Outlet />

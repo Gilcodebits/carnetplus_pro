@@ -35,26 +35,7 @@ export function RechercheRDV() {
 
   return (
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Praticiens</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Prenez rendez-vous en quelques clics</p>
-            </div>
-          </div>
-          <div className="hidden md:flex items-center gap-4">
-             <div className="px-5 py-2.5 bg-blue-50 border-2 border-blue-100 rounded-2xl flex items-center gap-3 shadow-sm">
-                <ShieldCheck className="w-4 h-4 text-blue-600" />
-                <span className="text-[9px] font-black text-blue-700 uppercase tracking-widest">Médecins Vérifiés</span>
-             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto w-full space-y-6 md:space-y-10 pt-[130px] md:pt-[140px]">
+      <div className="max-w-6xl mx-auto w-full space-y-6 md:space-y-10 pt-6">
           {/* Search Card */}
           <Card className="border-2 border-slate-200 shadow-2xl shadow-slate-200/50 p-6 md:p-12 bg-white rounded-[2rem] md:rounded-[4rem] relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-32 -mt-32 transition-all group-hover:scale-110 opacity-50 pointer-events-none" />

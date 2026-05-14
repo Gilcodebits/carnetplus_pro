@@ -36,17 +36,10 @@ export function GestionnaireEtablissements() {
     e.ville.toLowerCase().includes(searchTerm.toLowerCase())
   );
   return (
-    <div className="animate-fadeIn bg-slate-50/50 min-h-screen w-full max-w-full overflow-x-hidden">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Réseau Médical</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Partenaires interconnectés</p>
-            </div>
-          </div>
+    <div className="animate-fadeIn bg-slate-50/50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
+      <div className="px-6 md:px-10 pb-12 pt-6 space-y-10">
+        
+        <div className="flex justify-end">
           <div className="relative w-full md:w-96 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
             <input
@@ -54,13 +47,10 @@ export function GestionnaireEtablissements() {
               placeholder="Rechercher une structure..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 md:pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white transition-all font-bold text-slate-900 text-xs shadow-sm"
+              className="w-full pl-11 md:pl-12 pr-6 py-3 bg-white border-2 border-slate-100 rounded-xl focus:outline-none focus:border-blue-600 transition-all font-bold text-slate-900 text-xs shadow-sm"
             />
           </div>
         </div>
-      </div>
-
-      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px] space-y-10">
 
       {/* Grid of Establishments */}
       {loading ? (

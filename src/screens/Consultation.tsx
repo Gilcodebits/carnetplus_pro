@@ -109,38 +109,7 @@ export function Consultation() {
   return (
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
 
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Consultation Médicale</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">
-                {patient ? `${patient.prenom} ${patient.nom} · N° ${patient.numero_dossier}` : 'Chargement...'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-3 bg-white text-slate-400 hover:text-blue-600 rounded-xl transition-all border-2 border-slate-100 hover:border-blue-200 shadow-sm active:scale-90"
-              title="Retour"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              className="flex items-center justify-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200 disabled:opacity-50"
-            >
-              {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Save className="w-4 h-4" /> <span>Terminer</span></>}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 px-4 md:px-10 pb-12 pt-[130px] md:pt-[140px]">
+      <div className="flex-1 px-4 md:px-10 pb-12 pt-6">
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 flex-1 min-h-0">
           <div className="lg:col-span-3 space-y-6 md:space-y-8 overflow-y-auto pr-0 md:pr-2 scrollbar-hide">

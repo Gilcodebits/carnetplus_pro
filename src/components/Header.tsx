@@ -11,9 +11,12 @@ import { formatDate } from "../utils/format";
 
 interface HeaderProps {
   onMenuClick?: () => void;
+  title?: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
 }
 
-export function Header({ onMenuClick }: HeaderProps) {
+export function Header({ onMenuClick, title, subtitle, actions }: HeaderProps) {
   const { user, logout } = useAuth();
   const { notifications, unreadCount, markAsRead, deleteNotification, deleteAll } = useNotifications();
   const { searchQuery, setSearchQuery } = useSearch();
@@ -86,42 +89,53 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="h-[88px] bg-blue-600 px-4 md:px-8 flex items-center justify-between sticky top-0 z-[45] shadow-lg">
+    <header className="h-[90px] bg-white px-4 md:px-8 flex items-center justify-between sticky top-0 z-[45] border-b-2 border-slate-200 shadow-md shrink-0">
       <div className="flex items-center gap-2 md:gap-8 flex-1 overflow-hidden">
         {/* Mobile Menu Toggle */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 text-white hover:bg-white/10 rounded-xl transition-colors shrink-0"
+          className="lg:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors shrink-0"
         >
           <Menu className="w-6 h-6" />
         </button>
 
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="flex items-center gap-3 md:gap-4">
-            <div className="w-1 h-8 md:w-1.5 md:h-10 bg-white/20 rounded-full shrink-0" />
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
             <div className="flex flex-col">
-              <p className="text-blue-100 text-[7px] md:text-[10px] font-black uppercase tracking-widest leading-none mb-1 md:mb-1.5">
-                {formatDate(new Date())}
-              </p>
-              <p className="text-white text-[10px] md:text-xl font-black tracking-tight leading-none uppercase truncate max-w-[120px] md:max-w-none">
-                {getGreeting()}, <span className="text-blue-50">{user?.role === 'medecin' ? `Dr. ${user?.nom}` : user?.prenom}</span> 👋
-              </p>
+              {title ? (
+                <>
+                  <h1 className="text-lg md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">{title}</h1>
+                  {subtitle && <p className="text-slate-500 text-[8px] md:text-[10px] font-bold uppercase tracking-widest mt-1">{subtitle}</p>}
+                </>
+              ) : (
+                <>
+                  <p className="text-slate-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest leading-none mb-1 md:mb-1.5">
+                    {formatDate(new Date())}
+                  </p>
+                  <p className="text-slate-900 text-[10px] md:text-xl font-black tracking-tight leading-none uppercase truncate max-w-[120px] md:max-w-none">
+                    {getGreeting()}, <span className="text-blue-600">{user?.role === 'medecin' ? `Dr. ${user?.nom}` : user?.prenom}</span> 👋
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {user?.role !== 'patient' && user?.role !== 'secretaire' && (
+        {actions && <div className="hidden sm:flex items-center ml-4">{actions}</div>}
+
+        {!title && user?.role !== 'patient' && user?.role !== 'secretaire' && user?.role !== 'medecin' && (
           <div className="flex-1 max-w-xl hidden md:block">
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-blue-100 group-focus-within:text-white transition-colors" />
+                <Search className="h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
               </div>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher un patient..."
-                className="w-full bg-white/10 border-2 border-white/20 text-white placeholder-blue-100 text-[10px] font-black uppercase tracking-widest rounded-2xl py-3 pl-11 pr-4 focus:outline-none focus:bg-white/20 focus:border-white focus:ring-4 focus:ring-white/10 transition-all shadow-inner"
+                className="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 placeholder-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl py-3 pl-11 pr-4 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all shadow-inner"
               />
             </div>
           </div>
@@ -133,11 +147,11 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="relative" ref={notificationRef}>
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className={`p-2 md:p-2.5 rounded-xl transition-all relative ${showNotifications ? 'bg-white text-blue-600 shadow-lg' : 'text-white hover:bg-white/10'}`}
+            className={`p-2 md:p-2.5 rounded-xl transition-all relative ${showNotifications ? 'bg-blue-50 text-blue-600 shadow-inner' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-rose-500 text-white text-[9px] md:text-[10px] font-black flex items-center justify-center rounded-full border-2 border-blue-600 shadow-lg animate-pulse">
+              <span className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-rose-500 text-white text-[9px] md:text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-pulse">
                 {unreadCount}
               </span>
             )}
@@ -203,7 +217,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </AnimatePresence>
         </div>
 
-        <div className="w-px h-6 bg-white/20" />
+        <div className="w-px h-6 bg-slate-200" />
 
         {/* User Profile */}
         <button
@@ -211,14 +225,14 @@ export function Header({ onMenuClick }: HeaderProps) {
           className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-all group"
         >
           <div className="hidden md:block text-right">
-            <p className="text-xs font-black text-white leading-none group-hover:text-blue-100 transition-colors uppercase tracking-tight">
+            <p className="text-xs font-black text-slate-900 leading-none group-hover:text-blue-600 transition-colors uppercase tracking-tight">
               {user?.prenom} {user?.nom}
             </p>
-            <p className="text-[9px] font-black text-blue-100 uppercase tracking-widest mt-1 opacity-80">
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1 opacity-80">
               {roleLabels[user?.role || ''] || user?.role}
             </p>
           </div>
-          <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white text-blue-600 flex items-center justify-center text-[10px] md:text-xs font-black shadow-lg group-hover:scale-105 transition-transform ring-4 ring-white/10">
+          <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] md:text-xs font-black shadow-lg group-hover:scale-105 transition-transform ring-4 ring-slate-100">
             {user?.prenom?.charAt(0)}{user?.nom?.charAt(0)}
           </div>
         </button>
@@ -229,7 +243,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         onClose={() => setShowLogoutConfirm(false)}
         onConfirm={() => {
           logout();
-          navigate("/");
+          navigate("/login");
         }}
         title="Fin de session"
         message="Voulez-vous vraiment vous déconnecter ?"

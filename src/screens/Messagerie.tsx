@@ -137,24 +137,7 @@ export function Messagerie() {
 
   return (
     <div className="animate-fadeIn h-screen flex flex-col bg-slate-50 w-full max-w-full overflow-x-hidden">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Messagerie Sécurisée</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Échanges confidentiels inter-professionnels</p>
-            </div>
-          </div>
-          <div className="hidden md:flex items-center gap-3">
-             {/* Removed Cryptage AES-256 badge */}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Layout Area - Fixed Height */}
-      <div className="flex-1 px-6 md:px-10 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden min-h-0 pt-[130px] md:pt-[140px]">
+      <div className="flex-1 px-6 md:px-10 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden min-h-0 pt-6">
         <div className="lg:col-span-12 flex flex-col min-h-0 h-full">
           <Card noPadding className="rounded-[3.5rem] border-0 shadow-2xl shadow-slate-200/60 flex-1 flex overflow-hidden bg-white">
             <div className={`w-full md:w-80 border-r border-slate-100 flex flex-col bg-slate-50/40 backdrop-blur-md ${selectedConvId ? 'hidden md:flex' : 'flex'}`}>

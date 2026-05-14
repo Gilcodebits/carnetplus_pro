@@ -116,20 +116,7 @@ export function MedecinAgenda() {
 
   return (
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Agenda Médical</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Planification des consultations</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-4 md:px-10 pb-10 flex-1 pt-[130px] md:pt-[140px]">
+      <div className="px-4 md:px-10 pb-10 flex-1 pt-6">
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 flex-1 min-h-0">
         <div className="lg:col-span-1 space-y-6 overflow-y-auto lg:pr-2">

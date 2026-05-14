@@ -229,17 +229,9 @@ export function AdminSettings() {
   };
 
   return (
-    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden">
-      {/* Modern FIXED Header - Premium White */}
-      <div className="fixed top-0 left-0 lg:left-64 right-0 z-50 bg-white border-b-2 border-slate-200 shadow-md h-[90px] flex items-center shrink-0">
-        <div className="px-6 md:px-10 flex flex-row justify-between items-center w-full gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-1.5 h-10 bg-blue-600 rounded-full shrink-0 shadow-sm shadow-blue-200" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Configuration Système</h1>
-              <p className="text-slate-500 text-[9px] md:text-[10px] font-bold uppercase tracking-widest mt-1">Paramètres globaux et préférences</p>
-            </div>
-          </div>
+    <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden flex flex-col">
+      <div className="px-6 md:px-10 pb-12 pt-6">
+        <div className="flex justify-end mb-8">
           <button 
             onClick={handleSave}
             disabled={isSaving}
@@ -262,9 +254,6 @@ export function AdminSettings() {
             )}
           </button>
         </div>
-      </div>
-
-      <div className="px-6 md:px-10 pb-12 pt-[130px] md:pt-[140px]">
       <div className="flex flex-col xl:flex-row gap-6 md:gap-10 max-w-7xl">
         {/* Sidebar Navigation - Horizontal scroll on mobile */}
         <div className="xl:w-80 flex-shrink-0 flex xl:flex-col gap-3 bg-white p-3 md:p-4 rounded-[2rem] md:rounded-[2.5rem] border-2 border-slate-100 shadow-sm h-fit overflow-x-auto no-scrollbar md:overflow-visible">
