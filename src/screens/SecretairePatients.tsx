@@ -60,6 +60,14 @@ export function SecretairePatients() {
                 <span className="text-[9px] md:text-[11px] font-black text-slate-900 uppercase tracking-widest">Total</span>
                 <span className="bg-blue-600 text-white text-[8px] px-2 py-0.5 rounded-lg font-black">{filteredPatients.length}</span>
               </div>
+              <button
+                onClick={() => navigate("/secretaire/nouveau-patient")}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2 rounded-xl shadow-lg shadow-blue-200 transition-all font-black text-[10px] md:text-[11px] uppercase tracking-widest"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Créer un dossier patient</span>
+                <span className="sm:hidden">Nouveau</span>
+              </button>
             </div>
             <div className="flex items-center gap-3 md:gap-6 flex-1 max-w-xl">
               <div className="relative flex-1">
