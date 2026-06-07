@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 export function ConfirmationRDV() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { date, time, medecin } = location.state || {};
+  const { date, time, medecin, etablissement } = location.state || {};
   
   return (
     <div className="animate-fadeIn bg-slate-50 min-h-screen w-full max-w-full overflow-x-hidden">
@@ -71,7 +71,7 @@ export function ConfirmationRDV() {
                   { icon: User, label: "Praticien", value: medecin || "Dr. Alain Rousseau", sub: "Médecine Générale", color: "text-blue-600", bg: "bg-blue-50" },
                   { icon: Calendar, label: "Date", value: date ? formatDate(date) : "10/05/2026", sub: "Confirmation en cours", color: "text-purple-600", bg: "bg-purple-50" },
                   { icon: Clock, label: "Horaire", value: time || "10:30", sub: "Matinée", color: "text-indigo-600", bg: "bg-indigo-50" },
-                  { icon: MapPin, label: "Lieu", value: "Clinique CarnetPlus", sub: "Secteur A, Accueil", color: "text-rose-600", bg: "bg-rose-50" },
+                  { icon: MapPin, label: "Lieu", value: etablissement || "Clinique CarnetPlus", sub: "Secteur A, Accueil", color: "text-rose-600", bg: "bg-rose-50" },
                 ]).map(({ icon: Icon, label, value, sub, color, bg }, i) => (
                   <motion.div
                     key={label}

@@ -130,6 +130,7 @@ export function LaboAnalyses() {
                             evt.preventDefault(); 
                             evt.stopPropagation(); 
                             setSelectedExamen(e); 
+                            setResultat(e.resultat || "");
                           }}
                           className="flex-1 md:flex-none px-6 md:px-10 py-3 md:py-5 bg-teal-600 text-white rounded-[1rem] md:rounded-[1.5rem] font-black text-[9px] md:text-[10px] uppercase shadow-lg shadow-teal-500/20 hover:bg-teal-500 transition-all active:scale-95"
                         >
@@ -137,10 +138,15 @@ export function LaboAnalyses() {
                         </button>
                       ) : (
                         <button 
-                          onClick={() => navigate(`/labo/patients/${e.patient_id}`)}
+                          onClick={(evt) => { 
+                            evt.preventDefault(); 
+                            evt.stopPropagation(); 
+                            setSelectedExamen(e); 
+                            setResultat(e.resultat || "");
+                          }}
                           className="flex-1 md:flex-none px-6 md:px-10 py-3 md:py-5 bg-teal-50 text-teal-600 rounded-[1rem] md:rounded-[1.5rem] font-black text-[9px] md:text-[10px] uppercase border-2 border-teal-100 hover:bg-teal-600 hover:text-white transition-all flex items-center justify-center gap-2 md:gap-3"
                         >
-                          <User className="w-4 h-4"/> Dossier
+                          <CheckCircle className="w-4 h-4"/> Détails / Modifier
                         </button>
                       )}
                       <div 
@@ -183,7 +189,9 @@ export function LaboAnalyses() {
               <div className="p-6 md:p-12 space-y-6 md:space-y-8">
                 <div className="flex justify-between items-start gap-4">
                   <div>
-                    <h2 className="text-xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">Saisie de Résultat</h2>
+                    <h2 className="text-xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">
+                      {selectedExamen.statut === 'termine' ? "Modifier le Résultat" : "Saisie de Résultat"}
+                    </h2>
                     <p className="text-slate-600 text-[9px] md:text-xs font-black uppercase tracking-widest mt-1 md:mt-2">
                       Patient: <span className="text-teal-600 font-black">{selectedExamen.patient_nom}</span> • Examen: {selectedExamen.type_examen}
                     </p>
@@ -217,7 +225,7 @@ export function LaboAnalyses() {
                       saving || !resultat ? "bg-slate-200 text-slate-600 cursor-not-allowed" : "bg-teal-600 text-white shadow-teal-500/20 hover:shadow-teal-500/40"
                     }`}
                   >
-                    {saving ? "Enregistrement..." : "Valider et Transmettre"}
+                    {saving ? "Enregistrement..." : selectedExamen.statut === 'termine' ? "Modifier le Résultat" : "Valider et Transmettre"}
                   </button>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Card } from "../components/Card";
@@ -101,7 +101,7 @@ export function RechercheRDV() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      onClick={() => navigate("/patient/calendrier-rdv")}
+                      onClick={() => navigate("/patient/calendrier-rdv", { state: { medecinId: medecin.id, medecinNom: `Dr. ${medecin.prenom} ${medecin.nom}`, etablissement: medecin.etablissement_nom } })}
                       className="group bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[4rem] border-2 border-slate-100 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-200/50 transition-all cursor-pointer relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 w-64 h-full bg-blue-50 -mr-32 -skew-x-12 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none" />
@@ -129,7 +129,7 @@ export function RechercheRDV() {
                             </p>
                             <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 md:gap-4 pt-1 md:pt-2">
                                <div className="flex items-center gap-2 text-slate-600 text-[8px] md:text-[10px] font-bold uppercase tracking-widest bg-slate-50 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
-                                  <MapPin className="w-3 h-3 md:w-4 md:h-4 text-rose-500" /> Clinique CarnetPlus
+                                  <MapPin className="w-3 h-3 md:w-4 md:h-4 text-rose-500" /> {medecin.etablissement_nom || "Clinique CarnetPlus"}
                                </div>
                                <div className="flex items-center gap-2 text-emerald-600 text-[8px] md:text-[10px] font-black uppercase tracking-widest bg-emerald-50 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl">
                                   <Sparkles className="w-3 h-3 md:w-4 md:h-4" /> Libre

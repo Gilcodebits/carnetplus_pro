@@ -35,7 +35,13 @@ export const forgotPasswordAPI = {
 };
 
 export const patientsAPI = {
-  list:   (q='') => request<any[]>(`/patients.php${q ? `?q=${encodeURIComponent(q)}` : ''}`),
+  list:   (q='', all=false) => {
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (all) params.set('all', '1');
+    const qs = params.toString();
+    return request<any[]>(`/patients.php${qs ? `?${qs}` : ''}`);
+  },
   get:    (id: number) => request<any>(`/patients.php?id=${id}`),
   create: (data: any) => request<any>('/patients.php', { method:'POST', body: JSON.stringify(data) }),
   update: (id: number, data: any) => request<any>(`/patients.php?id=${id}`, { method:'PUT', body: JSON.stringify(data) }),

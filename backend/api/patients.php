@@ -24,7 +24,11 @@ if ($method === 'GET' && !$id) {
         $params = [$search, $search, $search];
 
         // Sécurisation : Seul l'admin voit tout le réseau, les autres voient leur établissement
-        if ($user['role'] !== 'admin') {
+        // Exception : si all=1, gestionnaire et admin voient tous les patients (pour les transferts)
+        $allPatients = isset($_GET['all']) && $_GET['all'] === '1'
+            && in_array($user['role'], ['admin', 'gestionnaire']);
+
+        if (!$allPatients && $user['role'] !== 'admin') {
             $etabId = intval($user['etablissement_id']);
             $where .= " AND p.etablissement_id = ?";
             $params[] = $etabId;
@@ -114,7 +118,12 @@ if ($method === 'GET' && !$id) {
     $patient['prescriptions'] = $stmt->fetchAll();
 
     // Examens
-    $stmt = $db->prepare("SELECT * FROM examens WHERE patient_id = ? ORDER BY date_demande DESC");
+    $stmt = $db->prepare("
+        SELECT e.*, CONCAT(u.prenom,' ',u.nom) as medecin_nom
+        FROM examens e
+        LEFT JOIN utilisateurs u ON e.medecin_id = u.id
+        WHERE e.patient_id = ? ORDER BY e.date_demande DESC
+    ");
     $stmt->execute([$id]);
     $patient['examens'] = $stmt->fetchAll();
 

@@ -27,8 +27,15 @@ export function PartnerRequest() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+
+    // Validation du téléphone : uniquement chiffres, +, espaces, tirets, parenthèses
+    if (form.telephone && !/^[0-9+\s\-()]+$/.test(form.telephone)) {
+      setError("Le numéro de téléphone doit uniquement contenir des chiffres. Les caractères alphabétiques ne sont pas autorisés.");
+      return;
+    }
+
+    setLoading(true);
     try {
       const res: any = await adhesionsAPI.submit(form);
       setMailStatus(res.mail_status);

@@ -113,26 +113,43 @@ elseif ($method === 'POST') {
 
 elseif ($method === 'PUT' && $id) {
     requireRole(['secretaire','admin']);
-    $statut = $input['statut'] ?? null;
     
-    // Récupérer les infos du RDV pour la notification
+    // Récupérer les infos du RDV existant pour la notification
     $stmt = $db->prepare("SELECT r.*, p.utilisateur_id FROM rendez_vous r JOIN patients p ON r.patient_id = p.id WHERE r.id = ?");
     $stmt->execute([$id]);
     $rdv = $stmt->fetch();
 
-    if ($statut) {
-        $db->prepare("UPDATE rendez_vous SET statut=? WHERE id=?")->execute([$statut, $id]);
-        
-        // Notifier le patient
-        if ($rdv && $rdv['utilisateur_id']) {
-            $msg = $statut === 'confirme' ? "Votre RDV du {$rdv['date_rdv']} est confirmé." : "Statut de votre RDV mis à jour : {$statut}.";
-            $db->prepare("INSERT INTO notifications (utilisateur_id,titre,message,type) VALUES (?,?,?,?)")
+    if (!$rdv) {
+        http_response_code(404);
+        die(json_encode(['error' => 'Rendez-vous non trouvé']));
+    }
+
+    $date_rdv = $input['date_rdv'] ?? $rdv['date_rdv'];
+    $heure_rdv = $input['heure_rdv'] ?? $rdv['heure_rdv'];
+    $motif = $input['motif'] ?? $rdv['motif'];
+    $statut = $input['statut'] ?? $rdv['statut'];
+
+    // Mettre à jour le rendez-vous
+    $stmt = $db->prepare("UPDATE rendez_vous SET date_rdv=?, heure_rdv=?, motif=?, statut=? WHERE id=?");
+    $stmt->execute([$date_rdv, $heure_rdv, $motif, $statut, $id]);
+
+    // Gérer les notifications pour le patient
+    if ($rdv['utilisateur_id']) {
+        $dateChanged = ($date_rdv !== $rdv['date_rdv']) || ($heure_rdv !== $rdv['heure_rdv']);
+        $statutChanged = ($statut !== $rdv['statut']);
+
+        if ($dateChanged) {
+            $formattedDate = date('d/m/Y', strtotime($date_rdv));
+            $msg = "Votre rendez-vous a été déplacé au {$formattedDate} à {$heure_rdv}.";
+            $db->prepare("INSERT INTO notifications (utilisateur_id, titre, message, type) VALUES (?, ?, ?, 'info')")
+               ->execute([$rdv['utilisateur_id'], 'RDV Déplacé', $msg]);
+        } elseif ($statutChanged) {
+            $msg = $statut === 'confirme' ? "Votre RDV du {$date_rdv} est confirmé." : "Statut de votre RDV mis à jour : {$statut}.";
+            $db->prepare("INSERT INTO notifications (utilisateur_id, titre, message, type) VALUES (?, ?, ?, ?)")
                ->execute([$rdv['utilisateur_id'], 'Mise à jour RDV', $msg, $statut === 'confirme' ? 'success' : 'info']);
         }
-    } else {
-        $db->prepare("UPDATE rendez_vous SET date_rdv=?,heure_rdv=?,motif=?,statut=? WHERE id=?")
-           ->execute([$input['date_rdv']??'', $input['heure_rdv']??'', $input['motif']??'', $input['statut']??'planifie', $id]);
     }
+
     echo json_encode(['message' => 'RDV mis à jour']);
 }
 

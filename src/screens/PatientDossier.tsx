@@ -11,7 +11,7 @@ import {
   AlertTriangle, ChevronRight, User,
   ChevronLeft, Info, Heart, Download,
   Printer, Share2, Sparkles, ShieldCheck,
-  TrendingUp, Clock, FlaskConical, Droplets
+  TrendingUp, Clock, FlaskConical, Droplets, X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "../utils/format";
@@ -39,11 +39,14 @@ export function PatientDossier() {
   const isMedecin = user?.role === 'medecin';
   const isSecretaire = user?.role === 'secretaire';
   const isAgentSante = user?.role === 'agent_sante';
-  const rolePrefix = isMedecin ? '/medecin' : isAgentSante ? '/agent-sante' : '';
+  const isLabo = user?.role === 'labo';
+  const rolePrefix = isMedecin ? '/medecin' : isAgentSante ? '/agent-sante' : isLabo ? '/labo' : '';
 
   const [patient, setPatient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"consultations" | "prescriptions" | "examens">("consultations");
+  const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
+  const [selectedExamen, setSelectedExamen] = useState<any>(null);
 
   useEffect(() => {
     if (id) {
@@ -359,6 +362,15 @@ export function PatientDossier() {
                     className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-lg shadow-emerald-200 group"
                   >
                     <Calendar className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span>Créer RDV</span>
+                  </button>
+                )}
+                {isPatient && (
+                  <button
+                    onClick={() => navigate(`/patient/recherche-rdv`)}
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 shadow-lg shadow-emerald-200 group"
+                  >
+                    <Calendar className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     <span>Prendre RDV</span>
                   </button>
                 )}
@@ -475,7 +487,7 @@ export function PatientDossier() {
                             </div>
                           ) : (
                             patient.consultations.map((c: any, i: number) => (
-                              <div key={i} className="group bg-white p-8 rounded-2xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all relative overflow-hidden">
+                              <div key={i} onClick={() => setSelectedConsultation(c)} className="group bg-white p-8 rounded-2xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all relative overflow-hidden cursor-pointer">
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
                                   <div className="flex items-center gap-6">
                                     <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 group-hover:bg-blue-600 group-hover:text-white transition-all shrink-0">
@@ -552,7 +564,7 @@ export function PatientDossier() {
                                   <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-0.5">Laboratoire Central</p>
                                 </div>
                               </div>
-                              <button className="px-6 py-3 bg-slate-50 text-slate-600 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all print:hidden">Consulter</button>
+                              <button onClick={() => setSelectedExamen(e)} className="px-6 py-3 bg-slate-50 text-slate-600 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all print:hidden">Consulter</button>
                             </div>
                           ))}
                         </div>
@@ -565,6 +577,173 @@ export function PatientDossier() {
           </div>
         </div>
       </div>
+
+      {/* Consultation Detail Modal */}
+      <AnimatePresence>
+        {selectedConsultation && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[200] p-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl border border-slate-100 overflow-hidden"
+            >
+              <div className="h-2 bg-blue-600 w-full" />
+              <div className="p-6 md:p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-50">
+                    <Stethoscope className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Détails Consultation</h2>
+                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mt-1">Le {formatDate(selectedConsultation.date_consultation)}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedConsultation(null)}
+                  className="w-10 h-10 flex items-center justify-center hover:bg-rose-50 text-slate-900 rounded-full border border-slate-100 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1 block">Médecin Traitant</span>
+                    <p className="font-black text-slate-900 text-xs md:text-sm uppercase">Dr. {selectedConsultation.medecin_nom}</p>
+                  </div>
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1 block">Motif de Visite</span>
+                    <p className="font-black text-slate-900 text-xs md:text-sm uppercase">{selectedConsultation.motif}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-505 uppercase tracking-[0.2em] mb-2 block">Symptômes</span>
+                    <p className="text-slate-900 font-bold text-xs md:text-sm leading-relaxed">{selectedConsultation.symptomes || "Aucun symptôme renseigné"}</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-505 uppercase tracking-[0.2em] mb-2 block">Diagnostic</span>
+                    <p className="text-slate-900 font-bold text-xs md:text-sm leading-relaxed">{selectedConsultation.diagnostic || "Aucun diagnostic renseigné"}</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-505 uppercase tracking-[0.2em] mb-2 block">Traitement prescrit</span>
+                    <p className="text-slate-900 font-bold text-xs md:text-sm leading-relaxed">{selectedConsultation.observations || "Aucun traitement particulier"}</p>
+                  </div>
+                </div>
+
+                {/* Constantes vitales si disponibles */}
+                <div className="border-t border-slate-100 pt-6">
+                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-rose-500" /> Constantes Vitales
+                  </h3>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { label: "Température", val: selectedConsultation.temperature ? `${selectedConsultation.temperature}°C` : "—", color: "text-orange-600 bg-orange-50 border-orange-100" },
+                      { label: "Tension", val: selectedConsultation.tension || "—", color: "text-rose-600 bg-rose-50 border-rose-100" },
+                      { label: "Poids", val: selectedConsultation.poids ? `${selectedConsultation.poids} kg` : "—", color: "text-blue-600 bg-blue-50 border-blue-100" },
+                      { label: "Taille", val: selectedConsultation.taille ? `${selectedConsultation.taille} cm` : "—", color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
+                    ].map((c, idx) => (
+                      <div key={idx} className={`p-3 rounded-xl border text-center ${c.color}`}>
+                        <span className="text-[7px] font-black uppercase tracking-widest block mb-1 opacity-80">{c.label}</span>
+                        <span className="text-xs md:text-sm font-black">{c.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={() => setSelectedConsultation(null)}
+                  className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest transition-colors active:scale-95 shadow-sm"
+                >
+                  Fermer
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Examen Detail Modal */}
+      <AnimatePresence>
+        {selectedExamen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[200] p-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl border border-slate-100 overflow-hidden"
+            >
+              <div className="h-2 bg-purple-600 w-full" />
+              <div className="p-6 md:p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-purple-600 shadow-sm border border-purple-50">
+                    <FlaskConical className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Résultats de l'Examen</h2>
+                    <p className="text-[10px] font-black text-purple-600 uppercase tracking-widest mt-1">Le {formatDate(selectedExamen.date_demande)}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedExamen(null)}
+                  className="w-10 h-10 flex items-center justify-center hover:bg-rose-50 text-slate-900 rounded-full border border-slate-100 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1 block">Médecin Prescripteur</span>
+                    <p className="font-black text-slate-900 text-xs md:text-sm uppercase">Dr. {selectedExamen.medecin_nom || "Non spécifié"}</p>
+                  </div>
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1 block">Type d'Examen</span>
+                    <p className="font-black text-slate-900 text-xs md:text-sm uppercase">{selectedExamen.type_examen}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 block">Statut de l'Analyse</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${selectedExamen.statut === 'termine' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-orange-50 text-orange-600 border border-orange-100'}`}>
+                        {selectedExamen.statut === 'termine' ? 'Terminé / Rapport Disponible' : 'En Attente de Saisie'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-purple-50/30 rounded-2xl border border-purple-100/50">
+                    <span className="text-[8px] font-black text-purple-600 uppercase tracking-[0.2em] mb-2 block">Résultats & Compte-rendu</span>
+                    {selectedExamen.resultats ? (
+                      <p className="text-slate-950 font-black text-xs md:text-sm leading-relaxed whitespace-pre-line">{selectedExamen.resultats}</p>
+                    ) : (
+                      <p className="text-slate-400 font-bold italic text-xs md:text-sm">Les résultats de cet examen ne sont pas encore saisis par le laboratoire.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={() => setSelectedExamen(null)}
+                  className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest transition-colors active:scale-95 shadow-sm"
+                >
+                  Fermer
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

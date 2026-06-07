@@ -10,19 +10,33 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     $role = $_GET['role'] ?? '';
 
-    // Sécurité multi-tenancy : les gestionnaires ne voient que leur équipe
+    // Sécurité multi-tenancy
     if ($user['role'] === 'gestionnaire') {
         $etabId = intval($user['etablissement_id']);
         $where  = $role
-            ? "WHERE role = ? AND etablissement_id = $etabId AND role NOT IN ('admin','gestionnaire','patient')"
-            : "WHERE etablissement_id = $etabId AND role NOT IN ('admin','gestionnaire','patient')";
+            ? "WHERE u.role = ? AND u.etablissement_id = $etabId AND u.role NOT IN ('admin','gestionnaire','patient')"
+            : "WHERE u.etablissement_id = $etabId AND u.role NOT IN ('admin','gestionnaire','patient')";
+        $params = $role ? [$role] : [];
+    } elseif ($user['role'] === 'secretaire') {
+        // La secrétaire ne voit que les utilisateurs de son propre établissement
+        $etabId = intval($user['etablissement_id']);
+        $where  = $role
+            ? "WHERE u.role = ? AND u.etablissement_id = $etabId"
+            : "WHERE u.etablissement_id = $etabId";
         $params = $role ? [$role] : [];
     } else {
-        $where  = $role ? "WHERE role = ?" : "WHERE 1=1";
+        $where  = $role ? "WHERE u.role = ?" : "WHERE 1=1";
         $params = $role ? [$role] : [];
     }
 
-    $stmt = $db->prepare("SELECT id, nom, prenom, email, role, etablissement_id, telephone, actif FROM utilisateurs $where ORDER BY id ASC");
+    $stmt = $db->prepare("
+        SELECT u.id, u.nom, u.prenom, u.email, u.role, u.etablissement_id, u.telephone, u.actif,
+               e.nom as etablissement_nom
+        FROM utilisateurs u
+        LEFT JOIN etablissements e ON u.etablissement_id = e.id
+        $where
+        ORDER BY u.id ASC
+    ");
     $stmt->execute($params);
     echo json_encode($stmt->fetchAll());
     exit;

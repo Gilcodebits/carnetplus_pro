@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from "../components/Card";
 import { 
   utilisateursAPI, rdvAPI
@@ -15,6 +15,7 @@ import { formatDate } from "../utils/format";
 
 export function CalendrierRDV() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -23,11 +24,20 @@ export function CalendrierRDV() {
   const [selectedMedecinId, setSelectedMedecinId] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Récupérer le médecin pré-sélectionné depuis RechercheRDV
+  const locationState = location.state as any;
+
   useEffect(() => {
     utilisateursAPI.list('medecin')
       .then(doctors => {
         setMedecins(doctors);
-        if (doctors.length > 0) setSelectedMedecinId(doctors[0].id.toString());
+        // Pré-sélectionner le médecin passé en paramètre, sinon le premier
+        const preselectedId = locationState?.medecinId?.toString();
+        if (preselectedId && doctors.find((d: any) => d.id.toString() === preselectedId)) {
+          setSelectedMedecinId(preselectedId);
+        } else if (doctors.length > 0) {
+          setSelectedMedecinId(doctors[0].id.toString());
+        }
       })
       .catch(console.error);
   }, []);
@@ -65,7 +75,8 @@ export function CalendrierRDV() {
       navigate("/patient/confirmation-rdv", { state: { 
         date: selectedDate, 
         time: selectedTime, 
-        medecin: `Dr. ${selectedDoctor?.prenom} ${selectedDoctor?.nom}` 
+        medecin: `Dr. ${selectedDoctor?.prenom} ${selectedDoctor?.nom}`,
+        etablissement: selectedDoctor?.etablissement_nom || locationState?.etablissement || "Clinique CarnetPlus"
       }});
     } catch (err) {
       console.error("Erreur lors de la création du RDV:", err);

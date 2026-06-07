@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../contexts/ToastContext";
+import { useAuth } from "../contexts/AuthContext";
 import { formatDate } from "../utils/format";
 
 const statutConfig: Record<string, { label: string, color: string, icon: any }> = {
@@ -19,6 +20,8 @@ const statutConfig: Record<string, { label: string, color: string, icon: any }> 
 };
 
 export function GestionnaireTransferts() {
+  const { user } = useAuth();
+  const myEtabId = user?.etablissement_id ? Number(user.etablissement_id) : 0;
   const [transferts, setTransferts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"envoi" | "reception" | "archive">("envoi");
@@ -65,13 +68,20 @@ export function GestionnaireTransferts() {
     setRefusalReason("");
   };
 
+  // Calcul de la perspective : envoi = j'envoie (source = mon étab), réception = je reçois (dest = mon étab)
   const filtered = transferts.filter(t => {
-    const matchesTab = activeTab === "archive"
-      ? (t.statut === "transfere" || t.statut === "refuse")
-      : (t.type === activeTab && t.statut !== "transfere" && t.statut !== "refuse");
+    const isEnvoi = Number(t.etab_source_id) === myEtabId;
+    const isReception = Number(t.etab_dest_id) === myEtabId;
+    const isActive = t.statut !== 'transfere' && t.statut !== 'refuse';
 
-    const matchesSearch = t.patient_nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.numero_dossier.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTab = activeTab === 'archive'
+      ? (t.statut === 'transfere' || t.statut === 'refuse')
+      : activeTab === 'envoi'
+        ? (isEnvoi && isActive)
+        : (isReception && isActive);
+
+    const matchesSearch = t.patient_nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.numero_dossier?.toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesTab && matchesSearch;
   });
@@ -126,6 +136,10 @@ export function GestionnaireTransferts() {
               {filtered.map((t) => {
                 const sc = statutConfig[t.statut] || statutConfig.en_attente;
                 const StatusIcon = sc.icon;
+                const isSource = Number(t.etablissement_source_id) === myEtabId;
+                const isDest = Number(t.etablissement_dest_id) === myEtabId;
+                const canValidate = (t.type === 'envoi' && isDest) || (t.type === 'reception' && isSource);
+                const canFinalize = (t.type === 'envoi' && isSource) || (t.type === 'reception' && isDest);
                 return (
                   <motion.div
                     key={t.id}
@@ -177,29 +191,34 @@ export function GestionnaireTransferts() {
                         </div>
 
                         <div className="flex gap-2">
-                          {t.statut === "en_attente" && t.type === "reception" && (
-                            <div className="flex flex-1 md:flex-none gap-2">
-                              <button
-                                onClick={() => handleAction(t.id, "accepte")}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 bg-emerald-600 text-white rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg active:scale-90"
-                              >
-                                <CheckCircle className="w-4 h-4 hidden md:block" /> Accepter
-                              </button>
-                              <button
-                                onClick={() => { setRefusalModal({ show: true, id: t.id }); setRefusalReason(""); }}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 bg-white text-rose-600 border-2 border-rose-200 rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all active:scale-90"
-                              >
-                                <XCircle className="w-4 h-4 hidden md:block" /> Refuser
-                              </button>
-                            </div>
-                          )}
-                          {t.statut === "en_attente" && t.type === "envoi" && (
-                            <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">En attente réponse</span>
+                          {t.statut === "en_attente" && (
+                            canValidate ? (
+                              <div className="flex flex-1 md:flex-none gap-2">
+                                <button
+                                  onClick={() => handleAction(t.id, "accepte")}
+                                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 bg-emerald-600 text-white rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg active:scale-90"
+                                >
+                                  <CheckCircle className="w-4 h-4 hidden md:block" /> Accepter
+                                </button>
+                                <button
+                                  onClick={() => { setRefusalModal({ show: true, id: t.id }); setRefusalReason(""); }}
+                                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 bg-white text-rose-600 border-2 border-rose-200 rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all active:scale-90"
+                                >
+                                  <XCircle className="w-4 h-4 hidden md:block" /> Refuser
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest px-2 py-2">En attente réponse</span>
+                            )
                           )}
                           {t.statut === "accepte" && (
-                            <button onClick={() => handleAction(t.id, "transfere")} className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95">
-                              Finaliser
-                            </button>
+                            canFinalize ? (
+                              <button onClick={() => handleAction(t.id, "transfere")} className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                                Finaliser
+                              </button>
+                            ) : (
+                              <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest px-2 py-2">En attente finalisation</span>
+                            )
                           )}
                           <button
                             onClick={() => setSelectedTransfert(t)}
@@ -377,180 +396,240 @@ export function GestionnaireTransferts() {
 }
 
 function NouveauTransfertModal({ onClose, onSave }: { onClose: () => void, onSave: () => void }) {
-  const [form, setForm] = useState({patient_id: "", etab_dest_id: "", motif: "", type: "envoi", priorite: "normale" });
-      const [etabs, setEtabs] = useState<any[]>([]);
-      const [patients, setPatients] = useState<any[]>([]);
-      const [loading, setLoading] = useState(false);
-      const {showToast} = useToast();
+  const { user } = useAuth();
+  const myEtabId = user?.etablissement_id ? Number(user.etablissement_id) : 0;
+  const [form, setForm] = useState({ patient_id: "", etab_dest_id: "", motif: "", type: "envoi", priorite: "normale" });
+  const [etabs, setEtabs] = useState<any[]>([]);
+  const [allPatients, setAllPatients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
+  const isEmission = form.type === 'envoi';
 
   useEffect(() => {
-        Promise.all([etablissementsAPI.list(), patientsAPI.list()]).then(([e, p]) => {
-          setEtabs(e);
-          setPatients(p);
-        }).catch(() => showToast("Erreur de chargement des ressources", "error"));
+    Promise.all([etablissementsAPI.list(), patientsAPI.list('', true)]).then(([e, p]) => {
+      setEtabs((e as any[]).filter((et: any) => Number(et.id) !== myEtabId));
+      setAllPatients(p as any[]);
+    }).catch(() => showToast("Erreur de chargement des ressources", "error"));
   }, []);
+
+  // Émission : patients de mon étab à envoyer ailleurs
+  // Réception : patients d'autres étabs dont je veux recevoir le dossier
+  const patients = allPatients.filter(p =>
+    isEmission
+      ? Number(p.etablissement_id) === myEtabId
+      : Number(p.etablissement_id) !== myEtabId
+  );
+
+  // L'établissement sélectionné (pour l'affichage contextuel)
+  const selectedEtab = etabs.find(e => String(e.id) === String(form.etab_dest_id));
 
   const handleCreate = async () => {
     if (!form.patient_id || !form.etab_dest_id || !form.motif) {
       return showToast("Veuillez remplir tous les champs obligatoires", "warning");
     }
-      setLoading(true);
-      try {
-        await transfertsAPI.create({ ...form, patient_id: Number(form.patient_id), etab_dest_id: Number(form.etab_dest_id), etab_source_id: 1 });
-      showToast("Demande de flux créée avec succès", "success");
+    setLoading(true);
+    try {
+      const etab_source_id = isEmission ? myEtabId : Number(form.etab_dest_id);
+      const etab_dest_id   = isEmission ? Number(form.etab_dest_id) : myEtabId;
+      await transfertsAPI.create({
+        ...form,
+        patient_id: Number(form.patient_id),
+        etab_source_id,
+        etab_dest_id
+      });
+      showToast(
+        isEmission
+          ? "Demande d'émission envoyée — en attente de confirmation"
+          : "Demande de réception envoyée — en attente de confirmation",
+        "success"
+      );
       onSave();
     } catch (err) {
-        showToast("Erreur lors de la création", "error");
+      showToast("Erreur lors de la création", "error");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
-      return (
-      <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          className="bg-white rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl w-full max-w-2xl border-2 border-slate-100 overflow-hidden max-h-[90vh] flex flex-col"
-        >
-          <div className="h-2 bg-blue-600 w-full shadow-[0_0_15px_rgba(37,99,235,0.3)]" />
+  return (
+    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        className="bg-white rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl w-full max-w-2xl border-2 border-slate-100 overflow-hidden max-h-[90vh] flex flex-col"
+      >
+        {/* Barre de couleur dynamique */}
+        <div className={`h-2 w-full ${isEmission ? 'bg-blue-600' : 'bg-emerald-600'}`} />
 
-          <div className="p-6 md:p-8 pb-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-xl shadow-blue-100 border border-blue-50">
-                <ArrowLeftRight className="w-7 h-7" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">Configuration <span className="text-blue-600">Flux</span></h2>
-                <p className="text-blue-900 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Échange sécurisé de données cliniques</p>
-              </div>
+        {/* En-tête */}
+        <div className="p-6 md:p-8 pb-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
+          <div className="flex items-center gap-5">
+            <div className={`w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-xl border ${isEmission ? 'text-blue-600 shadow-blue-100 border-blue-50' : 'text-emerald-600 shadow-emerald-100 border-emerald-50'}`}>
+              {isEmission ? <Send className="w-7 h-7" /> : <Inbox className="w-7 h-7" />}
             </div>
-            <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-rose-50 text-slate-900 rounded-full transition-all border border-slate-100">
-              <X className="w-6 h-6" />
-            </button>
+            <div>
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">
+                {isEmission ? <>Flux <span className="text-blue-600">Sortant</span></> : <>Flux <span className="text-emerald-600">Entrant</span></>}
+              </h2>
+              <p className={`text-[10px] font-black uppercase tracking-[0.2em] mt-2 ${isEmission ? 'text-blue-700' : 'text-emerald-700'}`}>
+                {isEmission ? "Envoyer un dossier vers un autre établissement" : "Demander à recevoir un dossier d'un autre établissement"}
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-rose-50 text-slate-900 rounded-full transition-all border border-slate-100">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="p-6 md:p-10 space-y-8 overflow-y-auto flex-1 no-scrollbar">
+
+          {/* Sélection du sens */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Type d'opération</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setForm({ ...form, type: 'envoi', patient_id: '', etab_dest_id: '' })}
+                className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all ${form.type === 'envoi' ? 'bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-100' : 'bg-white text-slate-700 border-slate-200 hover:border-blue-200'}`}
+              >
+                <Send className="w-6 h-6" />
+                <div className="text-center">
+                  <p className="text-[11px] font-black uppercase tracking-widest">Émission</p>
+                  <p className={`text-[9px] font-bold mt-0.5 ${form.type === 'envoi' ? 'text-blue-100' : 'text-slate-500'}`}>J'envoie un dossier</p>
+                </div>
+              </button>
+              <button
+                onClick={() => setForm({ ...form, type: 'reception', patient_id: '', etab_dest_id: '' })}
+                className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all ${form.type === 'reception' ? 'bg-emerald-600 text-white border-emerald-600 shadow-xl shadow-emerald-100' : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-200'}`}
+              >
+                <Inbox className="w-6 h-6" />
+                <div className="text-center">
+                  <p className="text-[11px] font-black uppercase tracking-widest">Réception</p>
+                  <p className={`text-[9px] font-bold mt-0.5 ${form.type === 'reception' ? 'text-emerald-100' : 'text-slate-500'}`}>Je demande un dossier</p>
+                </div>
+              </button>
+            </div>
           </div>
 
-          <div className="p-6 md:p-10 space-y-6 md:space-y-10 overflow-y-auto flex-1 no-scrollbar">
-            <div className="space-y-6">
-              <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-3">
-                <span className="w-2 h-2 bg-blue-600 rounded-full" /> Acteurs du Transfert
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Patient Concerné</label>
-                  <div className="relative">
-                    <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600" />
-                    <select
-                      value={form.patient_id}
-                      onChange={e => setForm({ ...form, patient_id: e.target.value })}
-                      className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
-                    >
-                      <option value="">Sélectionner un dossier...</option>
-                      {patients.map(p => <option key={p.id} value={p.id}>{p.prenom} {p.nom} (#{p.numero_dossier})</option>)}
-                    </select>
-                  </div>
-                </div>
+          {/* Bannière contextuelle explicative */}
+          <div className={`flex items-start gap-4 p-4 rounded-2xl border ${isEmission ? 'bg-blue-50 border-blue-100 text-blue-900' : 'bg-emerald-50 border-emerald-100 text-emerald-900'}`}>
+            <Info className={`w-5 h-5 shrink-0 mt-0.5 ${isEmission ? 'text-blue-600' : 'text-emerald-600'}`} />
+            <p className="text-xs font-bold leading-relaxed">
+              {isEmission
+                ? "Vous allez envoyer le dossier d'un de vos patients vers un autre établissement. Cet établissement devra accepter la demande avant que le transfert soit effectif."
+                : "Vous allez demander à recevoir le dossier d'un patient actuellement dans un autre établissement. L'établissement source devra confirmer avant que vous puissiez accéder au dossier."}
+            </p>
+          </div>
 
-                <div className="space-y-3">
-                  <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Établissement Cible</label>
-                  <div className="relative">
-                    <Building2 className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600" />
-                    <select
-                      value={form.etab_dest_id}
-                      onChange={e => setForm({ ...form, etab_dest_id: e.target.value })}
-                      className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
-                    >
-                      <option value="">Cible du flux...</option>
-                      {etabs.map(e => <option key={e.id} value={e.id}>{e.nom} ({e.ville})</option>)}
-                    </select>
-                  </div>
-                </div>
+          {/* Patient et établissement */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">
+                {isEmission ? "Patient à transférer" : "Patient à recevoir"}
+              </label>
+              <div className="relative">
+                <User className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 ${isEmission ? 'text-blue-600' : 'text-emerald-600'}`} />
+                <select
+                  value={form.patient_id}
+                  onChange={e => setForm({ ...form, patient_id: e.target.value })}
+                  className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
+                >
+                  <option value="">{isEmission ? "Choisir un patient de mon étab..." : "Choisir un patient externe..."}</option>
+                  {patients.map(p => <option key={p.id} value={p.id}>{p.prenom} {p.nom} (#{p.numero_dossier})</option>)}
+                </select>
               </div>
-            </div>
-
-            <div className="space-y-6">
-              <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-3">
-                <span className="w-2 h-2 bg-blue-600 rounded-full" /> Paramètres Opérationnels
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Sens de l'opération</label>
-                  <div className="flex bg-slate-50 p-2 rounded-2xl border-2 border-slate-100">
-                    {[
-                      { id: "envoi", label: "Émission", icon: Send },
-                      { id: "reception", label: "Réception", icon: Inbox }
-                    ].map(t => (
-                      <button
-                        key={t.id}
-                        onClick={() => setForm({ ...form, type: t.id })}
-                        className={`flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${form.type === t.id
-                            ? "bg-white text-slate-900 shadow-xl border border-slate-200 scale-[1.02]"
-                            : "text-slate-900 opacity-80 hover:opacity-100"
-                          }`}
-                      >
-                        <t.icon className="w-4 h-4" />
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Priorité du canal</label>
-                  <div className="flex bg-slate-50 p-2 rounded-2xl border-2 border-slate-100">
-                    {[
-                      { id: "normale", label: "Standard", color: "bg-blue-600" },
-                      { id: "urgente", label: "Critique", color: "bg-rose-600" }
-                    ].map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => setForm({ ...form, priorite: p.id })}
-                        className={`flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${form.priorite === p.id
-                            ? `${p.color} text-white shadow-xl scale-[1.02]`
-                            : "text-slate-900 opacity-80 hover:opacity-100"
-                          }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {patients.length === 0 && (
+                <p className="text-[10px] text-slate-500 font-bold ml-2 italic">
+                  {isEmission ? "Aucun patient enregistré dans votre établissement." : "Aucun patient externe trouvé dans le réseau."}
+                </p>
+              )}
             </div>
 
             <div className="space-y-3">
-              <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Motif Clinique & Justification</label>
-              <textarea
-                value={form.motif}
-                onChange={e => setForm({ ...form, motif: e.target.value })}
-                rows={3}
-                placeholder="Saisissez ici les détails médicaux justifiant le transfert..."
-                className="w-full px-8 py-6 bg-white border-2 border-slate-200 rounded-[2.5rem] focus:border-blue-600 outline-none font-bold text-slate-900 text-sm transition-all resize-none shadow-inner placeholder:text-slate-500"
-              />
+              <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">
+                {isEmission ? "Établissement destinataire" : "Établissement détenteur du dossier"}
+              </label>
+              <div className="relative">
+                <Building2 className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 ${isEmission ? 'text-blue-600' : 'text-emerald-600'}`} />
+                <select
+                  value={form.etab_dest_id}
+                  onChange={e => setForm({ ...form, etab_dest_id: e.target.value })}
+                  className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
+                >
+                  <option value="">{isEmission ? "Choisir l'établissement cible..." : "Choisir l'établissement source..."}</option>
+                  {etabs.map(e => <option key={e.id} value={e.id}>{e.nom} ({e.ville})</option>)}
+                </select>
+              </div>
+              {selectedEtab && (
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black ${isEmission ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  {isEmission ? `Sera notifié : ${selectedEtab.nom}` : `Sera contacté : ${selectedEtab.nom}`}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="p-6 md:p-10 border-t border-slate-100 bg-slate-50/50 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 flex-shrink-0">
-            <button
-              onClick={onClose}
-              className="w-full py-5 md:py-6 bg-white text-slate-500 border-2 border-slate-200 rounded-2xl md:rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-[0.98]"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={handleCreate}
-              disabled={loading}
-              className="w-full py-5 md:py-6 bg-slate-900 text-white rounded-2xl md:rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-blue-600 transition-all shadow-2xl shadow-blue-200 disabled:opacity-50 active:scale-[0.98] flex items-center justify-center gap-4"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>Valider l'opération <ArrowRight className="w-4 h-4" /></>
-              )}
-            </button>
+          {/* Priorité */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Priorité</label>
+            <div className="flex gap-3">
+              {[
+                { id: "normale", label: "Standard", desc: "Traitement dans les délais habituels" },
+                { id: "urgente", label: "Critique / Urgent", desc: "Nécessite une réponse immédiate" }
+              ].map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => setForm({ ...form, priorite: p.id })}
+                  className={`flex-1 py-4 px-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 text-left ${form.priorite === p.id
+                    ? p.id === 'urgente' ? 'bg-rose-600 text-white border-rose-600 shadow-xl' : 'bg-slate-900 text-white border-slate-900 shadow-xl'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <p>{p.label}</p>
+                  <p className={`text-[8px] font-bold normal-case tracking-normal mt-1 ${form.priorite === p.id ? 'opacity-70' : 'text-slate-400'}`}>{p.desc}</p>
+                </button>
+              ))}
+            </div>
           </div>
-        </motion.div>
+
+          {/* Motif */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">
+              Motif & Justification <span className="text-rose-500">*</span>
+            </label>
+            <textarea
+              value={form.motif}
+              onChange={e => setForm({ ...form, motif: e.target.value })}
+              rows={3}
+              placeholder={isEmission
+                ? "Ex: Patient transféré pour prise en charge spécialisée non disponible dans notre établissement..."
+                : "Ex: Patient connu de notre établissement, retour pour suivi post-opératoire, demande de transfert de dossier..."
+              }
+              className="w-full px-8 py-6 bg-white border-2 border-slate-200 rounded-[2.5rem] focus:border-blue-600 outline-none font-bold text-slate-900 text-sm transition-all resize-none shadow-inner placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 md:p-10 border-t border-slate-100 bg-slate-50/50 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="w-full py-5 md:py-6 bg-white text-slate-500 border-2 border-slate-200 rounded-2xl md:rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-[0.98]"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={handleCreate}
+            disabled={loading || !form.patient_id || !form.etab_dest_id || !form.motif}
+            className={`w-full py-5 md:py-6 text-white rounded-2xl md:rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-2xl disabled:opacity-50 active:scale-[0.98] flex items-center justify-center gap-4 ${isEmission ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'}`}
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>{isEmission ? "Envoyer la demande d'émission" : "Envoyer la demande de réception"} <ArrowRight className="w-4 h-4" /></>
+            )}
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
-

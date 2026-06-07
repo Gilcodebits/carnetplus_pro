@@ -28,13 +28,25 @@ try {
         if (empty($data['nom_etablissement']) || empty($data['email_contact'])) {
             throw new Exception("Veuillez renseigner le nom de l'établissement et l'email.", 400);
         }
-        $stmt = $db->prepare("INSERT INTO demandes_adhesion (nom_etablissement, type_structure, ville, nom_responsable, email_contact) VALUES (?, ?, ?, ?, ?)");
+
+        // Validation du numéro de téléphone : chiffres, +, espaces, tirets, parenthèses uniquement
+        $telephone = $data['telephone'] ?? '';
+        if (!empty($telephone) && !preg_match('/^[0-9+\s\-\(\)]+$/', $telephone)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Le numéro de téléphone doit uniquement contenir des chiffres et des caractères de formatage (+, -, espaces).']);
+            exit;
+        }
+
+        $stmt = $db->prepare("INSERT INTO demandes_adhesion (nom_etablissement, type_structure, ville, nom_responsable, email_contact, adresse, telephone, motif) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['nom_etablissement'],
             $data['type_structure'] ?? 'hopital',
             $data['ville'] ?? null,
             $data['nom_responsable'] ?? null,
-            $data['email_contact']
+            $data['email_contact'],
+            $data['adresse'] ?? null,
+            $telephone ?: null,
+            $data['motif'] ?? null
         ]);
         $demandeId = $db->lastInsertId();
 

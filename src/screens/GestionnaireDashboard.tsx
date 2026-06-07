@@ -5,7 +5,8 @@ import {
   ArrowLeftRight, Send, Clock, AlertTriangle, Plus, 
   ChevronRight, Building2, User, CheckCircle, XCircle, 
   RefreshCw, MessageSquare, Bell, FileText, ArrowRight, 
-  Users, Activity, Globe, Search, Calendar, Filter, Sparkles, TrendingUp, Zap, Cloud, X, ShieldCheck
+  Users, Activity, Globe, Search, Calendar, Filter, Sparkles, TrendingUp, Zap, Cloud, X, ShieldCheck,
+  Inbox, Info
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
@@ -237,18 +238,30 @@ export function GestionnaireDashboard() {
 }
 
 function NouveauTransfertModal({ onClose, onSave }: { onClose: () => void, onSave: () => void }) {
+  const { user } = useAuth();
+  const myEtabId = user?.etablissement_id ? Number(user.etablissement_id) : 0;
   const [form, setForm] = useState({ patient_id: "", etab_dest_id: "", motif: "", type: "envoi", priorite: "normale" });
   const [etabs, setEtabs] = useState<any[]>([]);
-  const [patients, setPatients] = useState<any[]>([]);
+  const [allPatients, setAllPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const isEmission = form.type === 'envoi';
 
   useEffect(() => {
-    Promise.all([etablissementsAPI.list(), patientsAPI.list()]).then(([e, p]) => {
-      setEtabs(e);
-      setPatients(p);
+    Promise.all([etablissementsAPI.list(), patientsAPI.list('', true)]).then(([e, p]) => {
+      setEtabs((e as any[]).filter((et: any) => Number(et.id) !== myEtabId));
+      setAllPatients(p as any[]);
     }).catch(() => showToast("Erreur de chargement", "error"));
   }, []);
+
+  // Émission : patients de mon étab | Réception : patients d'autres étabs
+  const patients = allPatients.filter(p =>
+    isEmission
+      ? Number(p.etablissement_id) === myEtabId
+      : Number(p.etablissement_id) !== myEtabId
+  );
+
+  const selectedEtab = etabs.find(e => String(e.id) === String(form.etab_dest_id));
 
   const handleCreate = async () => {
     if (!form.patient_id || !form.etab_dest_id || !form.motif) {
@@ -256,8 +269,20 @@ function NouveauTransfertModal({ onClose, onSave }: { onClose: () => void, onSav
     }
     setLoading(true);
     try {
-      await transfertsAPI.create({ ...form, patient_id: Number(form.patient_id), etab_dest_id: Number(form.etab_dest_id), etab_source_id: 1 });
-      showToast("Transfert initié avec succès", "success");
+      const etab_source_id = isEmission ? myEtabId : Number(form.etab_dest_id);
+      const etab_dest_id   = isEmission ? Number(form.etab_dest_id) : myEtabId;
+      await transfertsAPI.create({
+        ...form,
+        patient_id: Number(form.patient_id),
+        etab_source_id,
+        etab_dest_id
+      });
+      showToast(
+        isEmission
+          ? "Demande d'émission envoyée — en attente de confirmation"
+          : "Demande de réception envoyée — en attente de confirmation",
+        "success"
+      );
       onSave();
     } catch (err) {
       showToast("Erreur de création", "error");
@@ -268,115 +293,180 @@ function NouveauTransfertModal({ onClose, onSave }: { onClose: () => void, onSav
 
   return (
     <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center z-[200] p-4">
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0, y: 20 }} 
-        animate={{ scale: 1, opacity: 1, y: 0 }} 
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl border-2 border-slate-100 overflow-hidden"
+        className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl border-2 border-slate-100 overflow-hidden max-h-[92vh] flex flex-col"
       >
-        <div className="h-2 bg-blue-600 w-full" />
-        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        {/* Barre couleur dynamique */}
+        <div className={`h-2 w-full ${isEmission ? 'bg-blue-600' : 'bg-emerald-600'}`} />
+
+        {/* En-tête */}
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
           <div className="flex items-center gap-5">
-             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-xl border border-blue-50">
-                <ArrowLeftRight className="w-6 h-6"/>
-             </div>
-             <div>
-                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Flux <span className="text-blue-600">Sortant</span></h2>
-                <p className="text-blue-900 text-[10px] font-black uppercase tracking-widest mt-1">Configuration Sécurisée</p>
-             </div>
+            <div className={`w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl border ${isEmission ? 'text-blue-600 shadow-blue-100 border-blue-50' : 'text-emerald-600 shadow-emerald-100 border-emerald-50'}`}>
+              {isEmission ? <Send className="w-6 h-6" /> : <Inbox className="w-6 h-6" />}
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
+                {isEmission ? <>Flux <span className="text-blue-600">Sortant</span></> : <>Flux <span className="text-emerald-600">Entrant</span></>}
+              </h2>
+              <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${isEmission ? 'text-blue-700' : 'text-emerald-700'}`}>
+                {isEmission ? "J'envoie un dossier vers un autre établissement" : "Je demande à recevoir un dossier"}
+              </p>
+            </div>
           </div>
           <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-rose-50 text-slate-900 rounded-full border border-slate-100">
-            <X className="w-6 h-6"/>
+            <X className="w-6 h-6" />
           </button>
         </div>
-        
-        <div className="p-10 space-y-8 max-h-[65vh] overflow-y-auto">
-          <div className="grid grid-cols-1 gap-6">
-            <div className="space-y-2">
-              <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Patient</label>
-              <div className="relative">
-                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600" />
-                <select 
-                  value={form.patient_id} 
-                  onChange={e=>setForm({...form, patient_id: e.target.value})}
-                  className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
-                >
-                  <option value="">Sélectionner un dossier...</option>
-                  {patients.map(p => <option key={p.id} value={p.id}>{p.prenom} {p.nom} (#{p.numero_dossier})</option>)}
-                </select>
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Établissement Cible</label>
-              <div className="relative">
-                <Building2 className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600" />
-                <select 
-                  value={form.etab_dest_id} 
-                  onChange={e=>setForm({...form, etab_dest_id: e.target.value})}
-                  className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
-                >
-                  <option value="">Cible du flux...</option>
-                  {etabs.map(e => <option key={e.id} value={e.id}>{e.nom} ({e.ville})</option>)}
-                </select>
-              </div>
-            </div>
+        <div className="p-8 space-y-6 overflow-y-auto flex-1 no-scrollbar">
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Priorité</label>
-                <div className="flex bg-slate-50 p-1.5 rounded-2xl border-2 border-slate-100">
-                  {['normale', 'urgente'].map(p => (
-                    <button 
-                      key={p} 
-                      onClick={()=>setForm({...form, priorite: p})}
-                      className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${form.priorite === p ? 'bg-white text-blue-600 shadow-lg border border-slate-200 scale-105' : 'text-slate-900 opacity-80'}`}
-                    >
-                      {p === 'normale' ? 'Standard' : 'Critique'}
-                    </button>
-                  ))}
+          {/* Sélection du sens */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Type d'opération</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setForm({ ...form, type: 'envoi', patient_id: '', etab_dest_id: '' })}
+                className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all ${
+                  form.type === 'envoi' ? 'bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-100' : 'bg-white text-slate-700 border-slate-200 hover:border-blue-200'
+                }`}
+              >
+                <Send className="w-5 h-5" />
+                <div className="text-center">
+                  <p className="text-[11px] font-black uppercase tracking-widest">Émission</p>
+                  <p className={`text-[9px] font-bold mt-0.5 ${form.type === 'envoi' ? 'text-blue-100' : 'text-slate-400'}`}>J'envoie un dossier</p>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Direction</label>
-                <div className="flex bg-slate-50 p-1.5 rounded-2xl border-2 border-slate-100">
-                  {['envoi', 'reception'].map(t => (
-                    <button 
-                      key={t} 
-                      onClick={()=>setForm({...form, type: t})}
-                      className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${form.type === t ? 'bg-white text-blue-600 shadow-lg border border-slate-200 scale-105' : 'text-slate-900 opacity-80'}`}
-                    >
-                      {t === 'envoi' ? 'Emission' : 'Réception'}
-                    </button>
-                  ))}
+              </button>
+              <button
+                onClick={() => setForm({ ...form, type: 'reception', patient_id: '', etab_dest_id: '' })}
+                className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all ${
+                  form.type === 'reception' ? 'bg-emerald-600 text-white border-emerald-600 shadow-xl shadow-emerald-100' : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-200'
+                }`}
+              >
+                <Inbox className="w-5 h-5" />
+                <div className="text-center">
+                  <p className="text-[11px] font-black uppercase tracking-widest">Réception</p>
+                  <p className={`text-[9px] font-bold mt-0.5 ${form.type === 'reception' ? 'text-emerald-100' : 'text-slate-400'}`}>Je demande un dossier</p>
                 </div>
-              </div>
+              </button>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Motif & Justification</label>
-              <textarea 
-                value={form.motif} 
-                onChange={e=>setForm({...form, motif: e.target.value})} 
-                rows={3}
-                placeholder="Précisez le contexte médical..."
-                className="w-full px-8 py-5 bg-white border-2 border-slate-200 rounded-[2.5rem] focus:border-blue-600 outline-none font-bold text-slate-900 text-sm resize-none transition-all placeholder:text-slate-200 shadow-inner" 
-              />
+          {/* Bannière explicative */}
+          <div className={`flex items-start gap-3 p-4 rounded-2xl border ${
+            isEmission ? 'bg-blue-50 border-blue-100' : 'bg-emerald-50 border-emerald-100'
+          }`}>
+            <Info className={`w-5 h-5 shrink-0 mt-0.5 ${isEmission ? 'text-blue-600' : 'text-emerald-600'}`} />
+            <p className={`text-xs font-bold leading-relaxed ${isEmission ? 'text-blue-900' : 'text-emerald-900'}`}>
+              {isEmission
+                ? "Vous allez envoyer le dossier d'un de vos patients vers un autre établissement. Cet établissement devra accepter la demande avant que le transfert soit effectif."
+                : "Vous allez demander à recevoir le dossier d'un patient actuellement dans un autre établissement. L'établissement source devra confirmer avant que vous puissiez accéder au dossier."}
+            </p>
+          </div>
+
+          {/* Patient */}
+          <div className="space-y-2">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">
+              {isEmission ? "Patient à transférer" : "Patient à recevoir"}
+            </label>
+            <div className="relative">
+              <User className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 ${isEmission ? 'text-blue-600' : 'text-emerald-600'}`} />
+              <select
+                value={form.patient_id}
+                onChange={e => setForm({ ...form, patient_id: e.target.value })}
+                className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
+              >
+                <option value="">{isEmission ? "Choisir un patient de mon établissement..." : "Choisir un patient externe..."}</option>
+                {patients.map(p => <option key={p.id} value={p.id}>{p.prenom} {p.nom} (#{p.numero_dossier})</option>)}
+              </select>
             </div>
+            {patients.length === 0 && (
+              <p className="text-[10px] text-slate-400 font-bold ml-2 italic">
+                {isEmission ? "Aucun patient dans votre établissement." : "Aucun patient externe trouvé."}
+              </p>
+            )}
+          </div>
+
+          {/* Établissement */}
+          <div className="space-y-2">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">
+              {isEmission ? "Établissement destinataire" : "Établissement détenteur du dossier"}
+            </label>
+            <div className="relative">
+              <Building2 className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 ${isEmission ? 'text-blue-600' : 'text-emerald-600'}`} />
+              <select
+                value={form.etab_dest_id}
+                onChange={e => setForm({ ...form, etab_dest_id: e.target.value })}
+                className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-600 outline-none font-bold text-slate-900 text-sm appearance-none cursor-pointer transition-all"
+              >
+                <option value="">{isEmission ? "Choisir l'établissement cible..." : "Choisir l'établissement source..."}</option>
+                {etabs.map(e => <option key={e.id} value={e.id}>{e.nom} ({e.ville})</option>)}
+              </select>
+            </div>
+            {selectedEtab && (
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black ${isEmission ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                <CheckCircle className="w-3.5 h-3.5" />
+                {isEmission ? `Sera notifié : ${selectedEtab.nom}` : `Sera contacté : ${selectedEtab.nom}`}
+              </div>
+            )}
+          </div>
+
+          {/* Priorité */}
+          <div className="space-y-2">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Priorité</label>
+            <div className="flex gap-3">
+              {[
+                { id: "normale", label: "Standard" },
+                { id: "urgente", label: "Critique / Urgent" }
+              ].map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => setForm({ ...form, priorite: p.id })}
+                  className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
+                    form.priorite === p.id
+                      ? p.id === 'urgente' ? 'bg-rose-600 text-white border-rose-600 shadow-xl' : 'bg-slate-900 text-white border-slate-900 shadow-xl'
+                      : 'bg-white text-slate-700 border-slate-200'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Motif */}
+          <div className="space-y-2">
+            <label className="block text-[11px] font-black text-slate-900 uppercase tracking-widest ml-1">Motif & Justification <span className="text-rose-500">*</span></label>
+            <textarea
+              value={form.motif}
+              onChange={e => setForm({ ...form, motif: e.target.value })}
+              rows={3}
+              placeholder={isEmission
+                ? "Ex: Patient transféré pour prise en charge spécialisée..."
+                : "Ex: Demande de retour de dossier pour suivi post-opératoire..."
+              }
+              className="w-full px-8 py-5 bg-white border-2 border-slate-200 rounded-[2.5rem] focus:border-blue-600 outline-none font-bold text-slate-900 text-sm resize-none transition-all placeholder:text-slate-400 shadow-inner"
+            />
           </div>
         </div>
 
-        <div className="p-10 border-t border-slate-100 bg-slate-50/50 flex gap-4">
-          <button 
-            onClick={handleCreate} 
-            disabled={loading}
-            className="flex-1 py-5 bg-slate-900 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-blue-600 transition-all shadow-2xl active:scale-95"
+        {/* Footer */}
+        <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex gap-4 flex-shrink-0">
+          <button
+            onClick={handleCreate}
+            disabled={loading || !form.patient_id || !form.etab_dest_id || !form.motif}
+            className={`flex-1 py-5 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-2xl disabled:opacity-50 active:scale-95 ${
+              isEmission ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
+            }`}
           >
-            {loading ? 'Traitement...' : 'Initier le Flux'}
+            {loading ? 'Envoi...' : isEmission ? "Envoyer la demande d'émission" : "Envoyer la demande de réception"}
           </button>
-          <button 
-            onClick={onClose} 
-            className="px-12 py-5 bg-white text-slate-900 border-2 border-slate-900 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all active:scale-95"
+          <button
+            onClick={onClose}
+            className="px-10 py-5 bg-white text-slate-900 border-2 border-slate-200 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
           >
             Annuler
           </button>
