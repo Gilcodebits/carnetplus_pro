@@ -201,7 +201,16 @@ elseif ($user['role'] === 'patient') {
         ");
         $stmt->execute([$pid]);
         $stats['prescriptions'] = $stmt->fetchAll() ?: [];
-        $stats['documents_count'] = count($stats['prescriptions']);
+
+        $stmt = $db->prepare("
+            SELECT e.*, CONCAT(m.prenom,' ',m.nom) as medecin_nom
+            FROM examens e JOIN utilisateurs m ON e.medecin_id=m.id
+            WHERE e.patient_id=? ORDER BY e.date_demande DESC LIMIT 5
+        ");
+        $stmt->execute([$pid]);
+        $stats['examens'] = $stmt->fetchAll() ?: [];
+
+        $stats['documents_count'] = count($stats['prescriptions']) + count($stats['examens']);
         $stats['score_sante'] = 85;
     } else {
         $stats['score_sante'] = 0;

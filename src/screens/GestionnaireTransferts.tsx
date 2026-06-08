@@ -70,8 +70,8 @@ export function GestionnaireTransferts() {
 
   // Calcul de la perspective : envoi = j'envoie (source = mon étab), réception = je reçois (dest = mon étab)
   const filtered = transferts.filter(t => {
-    const isEnvoi = Number(t.etab_source_id) === myEtabId;
-    const isReception = Number(t.etab_dest_id) === myEtabId;
+    const isEnvoi = Number(t.etablissement_source_id) === myEtabId;
+    const isReception = Number(t.etablissement_dest_id) === myEtabId;
     const isActive = t.statut !== 'transfere' && t.statut !== 'refuse';
 
     const matchesTab = activeTab === 'archive'

@@ -220,7 +220,13 @@ export function PatientPortal() {
             <div className="space-y-4">
               {documentsRecents.length > 0 ? documentsRecents.map((doc, i) => (
                 <div key={i} 
-                  onClick={() => doc.type === "Ordonnance" && navigate(`/patient/dossier`)} 
+                  onClick={() => {
+                    if (doc.type === "Ordonnance") {
+                      navigate(`/prescription-view/${doc.id}`);
+                    } else {
+                      navigate(`/patient/dossier`, { state: { tab: 'examens', selectedId: doc.id } });
+                    }
+                  }}
                   className="p-5 md:p-6 rounded-[2rem] md:rounded-[2.5rem] border-2 border-slate-50 bg-white hover:border-blue-600 hover:shadow-xl hover:shadow-blue-200/30 transition-all cursor-pointer group flex items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-4 md:gap-6">

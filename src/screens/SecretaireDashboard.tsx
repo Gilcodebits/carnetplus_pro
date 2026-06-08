@@ -27,6 +27,12 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
   const [rdvToCancel, setRdvToCancel] = useState<number | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterSearch, setFilterSearch] = useState("");
+  const [filterMedecin, setFilterMedecin] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [filterStatut, setFilterStatut] = useState("");
 
   useEffect(() => {
     setActiveTab(tab);
@@ -162,6 +168,24 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
 
   const today = new Date().toISOString().split('T')[0];
 
+  const filteredRdvs = rdvList.filter(r => {
+    const matchesSearch = !filterSearch ||
+      (r.patient_nom || "").toLowerCase().includes(filterSearch.toLowerCase()) ||
+      (r.motif || "").toLowerCase().includes(filterSearch.toLowerCase()) ||
+      (r.medecin_nom || "").toLowerCase().includes(filterSearch.toLowerCase());
+
+    const matchesMedecin = !filterMedecin || Number(r.medecin_id) === Number(filterMedecin);
+
+    const matchesDate = !filterDate || r.date_rdv === filterDate;
+
+    const matchesStatut = !filterStatut || r.statut === filterStatut;
+
+    const isFutureOrToday = r.date_rdv >= today;
+    const matchesTimeframe = (filterDate || filterSearch || filterStatut) ? true : isFutureOrToday;
+
+    return matchesSearch && matchesMedecin && matchesDate && matchesStatut && matchesTimeframe;
+  });
+
   const handleEditClick = (rdv: any) => {
     setFormData({
       patient_id: rdv.patient_id.toString(),
@@ -267,25 +291,100 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
               ))}
             </div>
             <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black text-slate-700 uppercase tracking-widest hover:bg-slate-50 transition-all">
+              {(filterSearch || filterMedecin || filterDate || filterStatut) && (
+                <button
+                  onClick={() => {
+                    setFilterSearch("");
+                    setFilterMedecin("");
+                    setFilterDate("");
+                    setFilterStatut("");
+                  }}
+                  className="px-3 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all"
+                >
+                  Réinitialiser
+                </button>
+              )}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  showFilters ? "bg-blue-600 border-blue-600 text-white" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                }`}
+              >
                 <Filter className="w-4 h-4" /> Filtrer
               </button>
             </div>
           </div>
 
+          {showFilters && activeTab === "rdv" && (
+            <div className="bg-white border-2 border-slate-200 p-6 rounded-[2rem] shadow-sm grid grid-cols-1 sm:grid-cols-4 gap-6 animate-fadeIn">
+              <div className="space-y-2">
+                <label className="block text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Rechercher</label>
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={filterSearch}
+                    onChange={e => setFilterSearch(e.target.value)}
+                    placeholder="Patient, motif..."
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Médecin</label>
+                <select
+                  value={filterMedecin}
+                  onChange={e => setFilterMedecin(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition-all appearance-none"
+                >
+                  <option value="">Tous les médecins</option>
+                  {medecins.map(m => (
+                    <option key={m.id} value={m.id}>Dr. {m.nom} {m.prenom}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Date</label>
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={e => setFilterDate(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-100 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition-all"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Statut</label>
+                <select
+                  value={filterStatut}
+                  onChange={e => setFilterStatut(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-xs font-bold focus:outline-none focus:border-blue-600 transition-all appearance-none"
+                >
+                  <option value="">Tous les statuts</option>
+                  <option value="confirme">Confirmé</option>
+                  <option value="planifie">Planifié</option>
+                  <option value="en_attente">En attente</option>
+                  <option value="annule">Annulé</option>
+                </select>
+              </div>
+            </div>
+          )}
+
           {activeTab === "rdv" ? (
             <div className="space-y-12">
               {/* Section Demandes en attente */}
-              {rdvList.filter(r => r.statut === "en_attente" && r.date_rdv >= today).length > 0 && (
+              {filteredRdvs.filter(r => r.statut === "en_attente").length > 0 && (
                 <div className="space-y-6">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Demandes à confirmer</h2>
                     <span className="bg-amber-500 text-white text-[10px] px-3 py-1 rounded-full font-black animate-pulse shadow-lg shadow-amber-200">
-                      {rdvList.filter(r => r.statut === "en_attente" && r.date_rdv >= today).length} Nouvelles
+                      {filteredRdvs.filter(r => r.statut === "en_attente").length} Nouvelles
                     </span>
                   </div>
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    {rdvList.filter(r => r.statut === "en_attente" && r.date_rdv >= today).map((rdv) => (
+                    {filteredRdvs.filter(r => r.statut === "en_attente").map((rdv) => (
                       <div
                         key={rdv.id}
                         className="group p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border-2 bg-amber-50/40 border-amber-200 transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-200/30 relative overflow-hidden"
@@ -341,59 +440,66 @@ export function SecretaireDashboard({ tab = "rdv" }: { tab?: "rdv" | "patients" 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Agenda Global</h2>
                   <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-100 px-4 py-1.5 rounded-full border border-slate-200 w-max">
-                    {rdvList.filter(r => r.statut !== "en_attente" && r.date_rdv >= today).length} Rendez-vous à venir
+                    {filteredRdvs.filter(r => r.statut !== "en_attente").length} Rendez-vous
                   </span>
                 </div>
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                  {rdvList.filter(r => r.statut !== "en_attente" && r.date_rdv >= today).map((rdv) => (
-                    <div
-                      key={rdv.id}
-                      className="group p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border-2 bg-white border-slate-100 shadow-sm transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200 relative overflow-hidden"
-                    >
-                      <div className="flex flex-col sm:flex-row items-start justify-between gap-6 relative z-10">
-                        <div className="flex gap-4 md:gap-6">
-                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center border-2 bg-slate-50 border-slate-100 text-slate-600 shadow-sm flex-shrink-0">
-                            <span className="text-[8px] md:text-[10px] font-black uppercase opacity-90">Heure</span>
-                            <span className="text-lg md:text-xl font-black">{rdv.heure_rdv?.substring(0, 5)}</span>
-                          </div>
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2 mb-2">
-                              <h3 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight">{rdv.patient_nom}</h3>
-                              <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statColor[rdv.statut]}`}>
-                                {statLabel[rdv.statut]}
-                              </span>
+                  {filteredRdvs.filter(r => r.statut !== "en_attente").length === 0 ? (
+                    <div className="py-16 text-center bg-white border-2 border-dashed border-slate-100 rounded-[2rem] xl:col-span-2">
+                      <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-4 animate-pulse" />
+                      <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Aucun rendez-vous ne correspond à vos filtres</p>
+                    </div>
+                  ) : (
+                    filteredRdvs.filter(r => r.statut !== "en_attente").map((rdv) => (
+                      <div
+                        key={rdv.id}
+                        className="group p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border-2 bg-white border-slate-100 shadow-sm transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200 relative overflow-hidden"
+                      >
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-6 relative z-10">
+                          <div className="flex gap-4 md:gap-6">
+                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center border-2 bg-slate-50 border-slate-100 text-slate-600 shadow-sm flex-shrink-0">
+                              <span className="text-[8px] md:text-[10px] font-black uppercase opacity-90">Heure</span>
+                              <span className="text-lg md:text-xl font-black">{rdv.heure_rdv?.substring(0, 5)}</span>
                             </div>
-                            <div className="space-y-1">
-                              <p className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mb-1 ${rdv.date_rdv === today ? "text-blue-600" : "text-slate-600"}`}>
-                                <Calendar className="w-3.5 h-3.5" /> {rdv.date_rdv === today ? "Aujourd'hui" : formatDate(rdv.date_rdv)}
-                              </p>
-                              <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest flex items-center gap-2">
-                                <User className="w-3.5 h-3.5 text-blue-500" /> Dr. {rdv.medecin_nom}
-                              </p>
-                              <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest flex items-center gap-2">
-                                <AlertCircle className="w-3.5 h-3.5 text-orange-500" /> {rdv.motif}
-                              </p>
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <h3 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight">{rdv.patient_nom}</h3>
+                                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statColor[rdv.statut]}`}>
+                                  {statLabel[rdv.statut]}
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                <p className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mb-1 ${rdv.date_rdv === today ? "text-blue-600" : "text-slate-600"}`}>
+                                  <Calendar className="w-3.5 h-3.5" /> {rdv.date_rdv === today ? "Aujourd'hui" : formatDate(rdv.date_rdv)}
+                                </p>
+                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest flex items-center gap-2">
+                                  <User className="w-3.5 h-3.5 text-blue-500" /> Dr. {rdv.medecin_nom}
+                                </p>
+                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest flex items-center gap-2">
+                                  <AlertCircle className="w-3.5 h-3.5 text-orange-500" /> {rdv.motif}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
-                          <div className="flex gap-2 flex-1 sm:flex-none">
-                            {rdv.statut !== "confirme" && (
-                              <button onClick={() => handleConfirm(rdv.id)} className="flex-1 sm:flex-none p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all active:scale-95 shadow-sm border border-emerald-100 flex items-center justify-center">
-                                <CheckCircle className="w-5 h-5" />
+                          <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
+                            <div className="flex gap-2 flex-1 sm:flex-none">
+                              {rdv.statut !== "confirme" && (
+                                <button onClick={() => handleConfirm(rdv.id)} className="flex-1 sm:flex-none p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all active:scale-95 shadow-sm border border-emerald-100 flex items-center justify-center">
+                                  <CheckCircle className="w-5 h-5" />
+                                </button>
+                              )}
+                              <button onClick={() => handleEditClick(rdv)} className="flex-1 sm:flex-none p-3 bg-slate-50 text-slate-600 rounded-xl hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95 shadow-sm border border-slate-100 flex items-center justify-center">
+                                <Edit className="w-5 h-5" />
                               </button>
-                            )}
-                            <button onClick={() => handleEditClick(rdv)} className="flex-1 sm:flex-none p-3 bg-slate-50 text-slate-600 rounded-xl hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95 shadow-sm border border-slate-100 flex items-center justify-center">
-                              <Edit className="w-5 h-5" />
-                            </button>
-                            <button onClick={() => handleCancelClick(rdv.id)} className="flex-1 sm:flex-none p-3 bg-white border-2 border-slate-100 text-rose-500 rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-all active:scale-95 shadow-sm flex items-center justify-center">
-                              <XCircle className="w-5 h-5" />
-                            </button>
+                              <button onClick={() => handleCancelClick(rdv.id)} className="flex-1 sm:flex-none p-3 bg-white border-2 border-slate-100 text-rose-500 rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-all active:scale-95 shadow-sm flex items-center justify-center">
+                                <XCircle className="w-5 h-5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </div>

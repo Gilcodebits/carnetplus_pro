@@ -291,15 +291,17 @@ function AdhesionModal({ onClose }: { onClose: () => void }) {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setModalError(null);
     setLoading(true);
     try {
       await adhesionsAPI.submit(form);
       setSuccess(true);
-    } catch (err) {
-      alert("Erreur lors de l'envoi de la demande. Veuillez réessayer.");
+    } catch (err: any) {
+      setModalError(err.message || "Erreur lors de l'envoi de la demande. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -414,6 +416,28 @@ function AdhesionModal({ onClose }: { onClose: () => void }) {
                   />
                 </div>
               </div>
+
+              {modalError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-3 p-4 bg-rose-50 border-2 border-rose-100 rounded-2xl"
+                >
+                  <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-0.5">Erreur</p>
+                    <p className="text-sm font-bold text-rose-700 leading-tight">{modalError}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setModalError(null)}
+                    className="text-rose-400 hover:text-rose-600 transition-colors p-0.5"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </motion.div>
+              )}
+
               <button
                 disabled={loading}
                 type="submit"
@@ -428,4 +452,5 @@ function AdhesionModal({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+
 

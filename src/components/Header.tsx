@@ -60,6 +60,8 @@ export function Header({ onMenuClick, title, subtitle, actions }: HeaderProps) {
       else navigate(`/${role}`);
     } else if (titre.includes("ordonnance") || titre.includes("analyse") || titre.includes("bilan")) {
       if (role === 'patient') navigate('/patient/dossier');
+    } else if (titre.includes("transfert") || titre.includes("flux")) {
+      if (role === 'gestionnaire') navigate('/gestionnaire/transferts');
     }
   };
 

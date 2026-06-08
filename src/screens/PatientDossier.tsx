@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import { Card } from "../components/Card";
 import { patientsAPI } from "../services/api";
@@ -35,6 +35,7 @@ export function PatientDossier() {
   const { user } = useAuth();
   const { showToast } = useToast();
   const { id } = useParams();
+  const location = useLocation();
   const isPatient = user?.role === 'patient';
   const isMedecin = user?.role === 'medecin';
   const isSecretaire = user?.role === 'secretaire';
@@ -55,6 +56,28 @@ export function PatientDossier() {
       loadPatient(0); // 0 triggers the "me" logic in the backend
     }
   }, [id, user]);
+
+  useEffect(() => {
+    if (patient && location.state) {
+      const state = location.state as { tab?: "consultations" | "prescriptions" | "examens"; selectedId?: number };
+      if (state.tab) {
+        setActiveTab(state.tab);
+      }
+      if (state.selectedId) {
+        if (state.tab === 'examens') {
+          const matchedExamen = patient.examens?.find((e: any) => Number(e.id) === Number(state.selectedId));
+          if (matchedExamen) {
+            setSelectedExamen(matchedExamen);
+          }
+        } else if (state.tab === 'consultations') {
+          const matchedConsult = patient.consultations?.find((c: any) => Number(c.id) === Number(state.selectedId));
+          if (matchedConsult) {
+            setSelectedConsultation(matchedConsult);
+          }
+        }
+      }
+    }
+  }, [location.state, patient]);
 
   const loadPatient = async (pid: number) => {
     setLoading(true);
@@ -723,8 +746,10 @@ export function PatientDossier() {
 
                   <div className="p-4 bg-purple-50/30 rounded-2xl border border-purple-100/50">
                     <span className="text-[8px] font-black text-purple-600 uppercase tracking-[0.2em] mb-2 block">Résultats & Compte-rendu</span>
-                    {selectedExamen.resultats ? (
-                      <p className="text-slate-950 font-black text-xs md:text-sm leading-relaxed whitespace-pre-line">{selectedExamen.resultats}</p>
+                    {(selectedExamen.resultat || selectedExamen.resultats) ? (
+                      <p className="text-slate-950 font-black text-xs md:text-sm leading-relaxed whitespace-pre-line">
+                        {selectedExamen.resultat || selectedExamen.resultats}
+                      </p>
                     ) : (
                       <p className="text-slate-400 font-bold italic text-xs md:text-sm">Les résultats de cet examen ne sont pas encore saisis par le laboratoire.</p>
                     )}
